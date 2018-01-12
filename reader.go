@@ -5,14 +5,15 @@ import (
 	"compress/gzip"
 	"encoding/binary"
 	"io"
-	"log"
 	"os"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
+	"fmt"
 )
 
 type LogReader struct {
+	file   *os.File
 	reader *bufio.Reader
 }
 
@@ -30,58 +31,94 @@ const (
 	MESSAGE_SSL_VISION_2014 = 4
 )
 
-func main() {
-	filename := "2017-07-27-erforce-src.log"
-	file, err := os.Open(filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-	var bufferedReader *bufio.Reader
-	if filename[:len(filename)-2] == "gz" {
-		gzipReader, err := gzip.NewReader(file)
-		assertNoError(err)
-		bufferedReader = bufio.NewReader(gzipReader)
-	} else {
-		bufferedReader = bufio.NewReader(file)
-	}
+func (l *LogReader) CreateVisionWrapperChannel(channel chan *SSL_WrapperPacket) {
+	logMessageChannel := make(chan *LogMessage, 100)
+	go l.CreateLogMessageChannel(logMessageChannel)
 
-	logReader := LogReader{bufferedReader}
-	logReader.VerifyLogFile(bufferedReader)
+	for logMessage := range logMessageChannel {
+		if logMessage.messageType == MESSAGE_SSL_VISION_2014 {
+			visionMsg := parseVision2014(logMessage)
+			channel <- visionMsg
+		}
+	}
+	close(channel)
+	return
+}
 
-	for logReader.HasMessage() {
-		msg, err := logReader.ReadMessage()
+func (l *LogReader) CreateVisionDetectionChannel(channel chan *SSL_DetectionFrame) {
+	logMessageChannel := make(chan *LogMessage, 100)
+	go l.CreateLogMessageChannel(logMessageChannel)
+
+	for logMessage := range logMessageChannel {
+		if logMessage.messageType == MESSAGE_SSL_VISION_2014 {
+			visionMsg := parseVision2014(logMessage)
+			if visionMsg.Detection != nil {
+				channel <- visionMsg.Detection
+			}
+		}
+	}
+	close(channel)
+	return
+}
+
+func (l *LogReader) CreateRefereeChannel(channel chan *SSL_Referee) {
+	logMessageChannel := make(chan *LogMessage, 100)
+	go l.CreateLogMessageChannel(logMessageChannel)
+
+	for logMessage := range logMessageChannel {
+		if logMessage.messageType == MESSAGE_SSL_REFBOX_2013 {
+			refereeMsg := parseReferee2013(logMessage)
+			channel <- refereeMsg
+		}
+	}
+	close(channel)
+	return
+}
+
+func (l *LogReader) CreateLogMessageChannel(channel chan *LogMessage) (err error) {
+	for l.HasMessage() {
+		msg, err := l.ReadMessage()
 		if err != nil {
 			break
 		}
 
-		switch msg.messageType {
-		case MESSAGE_SSL_REFBOX_2013:
-			refereePkg := parseReferee2013(msg)
-			if refereePkg.GetBlue().GetScore() > 0 {
-				log.Print("blue yellow card")
-			}
-			if refereePkg.GetYellow().GetScore() > 0 {
-				log.Print("blue yellow card")
-			}
-		case MESSAGE_SSL_VISION_2014:
-		}
+		channel <- msg
 	}
+	close(channel)
+	return
 }
 
-func assertNoError(err error) {
+func NewLogReader(filename string) (logReader *LogReader, err error) {
+	logReader = new(LogReader)
+	logReader.file, err = os.Open(filename)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "Could not open log file: "+filename)
 	}
+
+	if filename[len(filename)-2:] == "gz" {
+		gzipReader, err := gzip.NewReader(logReader.file)
+		if err != nil {
+			return nil, err
+		}
+		logReader.reader = bufio.NewReader(gzipReader)
+	} else {
+		logReader.reader = bufio.NewReader(logReader.file)
+	}
+	logReader.verifyLogFile()
+	return
 }
 
-func parseVision2014(msg LogMessage) *SSL_WrapperPacket {
+func (l *LogReader) Close() error {
+	return l.file.Close()
+}
+
+func parseVision2014(msg *LogMessage) *SSL_WrapperPacket {
 	packet := new(SSL_WrapperPacket)
 	parseMessage(msg.message, packet)
 	return packet
 }
 
-func parseReferee2013(msg LogMessage) *SSL_Referee {
+func parseReferee2013(msg *LogMessage) *SSL_Referee {
 	packet := new(SSL_Referee)
 	parseMessage(msg.message, packet)
 	return packet
@@ -100,52 +137,65 @@ func (l *LogReader) HasMessage() bool {
 	return err != io.EOF
 }
 
-func (l *LogReader) VerifyLogFile(reader *bufio.Reader) error {
+func (l *LogReader) verifyLogFile() error {
 	header, err := l.readString(12)
-	assertNoError(err)
+	if err != nil {
+		return err
+	}
 	if header != "SSL_LOG_FILE" {
-		log.Fatal("header validation failed. Found: ", header)
+		return errors.New("header validation failed. Found: " + header)
 	}
 
 	version, err := l.readInt32()
-	assertNoError(err)
+	if err != nil {
+		return err
+	}
 	if version != 1 {
-		log.Fatal("unsupported version: ", version)
+		return errors.New(fmt.Sprintf("unsupported version: %d", version))
 	}
 	return err
 }
 
-func (l *LogReader) ReadMessage() (msg LogMessage, err error) {
+func (l *LogReader) ReadMessage() (msg *LogMessage, err error) {
+	msg = new(LogMessage)
 	msg.timestamp, err = l.readInt64()
-	assertNoError(err)
+	if err != nil {
+		return
+	}
 	messageType, err := l.readInt32()
 	msg.messageType = int(messageType)
-	assertNoError(err)
+	if err != nil {
+		return
+	}
 	length, err := l.readInt32()
-	assertNoError(err)
+	if err != nil {
+		return
+	}
 	msg.message, err = l.readBytes(int(length))
-	assertNoError(err)
+	if err != nil {
+		return
+	}
 	return
 }
 
-func (r *LogReader) readBytes(length int) ([]byte, error) {
+func (l *LogReader) readBytes(length int) ([]byte, error) {
 	byteSlice := make([]byte, length)
-	_, err := io.ReadAtLeast(r.reader, byteSlice, length)
+	_, err := io.ReadAtLeast(l.reader, byteSlice, length)
 
 	return byteSlice, err
 }
 
-func (r *LogReader) readString(length int) (string, error) {
-	s, err := r.readBytes(length)
+func (l *LogReader) readString(length int) (string, error) {
+	s, err := l.readBytes(length)
 	return string(s), err
 }
 
-func (r *LogReader) readInt32() (ret int32, err error) {
-	err = binary.Read(r.reader, binary.BigEndian, &ret)
+func (l *LogReader) readInt32() (ret int32, err error) {
+	err = binary.Read(l.reader, binary.BigEndian, &ret)
 	return
 }
 
-func (r *LogReader) readInt64() (ret int64, err error) {
-	err = binary.Read(r.reader, binary.BigEndian, &ret)
+func (l *LogReader) readInt64() (ret int64, err error) {
+	err = binary.Read(l.reader, binary.BigEndian, &ret)
 	return
 }
