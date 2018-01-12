@@ -5,6 +5,7 @@ import (
 	"log"
 	"io/ioutil"
 	"fmt"
+	"os"
 )
 
 type GameState int
@@ -22,7 +23,11 @@ type MatchStats struct {
 }
 
 func main() {
-	dir := "ssl-logs"
+	if len(os.Args) != 2 {
+		log.Fatal("Please pass a directory to analyse")
+	}
+	dir :=  os.Args[1]
+
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		log.Fatal(err)
