@@ -1,7 +1,6 @@
 package sslproto
 
 import (
-	"encoding/binary"
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 )
@@ -21,42 +20,28 @@ const (
 	MESSAGE_SSL_REFBOX_RCON_2018 = 5
 )
 
-func parseVision2014(msg *LogMessage) *SSL_WrapperPacket {
+func (m *LogMessage) ParseVisionWrapper() *SSL_WrapperPacket {
 	packet := new(SSL_WrapperPacket)
-	parseMessage(msg.Message, packet)
+	ParseMessage(m.Message, packet)
 	return packet
 }
 
-func parseReferee2013(msg *LogMessage) *SSL_Referee {
+func (m *LogMessage) ParseReferee() *SSL_Referee {
 	packet := new(SSL_Referee)
-	parseMessage(msg.Message, packet)
+	ParseMessage(m.Message, packet)
 	return packet
 }
 
-func parseMessage(data []byte, message proto.Message) error {
+func (m *LogMessage) ParseRefereeRemoteControlRequest() *SSL_RefereeRemoteControlRequest {
+	packet := new(SSL_RefereeRemoteControlRequest)
+	ParseMessage(m.Message, packet)
+	return packet
+}
+
+func ParseMessage(data []byte, message proto.Message) error {
 
 	if err := proto.Unmarshal(data, message); err != nil {
 		return errors.Wrap(err, "unable to unmarshal data")
 	}
 	return nil
-}
-
-func (l *LogWriter) writeBytes(data []byte) error {
-	_, err := l.writer.Write(data)
-	return err
-}
-
-func (l *LogWriter) writeString(data string) error {
-	_, err := l.writer.WriteString(data)
-	return err
-}
-
-func (l *LogWriter) writeInt32(data int32) error {
-	err := binary.Write(l.writer, binary.BigEndian, data)
-	return err
-}
-
-func (l *LogWriter) writeInt64(data int64) error {
-	err := binary.Write(l.writer, binary.BigEndian, data)
-	return err
 }

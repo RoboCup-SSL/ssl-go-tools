@@ -3,6 +3,7 @@ package sslproto
 import (
 	"bufio"
 	"compress/gzip"
+	"encoding/binary"
 	"github.com/pkg/errors"
 	"os"
 )
@@ -64,4 +65,24 @@ func (l *LogWriter) WriteMessage(msg *LogMessage) (err error) {
 		return
 	}
 	return
+}
+
+func (l *LogWriter) writeBytes(data []byte) error {
+	_, err := l.writer.Write(data)
+	return err
+}
+
+func (l *LogWriter) writeString(data string) error {
+	_, err := l.writer.WriteString(data)
+	return err
+}
+
+func (l *LogWriter) writeInt32(data int32) error {
+	err := binary.Write(l.writer, binary.BigEndian, data)
+	return err
+}
+
+func (l *LogWriter) writeInt64(data int64) error {
+	err := binary.Write(l.writer, binary.BigEndian, data)
+	return err
 }

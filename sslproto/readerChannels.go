@@ -6,7 +6,7 @@ func (l *LogReader) CreateVisionWrapperChannel(channel chan *SSL_WrapperPacket) 
 
 	for logMessage := range logMessageChannel {
 		if logMessage.MessageType == MESSAGE_SSL_VISION_2014 {
-			visionMsg := parseVision2014(logMessage)
+			visionMsg := logMessage.ParseVisionWrapper()
 			channel <- visionMsg
 		}
 	}
@@ -20,7 +20,7 @@ func (l *LogReader) CreateVisionDetectionChannel(channel chan *SSL_DetectionFram
 
 	for logMessage := range logMessageChannel {
 		if logMessage.MessageType == MESSAGE_SSL_VISION_2014 {
-			visionMsg := parseVision2014(logMessage)
+			visionMsg := logMessage.ParseVisionWrapper()
 			if visionMsg.Detection != nil {
 				channel <- visionMsg.Detection
 			}
@@ -36,7 +36,7 @@ func (l *LogReader) CreateRefereeChannel(channel chan *SSL_Referee) {
 
 	for logMessage := range logMessageChannel {
 		if logMessage.MessageType == MESSAGE_SSL_REFBOX_2013 {
-			refereeMsg := parseReferee2013(logMessage)
+			refereeMsg := logMessage.ParseReferee()
 			channel <- refereeMsg
 		}
 	}
