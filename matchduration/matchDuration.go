@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	. "github.com/g3force/ssl-log-analyzer/sslreader"
+	. "github.com/g3force/ssl-log-analyzer/sslproto"
 	"io/ioutil"
 	"log"
 	"os"

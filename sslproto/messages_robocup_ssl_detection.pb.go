@@ -2,12 +2,13 @@
 // source: messages_robocup_ssl_detection.proto
 
 /*
-Package main is a generated protocol buffer package.
+Package sslproto is a generated protocol buffer package.
 
 It is generated from these files:
 	messages_robocup_ssl_detection.proto
 	messages_robocup_ssl_geometry.proto
 	messages_robocup_ssl_referee.proto
+	messages_robocup_ssl_referee_rcon.proto
 	messages_robocup_ssl_wrapper.proto
 
 It has these top-level messages:
@@ -21,9 +22,11 @@ It has these top-level messages:
 	SSL_GeometryCameraCalibration
 	SSL_GeometryData
 	SSL_Referee
+	SSL_RefereeRemoteControlRequest
+	SSL_RefereeRemoteControlReply
 	SSL_WrapperPacket
 */
-package sslreader
+package sslproto
 
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
