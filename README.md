@@ -8,10 +8,10 @@ Use go get to install the packages / executables you like:
 
 ```
 # analyze match durations
-go get github.com/g3force/ssl-log-analyzer/matchduration
+go get github.com/RoboCup-SSL/ssl-go-tools/matchduration
 
 # analyze number of cards given to teams
-go get github.com/g3force/ssl-log-analyzer/numcards
+go get github.com/RoboCup-SSL/ssl-go-tools/numcards
 
 ...
 ```
