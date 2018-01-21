@@ -1,4 +1,4 @@
-package main
+package reader
 
 import (
 	"bufio"
@@ -7,9 +7,9 @@ import (
 	"io"
 	"os"
 
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
-	"fmt"
 )
 
 type LogReader struct {

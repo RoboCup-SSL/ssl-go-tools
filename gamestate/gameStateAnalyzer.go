@@ -1,17 +1,18 @@
 package main
 
 import (
-	"time"
-	"log"
-	"io/ioutil"
 	"fmt"
+	. "github.com/g3force/ssl-log-analyzer/reader"
+	"io/ioutil"
+	"log"
 	"os"
+	"time"
 )
 
 type GameState int
 
 const (
-	GameStateHalt    GameState = iota
+	GameStateHalt GameState = iota
 	GameStateStop
 	GameStateRunning
 )
@@ -26,7 +27,7 @@ func main() {
 	if len(os.Args) != 2 {
 		log.Fatal("Please pass a directory to analyse")
 	}
-	dir :=  os.Args[1]
+	dir := os.Args[1]
 
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
