@@ -3,4 +3,8 @@ language: go
 go:
   - master
 
-script: go get -v github.com/RoboCup-SSL/ssl-go-tools
+script:
+  - go get -v github.com/RoboCup-SSL/ssl-go-tools/autorefevaluator
+  - go get -v github.com/RoboCup-SSL/ssl-go-tools/autoreflogger
+  - go get -v github.com/RoboCup-SSL/ssl-go-tools/matchduration
+  - go get -v github.com/RoboCup-SSL/ssl-go-tools/numcards
