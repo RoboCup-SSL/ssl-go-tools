@@ -23,7 +23,7 @@ It has these top-level messages:
 	SSL_Referee
 	SSL_WrapperPacket
 */
-package reader
+package sslreader
 
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"

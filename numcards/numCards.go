@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/g3force/ssl-log-analyzer/reader"
+	"github.com/g3force/ssl-log-analyzer/sslreader"
 	"io/ioutil"
 	"log"
 	"os"
@@ -42,16 +42,16 @@ func main() {
 }
 
 func findCards(filename string) (err error) {
-	logReader, err := reader.NewLogReader(filename)
+	logReader, err := sslreader.NewLogReader(filename)
 	if err != nil {
 		return
 	}
 	defer logReader.Close()
 
-	channel := make(chan *reader.SSL_Referee, 100)
+	channel := make(chan *sslreader.SSL_Referee, 100)
 	go logReader.CreateRefereeChannel(channel)
 
-	var lastRefereeMsg *reader.SSL_Referee
+	var lastRefereeMsg *sslreader.SSL_Referee
 	for r := range channel {
 		lastRefereeMsg = r
 	}
