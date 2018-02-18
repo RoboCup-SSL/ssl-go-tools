@@ -108,7 +108,7 @@ func (l *Logger) openRefereeConnection() (err error) {
 	}
 	l.refereeListener, err = net.ListenMulticastUDP("udp", nil, addr)
 	if err != nil {
-		log.Fatal("could not connect to ", l.rconAddr)
+		log.Fatal("could not connect to ", l.refereeAddr)
 	}
 	l.refereeListener.SetReadBuffer(maxDatagramSize)
 	log.Printf("Listening on %s", l.refereeAddr)
