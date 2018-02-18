@@ -6,7 +6,7 @@ import (
 )
 
 type LogMessage struct {
-	Timestamp   int64
+	Timestamp   int64 // Receiver timestamp in ns
 	MessageType int
 	Message     []byte
 }
