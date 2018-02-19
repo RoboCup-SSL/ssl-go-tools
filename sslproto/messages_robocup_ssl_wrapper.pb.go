@@ -21,7 +21,7 @@ type SSL_WrapperPacket struct {
 func (m *SSL_WrapperPacket) Reset()                    { *m = SSL_WrapperPacket{} }
 func (m *SSL_WrapperPacket) String() string            { return proto.CompactTextString(m) }
 func (*SSL_WrapperPacket) ProtoMessage()               {}
-func (*SSL_WrapperPacket) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
+func (*SSL_WrapperPacket) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{0} }
 
 func (m *SSL_WrapperPacket) GetDetection() *SSL_DetectionFrame {
 	if m != nil {
@@ -41,9 +41,9 @@ func init() {
 	proto.RegisterType((*SSL_WrapperPacket)(nil), "SSL_WrapperPacket")
 }
 
-func init() { proto.RegisterFile("messages_robocup_ssl_wrapper.proto", fileDescriptor4) }
+func init() { proto.RegisterFile("messages_robocup_ssl_wrapper.proto", fileDescriptor5) }
 
-var fileDescriptor4 = []byte{
+var fileDescriptor5 = []byte{
 	// 157 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0xca, 0x4d, 0x2d, 0x2e,
 	0x4e, 0x4c, 0x4f, 0x2d, 0x8e, 0x2f, 0xca, 0x4f, 0xca, 0x4f, 0x2e, 0x2d, 0x88, 0x2f, 0x2e, 0xce,

@@ -6,6 +6,7 @@ Package sslproto is a generated protocol buffer package.
 
 It is generated from these files:
 	messages_robocup_ssl_detection.proto
+	messages_robocup_ssl_game_event.proto
 	messages_robocup_ssl_geometry.proto
 	messages_robocup_ssl_referee.proto
 	messages_robocup_ssl_referee_rcon.proto
@@ -15,6 +16,7 @@ It has these top-level messages:
 	SSL_DetectionBall
 	SSL_DetectionRobot
 	SSL_DetectionFrame
+	SSL_Referee_Game_Event
 	Vector2F
 	SSL_FieldLineSegment
 	SSL_FieldCicularArc

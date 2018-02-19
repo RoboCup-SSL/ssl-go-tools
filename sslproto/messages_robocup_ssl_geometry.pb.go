@@ -22,7 +22,7 @@ type Vector2F struct {
 func (m *Vector2F) Reset()                    { *m = Vector2F{} }
 func (m *Vector2F) String() string            { return proto.CompactTextString(m) }
 func (*Vector2F) ProtoMessage()               {}
-func (*Vector2F) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (*Vector2F) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
 
 func (m *Vector2F) GetX() float32 {
 	if m != nil && m.X != nil {
@@ -57,7 +57,7 @@ type SSL_FieldLineSegment struct {
 func (m *SSL_FieldLineSegment) Reset()                    { *m = SSL_FieldLineSegment{} }
 func (m *SSL_FieldLineSegment) String() string            { return proto.CompactTextString(m) }
 func (*SSL_FieldLineSegment) ProtoMessage()               {}
-func (*SSL_FieldLineSegment) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
+func (*SSL_FieldLineSegment) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
 
 func (m *SSL_FieldLineSegment) GetName() string {
 	if m != nil && m.Name != nil {
@@ -108,7 +108,7 @@ type SSL_FieldCicularArc struct {
 func (m *SSL_FieldCicularArc) Reset()                    { *m = SSL_FieldCicularArc{} }
 func (m *SSL_FieldCicularArc) String() string            { return proto.CompactTextString(m) }
 func (*SSL_FieldCicularArc) ProtoMessage()               {}
-func (*SSL_FieldCicularArc) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{2} }
+func (*SSL_FieldCicularArc) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
 
 func (m *SSL_FieldCicularArc) GetName() string {
 	if m != nil && m.Name != nil {
@@ -166,7 +166,7 @@ type SSL_GeometryFieldSize struct {
 func (m *SSL_GeometryFieldSize) Reset()                    { *m = SSL_GeometryFieldSize{} }
 func (m *SSL_GeometryFieldSize) String() string            { return proto.CompactTextString(m) }
 func (*SSL_GeometryFieldSize) ProtoMessage()               {}
-func (*SSL_GeometryFieldSize) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{3} }
+func (*SSL_GeometryFieldSize) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3} }
 
 func (m *SSL_GeometryFieldSize) GetFieldLength() int32 {
 	if m != nil && m.FieldLength != nil {
@@ -239,7 +239,7 @@ type SSL_GeometryCameraCalibration struct {
 func (m *SSL_GeometryCameraCalibration) Reset()                    { *m = SSL_GeometryCameraCalibration{} }
 func (m *SSL_GeometryCameraCalibration) String() string            { return proto.CompactTextString(m) }
 func (*SSL_GeometryCameraCalibration) ProtoMessage()               {}
-func (*SSL_GeometryCameraCalibration) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{4} }
+func (*SSL_GeometryCameraCalibration) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{4} }
 
 func (m *SSL_GeometryCameraCalibration) GetCameraId() uint32 {
 	if m != nil && m.CameraId != nil {
@@ -355,7 +355,7 @@ type SSL_GeometryData struct {
 func (m *SSL_GeometryData) Reset()                    { *m = SSL_GeometryData{} }
 func (m *SSL_GeometryData) String() string            { return proto.CompactTextString(m) }
 func (*SSL_GeometryData) ProtoMessage()               {}
-func (*SSL_GeometryData) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{5} }
+func (*SSL_GeometryData) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{5} }
 
 func (m *SSL_GeometryData) GetField() *SSL_GeometryFieldSize {
 	if m != nil {
@@ -380,9 +380,9 @@ func init() {
 	proto.RegisterType((*SSL_GeometryData)(nil), "SSL_GeometryData")
 }
 
-func init() { proto.RegisterFile("messages_robocup_ssl_geometry.proto", fileDescriptor1) }
+func init() { proto.RegisterFile("messages_robocup_ssl_geometry.proto", fileDescriptor2) }
 
-var fileDescriptor1 = []byte{
+var fileDescriptor2 = []byte{
 	// 615 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x93, 0xdf, 0x4e, 0x13, 0x41,
 	0x14, 0xc6, 0xd3, 0x2d, 0x05, 0xf6, 0x94, 0x3f, 0x3a, 0x02, 0x8e, 0x51, 0x10, 0x6b, 0x34, 0xc4,
