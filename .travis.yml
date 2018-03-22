@@ -8,3 +8,4 @@ script:
   - go get -v github.com/RoboCup-SSL/ssl-go-tools/autoreflogger
   - go get -v github.com/RoboCup-SSL/ssl-go-tools/matchduration
   - go get -v github.com/RoboCup-SSL/ssl-go-tools/numcards
+  - go get -v github.com/RoboCup-SSL/ssl-go-tools/ssl-logplayer
