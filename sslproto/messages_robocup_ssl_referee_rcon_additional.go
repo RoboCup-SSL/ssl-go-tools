@@ -33,7 +33,7 @@ func (m *SSL_RefereeRemoteControlRequest) Equals(o *SSL_RefereeRemoteControlRequ
 	}
 
 	if m.DesignatedPosition != nil || o.DesignatedPosition != nil {
-		if m.DesignatedPosition == nil || o.DesignatedPosition == nil || m.GetDesignatedPosition().Similar(o.GetDesignatedPosition()) {
+		if m.DesignatedPosition == nil || o.DesignatedPosition == nil || !m.GetDesignatedPosition().Similar(o.GetDesignatedPosition()) {
 			return false
 		}
 	}
