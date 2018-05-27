@@ -12,16 +12,43 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 type SSL_WrapperPacket struct {
-	Detection        *SSL_DetectionFrame `protobuf:"bytes,1,opt,name=detection" json:"detection,omitempty"`
-	Geometry         *SSL_GeometryData   `protobuf:"bytes,2,opt,name=geometry" json:"geometry,omitempty"`
-	XXX_unrecognized []byte              `json:"-"`
+	Detection            *SSL_DetectionFrame `protobuf:"bytes,1,opt,name=detection" json:"detection,omitempty"`
+	Geometry             *SSL_GeometryData   `protobuf:"bytes,2,opt,name=geometry" json:"geometry,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
+	XXX_unrecognized     []byte              `json:"-"`
+	XXX_sizecache        int32               `json:"-"`
 }
 
-func (m *SSL_WrapperPacket) Reset()                    { *m = SSL_WrapperPacket{} }
-func (m *SSL_WrapperPacket) String() string            { return proto.CompactTextString(m) }
-func (*SSL_WrapperPacket) ProtoMessage()               {}
-func (*SSL_WrapperPacket) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{0} }
+func (m *SSL_WrapperPacket) Reset()         { *m = SSL_WrapperPacket{} }
+func (m *SSL_WrapperPacket) String() string { return proto.CompactTextString(m) }
+func (*SSL_WrapperPacket) ProtoMessage()    {}
+func (*SSL_WrapperPacket) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_wrapper_151d3e902cb5be74, []int{0}
+}
+func (m *SSL_WrapperPacket) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_WrapperPacket.Unmarshal(m, b)
+}
+func (m *SSL_WrapperPacket) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_WrapperPacket.Marshal(b, m, deterministic)
+}
+func (dst *SSL_WrapperPacket) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_WrapperPacket.Merge(dst, src)
+}
+func (m *SSL_WrapperPacket) XXX_Size() int {
+	return xxx_messageInfo_SSL_WrapperPacket.Size(m)
+}
+func (m *SSL_WrapperPacket) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_WrapperPacket.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_WrapperPacket proto.InternalMessageInfo
 
 func (m *SSL_WrapperPacket) GetDetection() *SSL_DetectionFrame {
 	if m != nil {
@@ -41,9 +68,11 @@ func init() {
 	proto.RegisterType((*SSL_WrapperPacket)(nil), "SSL_WrapperPacket")
 }
 
-func init() { proto.RegisterFile("messages_robocup_ssl_wrapper.proto", fileDescriptor5) }
+func init() {
+	proto.RegisterFile("messages_robocup_ssl_wrapper.proto", fileDescriptor_messages_robocup_ssl_wrapper_151d3e902cb5be74)
+}
 
-var fileDescriptor5 = []byte{
+var fileDescriptor_messages_robocup_ssl_wrapper_151d3e902cb5be74 = []byte{
 	// 157 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0xca, 0x4d, 0x2d, 0x2e,
 	0x4e, 0x4c, 0x4f, 0x2d, 0x8e, 0x2f, 0xca, 0x4f, 0xca, 0x4f, 0x2e, 0x2d, 0x88, 0x2f, 0x2e, 0xce,

@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+message SSL_Micro_DetectionBall {
+  required float x = 1;
+  required float y = 2;
+}
+
+message SSL_Micro_DetectionRobot {
+  optional uint32 robot_id = 1;
+  required float x = 2;
+  required float y = 3;
+  optional float orientation = 4;
+}
+
+message SSL_Micro_DetectionFrame {
+  repeated SSL_Micro_DetectionBall balls = 5;
+  repeated SSL_Micro_DetectionRobot robots_yellow = 6;
+  repeated SSL_Micro_DetectionRobot robots_blue = 7;
+}

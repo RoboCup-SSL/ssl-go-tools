@@ -1,0 +1,71 @@
+syntax = "proto2";
+// A 2D float vector.
+message Micro_Vector2f {
+  required float x = 1;
+  required float y = 2;
+}
+
+// Represents a field marking as a line segment represented by a start point p1,
+// and end point p2, and a line thickness. The start and end points are along
+// the center of the line, so the thickness of the line extends by thickness / 2
+// on either side of the line.
+message SSL_Micro_FieldLineSegment {
+  // Name of this field marking.
+  optional string name = 1;
+  // Start point of the line segment.
+  required Micro_Vector2f p1 = 2;
+  // End point of the line segment.
+  required Micro_Vector2f p2 = 3;
+  // Thickness of the line segment.
+  optional float thickness = 4;
+}
+
+// Represents a field marking as a circular arc segment represented by center point, a
+// start angle, an end angle, and an arc thickness.
+message SSL_Micro_FieldCicularArc {
+  // Name of this field marking.
+  optional string name = 1;
+  // Center point of the circular arc.
+  required Micro_Vector2f center = 2;
+  // Radius of the arc.
+  required float radius = 3;
+  // Start angle in counter-clockwise order.
+  optional float a1 = 4;
+  // End angle in counter-clockwise order.
+  optional float a2 = 5;
+  // Thickness of the arc.
+  optional float thickness = 6;
+}
+
+message SSL_Micro_GeometryFieldSize {
+  optional int32 field_length = 1;
+  optional int32 field_width = 2;
+  optional int32 goal_width = 3;
+  optional int32 goal_depth = 4;
+  optional int32 boundary_width = 5;
+  repeated SSL_Micro_FieldLineSegment field_lines = 6;
+  repeated SSL_Micro_FieldCicularArc field_arcs = 7;
+}
+
+message SSL_Micro_GeometryCameraCalibration {
+  required uint32 camera_id = 1;
+  optional float focal_length = 2;
+  optional float principal_point_x = 3;
+  optional float principal_point_y = 4;
+  optional float distortion = 5;
+  optional float q0 = 6;
+  optional float q1 = 7;
+  optional float q2 = 8;
+  optional float q3 = 9;
+  optional float tx = 10;
+  optional float ty = 11;
+  optional float tz = 12;
+  optional float derived_camera_world_tx = 13;
+  optional float derived_camera_world_ty = 14;
+  optional float derived_camera_world_tz = 15;
+}
+
+message SSL_Micro_GeometryData {
+  required SSL_Micro_GeometryFieldSize field = 1;
+  repeated SSL_Micro_GeometryCameraCalibration calib = 2;
+}

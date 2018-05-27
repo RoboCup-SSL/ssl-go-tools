@@ -12,6 +12,12 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 // These are the "coarse" stages of the game.
 type SSL_Referee_Stage int32
 
@@ -103,7 +109,9 @@ func (x *SSL_Referee_Stage) UnmarshalJSON(data []byte) error {
 	*x = SSL_Referee_Stage(value)
 	return nil
 }
-func (SSL_Referee_Stage) EnumDescriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 0} }
+func (SSL_Referee_Stage) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_referee_a0009bf4f26b1c0e, []int{0, 0}
+}
 
 // These are the "fine" states of play on the field.
 type SSL_Referee_Command int32
@@ -208,7 +216,9 @@ func (x *SSL_Referee_Command) UnmarshalJSON(data []byte) error {
 	*x = SSL_Referee_Command(value)
 	return nil
 }
-func (SSL_Referee_Command) EnumDescriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 1} }
+func (SSL_Referee_Command) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_referee_a0009bf4f26b1c0e, []int{0, 1}
+}
 
 // Each UDP packet contains one of these messages.
 type SSL_Referee struct {
@@ -246,14 +256,35 @@ type SSL_Referee struct {
 	// For compatibility, this field is optional
 	BlueTeamOnPositiveHalf *bool `protobuf:"varint,10,opt,name=blueTeamOnPositiveHalf" json:"blueTeamOnPositiveHalf,omitempty"`
 	// The game event that caused the referee command
-	GameEvent        *SSL_Referee_Game_Event `protobuf:"bytes,11,opt,name=gameEvent" json:"gameEvent,omitempty"`
-	XXX_unrecognized []byte                  `json:"-"`
+	GameEvent            *SSL_Referee_Game_Event `protobuf:"bytes,11,opt,name=gameEvent" json:"gameEvent,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
 }
 
-func (m *SSL_Referee) Reset()                    { *m = SSL_Referee{} }
-func (m *SSL_Referee) String() string            { return proto.CompactTextString(m) }
-func (*SSL_Referee) ProtoMessage()               {}
-func (*SSL_Referee) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
+func (m *SSL_Referee) Reset()         { *m = SSL_Referee{} }
+func (m *SSL_Referee) String() string { return proto.CompactTextString(m) }
+func (*SSL_Referee) ProtoMessage()    {}
+func (*SSL_Referee) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_referee_a0009bf4f26b1c0e, []int{0}
+}
+func (m *SSL_Referee) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_Referee.Unmarshal(m, b)
+}
+func (m *SSL_Referee) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_Referee.Marshal(b, m, deterministic)
+}
+func (dst *SSL_Referee) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_Referee.Merge(dst, src)
+}
+func (m *SSL_Referee) XXX_Size() int {
+	return xxx_messageInfo_SSL_Referee.Size(m)
+}
+func (m *SSL_Referee) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_Referee.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_Referee proto.InternalMessageInfo
 
 func (m *SSL_Referee) GetPacketTimestamp() uint64 {
 	if m != nil && m.PacketTimestamp != nil {
@@ -352,14 +383,35 @@ type SSL_Referee_TeamInfo struct {
 	// The number of microseconds of timeout this team can use.
 	TimeoutTime *uint32 `protobuf:"varint,7,req,name=timeout_time,json=timeoutTime" json:"timeout_time,omitempty"`
 	// The pattern number of this team's goalie.
-	Goalie           *uint32 `protobuf:"varint,8,req,name=goalie" json:"goalie,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	Goalie               *uint32  `protobuf:"varint,8,req,name=goalie" json:"goalie,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SSL_Referee_TeamInfo) Reset()                    { *m = SSL_Referee_TeamInfo{} }
-func (m *SSL_Referee_TeamInfo) String() string            { return proto.CompactTextString(m) }
-func (*SSL_Referee_TeamInfo) ProtoMessage()               {}
-func (*SSL_Referee_TeamInfo) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 0} }
+func (m *SSL_Referee_TeamInfo) Reset()         { *m = SSL_Referee_TeamInfo{} }
+func (m *SSL_Referee_TeamInfo) String() string { return proto.CompactTextString(m) }
+func (*SSL_Referee_TeamInfo) ProtoMessage()    {}
+func (*SSL_Referee_TeamInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_referee_a0009bf4f26b1c0e, []int{0, 0}
+}
+func (m *SSL_Referee_TeamInfo) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_Referee_TeamInfo.Unmarshal(m, b)
+}
+func (m *SSL_Referee_TeamInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_Referee_TeamInfo.Marshal(b, m, deterministic)
+}
+func (dst *SSL_Referee_TeamInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_Referee_TeamInfo.Merge(dst, src)
+}
+func (m *SSL_Referee_TeamInfo) XXX_Size() int {
+	return xxx_messageInfo_SSL_Referee_TeamInfo.Size(m)
+}
+func (m *SSL_Referee_TeamInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_Referee_TeamInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_Referee_TeamInfo proto.InternalMessageInfo
 
 func (m *SSL_Referee_TeamInfo) GetName() string {
 	if m != nil && m.Name != nil {
@@ -422,15 +474,36 @@ func (m *SSL_Referee_TeamInfo) GetGoalie() uint32 {
 // always either both present (in the case of a ball placement command) or
 // both absent (in the case of any other command).
 type SSL_Referee_Point struct {
-	X                *float32 `protobuf:"fixed32,1,req,name=x" json:"x,omitempty"`
-	Y                *float32 `protobuf:"fixed32,2,req,name=y" json:"y,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	X                    *float32 `protobuf:"fixed32,1,req,name=x" json:"x,omitempty"`
+	Y                    *float32 `protobuf:"fixed32,2,req,name=y" json:"y,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SSL_Referee_Point) Reset()                    { *m = SSL_Referee_Point{} }
-func (m *SSL_Referee_Point) String() string            { return proto.CompactTextString(m) }
-func (*SSL_Referee_Point) ProtoMessage()               {}
-func (*SSL_Referee_Point) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0, 1} }
+func (m *SSL_Referee_Point) Reset()         { *m = SSL_Referee_Point{} }
+func (m *SSL_Referee_Point) String() string { return proto.CompactTextString(m) }
+func (*SSL_Referee_Point) ProtoMessage()    {}
+func (*SSL_Referee_Point) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_referee_a0009bf4f26b1c0e, []int{0, 1}
+}
+func (m *SSL_Referee_Point) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_Referee_Point.Unmarshal(m, b)
+}
+func (m *SSL_Referee_Point) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_Referee_Point.Marshal(b, m, deterministic)
+}
+func (dst *SSL_Referee_Point) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_Referee_Point.Merge(dst, src)
+}
+func (m *SSL_Referee_Point) XXX_Size() int {
+	return xxx_messageInfo_SSL_Referee_Point.Size(m)
+}
+func (m *SSL_Referee_Point) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_Referee_Point.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_Referee_Point proto.InternalMessageInfo
 
 func (m *SSL_Referee_Point) GetX() float32 {
 	if m != nil && m.X != nil {
@@ -454,9 +527,11 @@ func init() {
 	proto.RegisterEnum("SSL_Referee_Command", SSL_Referee_Command_name, SSL_Referee_Command_value)
 }
 
-func init() { proto.RegisterFile("messages_robocup_ssl_referee.proto", fileDescriptor3) }
+func init() {
+	proto.RegisterFile("messages_robocup_ssl_referee.proto", fileDescriptor_messages_robocup_ssl_referee_a0009bf4f26b1c0e)
+}
 
-var fileDescriptor3 = []byte{
+var fileDescriptor_messages_robocup_ssl_referee_a0009bf4f26b1c0e = []byte{
 	// 825 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x53, 0x5d, 0x6f, 0xe2, 0x46,
 	0x14, 0x5d, 0x9b, 0xef, 0x6b, 0x1c, 0x86, 0x9b, 0x8f, 0x75, 0xe9, 0x0b, 0x4d, 0xd5, 0xd6, 0xab,

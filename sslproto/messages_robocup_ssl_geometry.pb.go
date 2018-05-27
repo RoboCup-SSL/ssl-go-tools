@@ -12,17 +12,44 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 // A 2D float vector.
 type Vector2F struct {
-	X                *float32 `protobuf:"fixed32,1,req,name=x" json:"x,omitempty"`
-	Y                *float32 `protobuf:"fixed32,2,req,name=y" json:"y,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	X                    *float32 `protobuf:"fixed32,1,req,name=x" json:"x,omitempty"`
+	Y                    *float32 `protobuf:"fixed32,2,req,name=y" json:"y,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Vector2F) Reset()                    { *m = Vector2F{} }
-func (m *Vector2F) String() string            { return proto.CompactTextString(m) }
-func (*Vector2F) ProtoMessage()               {}
-func (*Vector2F) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (m *Vector2F) Reset()         { *m = Vector2F{} }
+func (m *Vector2F) String() string { return proto.CompactTextString(m) }
+func (*Vector2F) ProtoMessage()    {}
+func (*Vector2F) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{0}
+}
+func (m *Vector2F) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Vector2F.Unmarshal(m, b)
+}
+func (m *Vector2F) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Vector2F.Marshal(b, m, deterministic)
+}
+func (dst *Vector2F) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Vector2F.Merge(dst, src)
+}
+func (m *Vector2F) XXX_Size() int {
+	return xxx_messageInfo_Vector2F.Size(m)
+}
+func (m *Vector2F) XXX_DiscardUnknown() {
+	xxx_messageInfo_Vector2F.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Vector2F proto.InternalMessageInfo
 
 func (m *Vector2F) GetX() float32 {
 	if m != nil && m.X != nil {
@@ -50,14 +77,35 @@ type SSL_FieldLineSegment struct {
 	// End point of the line segment.
 	P2 *Vector2F `protobuf:"bytes,3,req,name=p2" json:"p2,omitempty"`
 	// Thickness of the line segment.
-	Thickness        *float32 `protobuf:"fixed32,4,req,name=thickness" json:"thickness,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	Thickness            *float32 `protobuf:"fixed32,4,req,name=thickness" json:"thickness,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SSL_FieldLineSegment) Reset()                    { *m = SSL_FieldLineSegment{} }
-func (m *SSL_FieldLineSegment) String() string            { return proto.CompactTextString(m) }
-func (*SSL_FieldLineSegment) ProtoMessage()               {}
-func (*SSL_FieldLineSegment) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
+func (m *SSL_FieldLineSegment) Reset()         { *m = SSL_FieldLineSegment{} }
+func (m *SSL_FieldLineSegment) String() string { return proto.CompactTextString(m) }
+func (*SSL_FieldLineSegment) ProtoMessage()    {}
+func (*SSL_FieldLineSegment) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{1}
+}
+func (m *SSL_FieldLineSegment) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_FieldLineSegment.Unmarshal(m, b)
+}
+func (m *SSL_FieldLineSegment) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_FieldLineSegment.Marshal(b, m, deterministic)
+}
+func (dst *SSL_FieldLineSegment) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_FieldLineSegment.Merge(dst, src)
+}
+func (m *SSL_FieldLineSegment) XXX_Size() int {
+	return xxx_messageInfo_SSL_FieldLineSegment.Size(m)
+}
+func (m *SSL_FieldLineSegment) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_FieldLineSegment.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_FieldLineSegment proto.InternalMessageInfo
 
 func (m *SSL_FieldLineSegment) GetName() string {
 	if m != nil && m.Name != nil {
@@ -101,14 +149,35 @@ type SSL_FieldCicularArc struct {
 	// End angle in counter-clockwise order.
 	A2 *float32 `protobuf:"fixed32,5,req,name=a2" json:"a2,omitempty"`
 	// Thickness of the arc.
-	Thickness        *float32 `protobuf:"fixed32,6,req,name=thickness" json:"thickness,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	Thickness            *float32 `protobuf:"fixed32,6,req,name=thickness" json:"thickness,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SSL_FieldCicularArc) Reset()                    { *m = SSL_FieldCicularArc{} }
-func (m *SSL_FieldCicularArc) String() string            { return proto.CompactTextString(m) }
-func (*SSL_FieldCicularArc) ProtoMessage()               {}
-func (*SSL_FieldCicularArc) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
+func (m *SSL_FieldCicularArc) Reset()         { *m = SSL_FieldCicularArc{} }
+func (m *SSL_FieldCicularArc) String() string { return proto.CompactTextString(m) }
+func (*SSL_FieldCicularArc) ProtoMessage()    {}
+func (*SSL_FieldCicularArc) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{2}
+}
+func (m *SSL_FieldCicularArc) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_FieldCicularArc.Unmarshal(m, b)
+}
+func (m *SSL_FieldCicularArc) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_FieldCicularArc.Marshal(b, m, deterministic)
+}
+func (dst *SSL_FieldCicularArc) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_FieldCicularArc.Merge(dst, src)
+}
+func (m *SSL_FieldCicularArc) XXX_Size() int {
+	return xxx_messageInfo_SSL_FieldCicularArc.Size(m)
+}
+func (m *SSL_FieldCicularArc) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_FieldCicularArc.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_FieldCicularArc proto.InternalMessageInfo
 
 func (m *SSL_FieldCicularArc) GetName() string {
 	if m != nil && m.Name != nil {
@@ -153,20 +222,41 @@ func (m *SSL_FieldCicularArc) GetThickness() float32 {
 }
 
 type SSL_GeometryFieldSize struct {
-	FieldLength      *int32                  `protobuf:"varint,1,req,name=field_length,json=fieldLength" json:"field_length,omitempty"`
-	FieldWidth       *int32                  `protobuf:"varint,2,req,name=field_width,json=fieldWidth" json:"field_width,omitempty"`
-	GoalWidth        *int32                  `protobuf:"varint,3,req,name=goal_width,json=goalWidth" json:"goal_width,omitempty"`
-	GoalDepth        *int32                  `protobuf:"varint,4,req,name=goal_depth,json=goalDepth" json:"goal_depth,omitempty"`
-	BoundaryWidth    *int32                  `protobuf:"varint,5,req,name=boundary_width,json=boundaryWidth" json:"boundary_width,omitempty"`
-	FieldLines       []*SSL_FieldLineSegment `protobuf:"bytes,6,rep,name=field_lines,json=fieldLines" json:"field_lines,omitempty"`
-	FieldArcs        []*SSL_FieldCicularArc  `protobuf:"bytes,7,rep,name=field_arcs,json=fieldArcs" json:"field_arcs,omitempty"`
-	XXX_unrecognized []byte                  `json:"-"`
+	FieldLength          *int32                  `protobuf:"varint,1,req,name=field_length,json=fieldLength" json:"field_length,omitempty"`
+	FieldWidth           *int32                  `protobuf:"varint,2,req,name=field_width,json=fieldWidth" json:"field_width,omitempty"`
+	GoalWidth            *int32                  `protobuf:"varint,3,req,name=goal_width,json=goalWidth" json:"goal_width,omitempty"`
+	GoalDepth            *int32                  `protobuf:"varint,4,req,name=goal_depth,json=goalDepth" json:"goal_depth,omitempty"`
+	BoundaryWidth        *int32                  `protobuf:"varint,5,req,name=boundary_width,json=boundaryWidth" json:"boundary_width,omitempty"`
+	FieldLines           []*SSL_FieldLineSegment `protobuf:"bytes,6,rep,name=field_lines,json=fieldLines" json:"field_lines,omitempty"`
+	FieldArcs            []*SSL_FieldCicularArc  `protobuf:"bytes,7,rep,name=field_arcs,json=fieldArcs" json:"field_arcs,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
 }
 
-func (m *SSL_GeometryFieldSize) Reset()                    { *m = SSL_GeometryFieldSize{} }
-func (m *SSL_GeometryFieldSize) String() string            { return proto.CompactTextString(m) }
-func (*SSL_GeometryFieldSize) ProtoMessage()               {}
-func (*SSL_GeometryFieldSize) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3} }
+func (m *SSL_GeometryFieldSize) Reset()         { *m = SSL_GeometryFieldSize{} }
+func (m *SSL_GeometryFieldSize) String() string { return proto.CompactTextString(m) }
+func (*SSL_GeometryFieldSize) ProtoMessage()    {}
+func (*SSL_GeometryFieldSize) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{3}
+}
+func (m *SSL_GeometryFieldSize) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_GeometryFieldSize.Unmarshal(m, b)
+}
+func (m *SSL_GeometryFieldSize) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_GeometryFieldSize.Marshal(b, m, deterministic)
+}
+func (dst *SSL_GeometryFieldSize) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_GeometryFieldSize.Merge(dst, src)
+}
+func (m *SSL_GeometryFieldSize) XXX_Size() int {
+	return xxx_messageInfo_SSL_GeometryFieldSize.Size(m)
+}
+func (m *SSL_GeometryFieldSize) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_GeometryFieldSize.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_GeometryFieldSize proto.InternalMessageInfo
 
 func (m *SSL_GeometryFieldSize) GetFieldLength() int32 {
 	if m != nil && m.FieldLength != nil {
@@ -233,13 +323,34 @@ type SSL_GeometryCameraCalibration struct {
 	DerivedCameraWorldTx *float32 `protobuf:"fixed32,13,opt,name=derived_camera_world_tx,json=derivedCameraWorldTx" json:"derived_camera_world_tx,omitempty"`
 	DerivedCameraWorldTy *float32 `protobuf:"fixed32,14,opt,name=derived_camera_world_ty,json=derivedCameraWorldTy" json:"derived_camera_world_ty,omitempty"`
 	DerivedCameraWorldTz *float32 `protobuf:"fixed32,15,opt,name=derived_camera_world_tz,json=derivedCameraWorldTz" json:"derived_camera_world_tz,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SSL_GeometryCameraCalibration) Reset()                    { *m = SSL_GeometryCameraCalibration{} }
-func (m *SSL_GeometryCameraCalibration) String() string            { return proto.CompactTextString(m) }
-func (*SSL_GeometryCameraCalibration) ProtoMessage()               {}
-func (*SSL_GeometryCameraCalibration) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{4} }
+func (m *SSL_GeometryCameraCalibration) Reset()         { *m = SSL_GeometryCameraCalibration{} }
+func (m *SSL_GeometryCameraCalibration) String() string { return proto.CompactTextString(m) }
+func (*SSL_GeometryCameraCalibration) ProtoMessage()    {}
+func (*SSL_GeometryCameraCalibration) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{4}
+}
+func (m *SSL_GeometryCameraCalibration) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_GeometryCameraCalibration.Unmarshal(m, b)
+}
+func (m *SSL_GeometryCameraCalibration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_GeometryCameraCalibration.Marshal(b, m, deterministic)
+}
+func (dst *SSL_GeometryCameraCalibration) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_GeometryCameraCalibration.Merge(dst, src)
+}
+func (m *SSL_GeometryCameraCalibration) XXX_Size() int {
+	return xxx_messageInfo_SSL_GeometryCameraCalibration.Size(m)
+}
+func (m *SSL_GeometryCameraCalibration) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_GeometryCameraCalibration.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_GeometryCameraCalibration proto.InternalMessageInfo
 
 func (m *SSL_GeometryCameraCalibration) GetCameraId() uint32 {
 	if m != nil && m.CameraId != nil {
@@ -347,15 +458,36 @@ func (m *SSL_GeometryCameraCalibration) GetDerivedCameraWorldTz() float32 {
 }
 
 type SSL_GeometryData struct {
-	Field            *SSL_GeometryFieldSize           `protobuf:"bytes,1,req,name=field" json:"field,omitempty"`
-	Calib            []*SSL_GeometryCameraCalibration `protobuf:"bytes,2,rep,name=calib" json:"calib,omitempty"`
-	XXX_unrecognized []byte                           `json:"-"`
+	Field                *SSL_GeometryFieldSize           `protobuf:"bytes,1,req,name=field" json:"field,omitempty"`
+	Calib                []*SSL_GeometryCameraCalibration `protobuf:"bytes,2,rep,name=calib" json:"calib,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                         `json:"-"`
+	XXX_unrecognized     []byte                           `json:"-"`
+	XXX_sizecache        int32                            `json:"-"`
 }
 
-func (m *SSL_GeometryData) Reset()                    { *m = SSL_GeometryData{} }
-func (m *SSL_GeometryData) String() string            { return proto.CompactTextString(m) }
-func (*SSL_GeometryData) ProtoMessage()               {}
-func (*SSL_GeometryData) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{5} }
+func (m *SSL_GeometryData) Reset()         { *m = SSL_GeometryData{} }
+func (m *SSL_GeometryData) String() string { return proto.CompactTextString(m) }
+func (*SSL_GeometryData) ProtoMessage()    {}
+func (*SSL_GeometryData) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{5}
+}
+func (m *SSL_GeometryData) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_GeometryData.Unmarshal(m, b)
+}
+func (m *SSL_GeometryData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_GeometryData.Marshal(b, m, deterministic)
+}
+func (dst *SSL_GeometryData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_GeometryData.Merge(dst, src)
+}
+func (m *SSL_GeometryData) XXX_Size() int {
+	return xxx_messageInfo_SSL_GeometryData.Size(m)
+}
+func (m *SSL_GeometryData) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_GeometryData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_GeometryData proto.InternalMessageInfo
 
 func (m *SSL_GeometryData) GetField() *SSL_GeometryFieldSize {
 	if m != nil {
@@ -380,9 +512,11 @@ func init() {
 	proto.RegisterType((*SSL_GeometryData)(nil), "SSL_GeometryData")
 }
 
-func init() { proto.RegisterFile("messages_robocup_ssl_geometry.proto", fileDescriptor2) }
+func init() {
+	proto.RegisterFile("messages_robocup_ssl_geometry.proto", fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7)
+}
 
-var fileDescriptor2 = []byte{
+var fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7 = []byte{
 	// 615 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x93, 0xdf, 0x4e, 0x13, 0x41,
 	0x14, 0xc6, 0xd3, 0x2d, 0x05, 0xf6, 0x94, 0x3f, 0x3a, 0x02, 0x8e, 0x51, 0x10, 0x6b, 0x34, 0xc4,

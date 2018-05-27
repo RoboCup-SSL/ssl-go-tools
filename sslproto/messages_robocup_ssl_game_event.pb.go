@@ -12,6 +12,12 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 type SSL_Referee_Game_Event_GameEventType int32
 
 const (
@@ -133,7 +139,7 @@ func (x *SSL_Referee_Game_Event_GameEventType) UnmarshalJSON(data []byte) error 
 	return nil
 }
 func (SSL_Referee_Game_Event_GameEventType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor1, []int{0, 0}
+	return fileDescriptor_messages_robocup_ssl_game_event_078d80496a5b9d6a, []int{0, 0}
 }
 
 // a team
@@ -173,7 +179,7 @@ func (x *SSL_Referee_Game_Event_Team) UnmarshalJSON(data []byte) error {
 	return nil
 }
 func (SSL_Referee_Game_Event_Team) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor1, []int{0, 1}
+	return fileDescriptor_messages_robocup_ssl_game_event_078d80496a5b9d6a, []int{0, 1}
 }
 
 // a game event that caused a referee command
@@ -183,14 +189,35 @@ type SSL_Referee_Game_Event struct {
 	// the team and optionally a designated robot that is the originator of the game event
 	Originator *SSL_Referee_Game_Event_Originator `protobuf:"bytes,2,opt,name=originator" json:"originator,omitempty"`
 	// a message describing further details of this game event
-	Message          *string `protobuf:"bytes,3,opt,name=message" json:"message,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	Message              *string  `protobuf:"bytes,3,opt,name=message" json:"message,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SSL_Referee_Game_Event) Reset()                    { *m = SSL_Referee_Game_Event{} }
-func (m *SSL_Referee_Game_Event) String() string            { return proto.CompactTextString(m) }
-func (*SSL_Referee_Game_Event) ProtoMessage()               {}
-func (*SSL_Referee_Game_Event) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (m *SSL_Referee_Game_Event) Reset()         { *m = SSL_Referee_Game_Event{} }
+func (m *SSL_Referee_Game_Event) String() string { return proto.CompactTextString(m) }
+func (*SSL_Referee_Game_Event) ProtoMessage()    {}
+func (*SSL_Referee_Game_Event) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_game_event_078d80496a5b9d6a, []int{0}
+}
+func (m *SSL_Referee_Game_Event) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_Referee_Game_Event.Unmarshal(m, b)
+}
+func (m *SSL_Referee_Game_Event) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_Referee_Game_Event.Marshal(b, m, deterministic)
+}
+func (dst *SSL_Referee_Game_Event) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_Referee_Game_Event.Merge(dst, src)
+}
+func (m *SSL_Referee_Game_Event) XXX_Size() int {
+	return xxx_messageInfo_SSL_Referee_Game_Event.Size(m)
+}
+func (m *SSL_Referee_Game_Event) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_Referee_Game_Event.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_Referee_Game_Event proto.InternalMessageInfo
 
 func (m *SSL_Referee_Game_Event) GetGameEventType() SSL_Referee_Game_Event_GameEventType {
 	if m != nil && m.GameEventType != nil {
@@ -215,17 +242,36 @@ func (m *SSL_Referee_Game_Event) GetMessage() string {
 
 // information about an originator
 type SSL_Referee_Game_Event_Originator struct {
-	Team             *SSL_Referee_Game_Event_Team `protobuf:"varint,1,req,name=team,enum=SSL_Referee_Game_Event_Team" json:"team,omitempty"`
-	BotId            *uint32                      `protobuf:"varint,2,opt,name=botId" json:"botId,omitempty"`
-	XXX_unrecognized []byte                       `json:"-"`
+	Team                 *SSL_Referee_Game_Event_Team `protobuf:"varint,1,req,name=team,enum=SSL_Referee_Game_Event_Team" json:"team,omitempty"`
+	BotId                *uint32                      `protobuf:"varint,2,opt,name=botId" json:"botId,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_unrecognized     []byte                       `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
 func (m *SSL_Referee_Game_Event_Originator) Reset()         { *m = SSL_Referee_Game_Event_Originator{} }
 func (m *SSL_Referee_Game_Event_Originator) String() string { return proto.CompactTextString(m) }
 func (*SSL_Referee_Game_Event_Originator) ProtoMessage()    {}
 func (*SSL_Referee_Game_Event_Originator) Descriptor() ([]byte, []int) {
-	return fileDescriptor1, []int{0, 0}
+	return fileDescriptor_messages_robocup_ssl_game_event_078d80496a5b9d6a, []int{0, 0}
 }
+func (m *SSL_Referee_Game_Event_Originator) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_Referee_Game_Event_Originator.Unmarshal(m, b)
+}
+func (m *SSL_Referee_Game_Event_Originator) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_Referee_Game_Event_Originator.Marshal(b, m, deterministic)
+}
+func (dst *SSL_Referee_Game_Event_Originator) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_Referee_Game_Event_Originator.Merge(dst, src)
+}
+func (m *SSL_Referee_Game_Event_Originator) XXX_Size() int {
+	return xxx_messageInfo_SSL_Referee_Game_Event_Originator.Size(m)
+}
+func (m *SSL_Referee_Game_Event_Originator) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_Referee_Game_Event_Originator.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_Referee_Game_Event_Originator proto.InternalMessageInfo
 
 func (m *SSL_Referee_Game_Event_Originator) GetTeam() SSL_Referee_Game_Event_Team {
 	if m != nil && m.Team != nil {
@@ -248,9 +294,11 @@ func init() {
 	proto.RegisterEnum("SSL_Referee_Game_Event_Team", SSL_Referee_Game_Event_Team_name, SSL_Referee_Game_Event_Team_value)
 }
 
-func init() { proto.RegisterFile("messages_robocup_ssl_game_event.proto", fileDescriptor1) }
+func init() {
+	proto.RegisterFile("messages_robocup_ssl_game_event.proto", fileDescriptor_messages_robocup_ssl_game_event_078d80496a5b9d6a)
+}
 
-var fileDescriptor1 = []byte{
+var fileDescriptor_messages_robocup_ssl_game_event_078d80496a5b9d6a = []byte{
 	// 554 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x92, 0x4d, 0x4f, 0xdb, 0x4c,
 	0x10, 0xc7, 0x9f, 0x84, 0xf0, 0x92, 0x09, 0x09, 0xcb, 0xf0, 0xf2, 0xa4, 0x2d, 0x12, 0x28, 0x15,

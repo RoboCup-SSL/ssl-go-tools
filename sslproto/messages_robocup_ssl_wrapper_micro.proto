@@ -1,0 +1,8 @@
+syntax = "proto2";
+import "messages_robocup_ssl_detection_micro.proto";
+import "messages_robocup_ssl_geometry_micro.proto";
+
+message SSL_Micro_WrapperPacket {
+  optional SSL_Micro_DetectionFrame detection = 1;
+  optional SSL_Micro_GeometryData geometry = 2;
+}

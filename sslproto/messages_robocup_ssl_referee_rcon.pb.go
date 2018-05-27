@@ -12,6 +12,12 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 // Which type of card to issue.
 type SSL_RefereeRemoteControlRequest_CardInfo_CardType int32
 
@@ -46,7 +52,7 @@ func (x *SSL_RefereeRemoteControlRequest_CardInfo_CardType) UnmarshalJSON(data [
 	return nil
 }
 func (SSL_RefereeRemoteControlRequest_CardInfo_CardType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor4, []int{0, 0, 0}
+	return fileDescriptor_messages_robocup_ssl_referee_rcon_01ce10c284109b94, []int{0, 0, 0}
 }
 
 // Which team to issue the card to.
@@ -83,7 +89,7 @@ func (x *SSL_RefereeRemoteControlRequest_CardInfo_CardTeam) UnmarshalJSON(data [
 	return nil
 }
 func (SSL_RefereeRemoteControlRequest_CardInfo_CardTeam) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor4, []int{0, 0, 1}
+	return fileDescriptor_messages_robocup_ssl_referee_rcon_01ce10c284109b94, []int{0, 0, 1}
 }
 
 // The outcome of the request.
@@ -159,7 +165,7 @@ func (x *SSL_RefereeRemoteControlReply_Outcome) UnmarshalJSON(data []byte) error
 	return nil
 }
 func (SSL_RefereeRemoteControlReply_Outcome) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor4, []int{1, 0}
+	return fileDescriptor_messages_robocup_ssl_referee_rcon_01ce10c284109b94, []int{1, 0}
 }
 
 // The TCP half-connection from controller to referee box carries a sequence of
@@ -261,14 +267,35 @@ type SSL_RefereeRemoteControlRequest struct {
 	// Used to identify the source of requests on the receiving side
 	ImplementationId *string `protobuf:"bytes,7,opt,name=implementation_id,json=implementationId" json:"implementation_id,omitempty"`
 	// The game event that caused the referee command
-	GameEvent        *SSL_Referee_Game_Event `protobuf:"bytes,8,opt,name=gameEvent" json:"gameEvent,omitempty"`
-	XXX_unrecognized []byte                  `json:"-"`
+	GameEvent            *SSL_Referee_Game_Event `protobuf:"bytes,8,opt,name=gameEvent" json:"gameEvent,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
+	XXX_unrecognized     []byte                  `json:"-"`
+	XXX_sizecache        int32                   `json:"-"`
 }
 
-func (m *SSL_RefereeRemoteControlRequest) Reset()                    { *m = SSL_RefereeRemoteControlRequest{} }
-func (m *SSL_RefereeRemoteControlRequest) String() string            { return proto.CompactTextString(m) }
-func (*SSL_RefereeRemoteControlRequest) ProtoMessage()               {}
-func (*SSL_RefereeRemoteControlRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
+func (m *SSL_RefereeRemoteControlRequest) Reset()         { *m = SSL_RefereeRemoteControlRequest{} }
+func (m *SSL_RefereeRemoteControlRequest) String() string { return proto.CompactTextString(m) }
+func (*SSL_RefereeRemoteControlRequest) ProtoMessage()    {}
+func (*SSL_RefereeRemoteControlRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_referee_rcon_01ce10c284109b94, []int{0}
+}
+func (m *SSL_RefereeRemoteControlRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_RefereeRemoteControlRequest.Unmarshal(m, b)
+}
+func (m *SSL_RefereeRemoteControlRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_RefereeRemoteControlRequest.Marshal(b, m, deterministic)
+}
+func (dst *SSL_RefereeRemoteControlRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_RefereeRemoteControlRequest.Merge(dst, src)
+}
+func (m *SSL_RefereeRemoteControlRequest) XXX_Size() int {
+	return xxx_messageInfo_SSL_RefereeRemoteControlRequest.Size(m)
+}
+func (m *SSL_RefereeRemoteControlRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_RefereeRemoteControlRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_RefereeRemoteControlRequest proto.InternalMessageInfo
 
 func (m *SSL_RefereeRemoteControlRequest) GetMessageId() uint32 {
 	if m != nil && m.MessageId != nil {
@@ -328,9 +355,11 @@ func (m *SSL_RefereeRemoteControlRequest) GetGameEvent() *SSL_Referee_Game_Event
 
 // The card to issue.
 type SSL_RefereeRemoteControlRequest_CardInfo struct {
-	Type             *SSL_RefereeRemoteControlRequest_CardInfo_CardType `protobuf:"varint,1,req,name=type,enum=SSL_RefereeRemoteControlRequest_CardInfo_CardType" json:"type,omitempty"`
-	Team             *SSL_RefereeRemoteControlRequest_CardInfo_CardTeam `protobuf:"varint,2,req,name=team,enum=SSL_RefereeRemoteControlRequest_CardInfo_CardTeam" json:"team,omitempty"`
-	XXX_unrecognized []byte                                             `json:"-"`
+	Type                 *SSL_RefereeRemoteControlRequest_CardInfo_CardType `protobuf:"varint,1,req,name=type,enum=SSL_RefereeRemoteControlRequest_CardInfo_CardType" json:"type,omitempty"`
+	Team                 *SSL_RefereeRemoteControlRequest_CardInfo_CardTeam `protobuf:"varint,2,req,name=team,enum=SSL_RefereeRemoteControlRequest_CardInfo_CardTeam" json:"team,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                           `json:"-"`
+	XXX_unrecognized     []byte                                             `json:"-"`
+	XXX_sizecache        int32                                              `json:"-"`
 }
 
 func (m *SSL_RefereeRemoteControlRequest_CardInfo) Reset() {
@@ -339,8 +368,25 @@ func (m *SSL_RefereeRemoteControlRequest_CardInfo) Reset() {
 func (m *SSL_RefereeRemoteControlRequest_CardInfo) String() string { return proto.CompactTextString(m) }
 func (*SSL_RefereeRemoteControlRequest_CardInfo) ProtoMessage()    {}
 func (*SSL_RefereeRemoteControlRequest_CardInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor4, []int{0, 0}
+	return fileDescriptor_messages_robocup_ssl_referee_rcon_01ce10c284109b94, []int{0, 0}
 }
+func (m *SSL_RefereeRemoteControlRequest_CardInfo) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_RefereeRemoteControlRequest_CardInfo.Unmarshal(m, b)
+}
+func (m *SSL_RefereeRemoteControlRequest_CardInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_RefereeRemoteControlRequest_CardInfo.Marshal(b, m, deterministic)
+}
+func (dst *SSL_RefereeRemoteControlRequest_CardInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_RefereeRemoteControlRequest_CardInfo.Merge(dst, src)
+}
+func (m *SSL_RefereeRemoteControlRequest_CardInfo) XXX_Size() int {
+	return xxx_messageInfo_SSL_RefereeRemoteControlRequest_CardInfo.Size(m)
+}
+func (m *SSL_RefereeRemoteControlRequest_CardInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_RefereeRemoteControlRequest_CardInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_RefereeRemoteControlRequest_CardInfo proto.InternalMessageInfo
 
 func (m *SSL_RefereeRemoteControlRequest_CardInfo) GetType() SSL_RefereeRemoteControlRequest_CardInfo_CardType {
 	if m != nil && m.Type != nil {
@@ -362,15 +408,36 @@ func (m *SSL_RefereeRemoteControlRequest_CardInfo) GetTeam() SSL_RefereeRemoteCo
 // bytes as as 4-byte big-endian integer.
 type SSL_RefereeRemoteControlReply struct {
 	// The message ID of the request message to which this reply corresponds.
-	MessageId        *uint32                                `protobuf:"varint,1,req,name=message_id,json=messageId" json:"message_id,omitempty"`
-	Outcome          *SSL_RefereeRemoteControlReply_Outcome `protobuf:"varint,2,req,name=outcome,enum=SSL_RefereeRemoteControlReply_Outcome" json:"outcome,omitempty"`
-	XXX_unrecognized []byte                                 `json:"-"`
+	MessageId            *uint32                                `protobuf:"varint,1,req,name=message_id,json=messageId" json:"message_id,omitempty"`
+	Outcome              *SSL_RefereeRemoteControlReply_Outcome `protobuf:"varint,2,req,name=outcome,enum=SSL_RefereeRemoteControlReply_Outcome" json:"outcome,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                               `json:"-"`
+	XXX_unrecognized     []byte                                 `json:"-"`
+	XXX_sizecache        int32                                  `json:"-"`
 }
 
-func (m *SSL_RefereeRemoteControlReply) Reset()                    { *m = SSL_RefereeRemoteControlReply{} }
-func (m *SSL_RefereeRemoteControlReply) String() string            { return proto.CompactTextString(m) }
-func (*SSL_RefereeRemoteControlReply) ProtoMessage()               {}
-func (*SSL_RefereeRemoteControlReply) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{1} }
+func (m *SSL_RefereeRemoteControlReply) Reset()         { *m = SSL_RefereeRemoteControlReply{} }
+func (m *SSL_RefereeRemoteControlReply) String() string { return proto.CompactTextString(m) }
+func (*SSL_RefereeRemoteControlReply) ProtoMessage()    {}
+func (*SSL_RefereeRemoteControlReply) Descriptor() ([]byte, []int) {
+	return fileDescriptor_messages_robocup_ssl_referee_rcon_01ce10c284109b94, []int{1}
+}
+func (m *SSL_RefereeRemoteControlReply) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SSL_RefereeRemoteControlReply.Unmarshal(m, b)
+}
+func (m *SSL_RefereeRemoteControlReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SSL_RefereeRemoteControlReply.Marshal(b, m, deterministic)
+}
+func (dst *SSL_RefereeRemoteControlReply) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_RefereeRemoteControlReply.Merge(dst, src)
+}
+func (m *SSL_RefereeRemoteControlReply) XXX_Size() int {
+	return xxx_messageInfo_SSL_RefereeRemoteControlReply.Size(m)
+}
+func (m *SSL_RefereeRemoteControlReply) XXX_DiscardUnknown() {
+	xxx_messageInfo_SSL_RefereeRemoteControlReply.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SSL_RefereeRemoteControlReply proto.InternalMessageInfo
 
 func (m *SSL_RefereeRemoteControlReply) GetMessageId() uint32 {
 	if m != nil && m.MessageId != nil {
@@ -395,9 +462,11 @@ func init() {
 	proto.RegisterEnum("SSL_RefereeRemoteControlReply_Outcome", SSL_RefereeRemoteControlReply_Outcome_name, SSL_RefereeRemoteControlReply_Outcome_value)
 }
 
-func init() { proto.RegisterFile("messages_robocup_ssl_referee_rcon.proto", fileDescriptor4) }
+func init() {
+	proto.RegisterFile("messages_robocup_ssl_referee_rcon.proto", fileDescriptor_messages_robocup_ssl_referee_rcon_01ce10c284109b94)
+}
 
-var fileDescriptor4 = []byte{
+var fileDescriptor_messages_robocup_ssl_referee_rcon_01ce10c284109b94 = []byte{
 	// 584 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x92, 0x71, 0x6b, 0xd3, 0x40,
 	0x18, 0xc6, 0x97, 0xae, 0x5d, 0xdb, 0x9b, 0x9b, 0xe7, 0xad, 0xb0, 0x30, 0x19, 0x96, 0x82, 0xda,
