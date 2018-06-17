@@ -54,7 +54,7 @@ func main() {
 	for logReader.HasMessage() {
 		msg, err := logReader.ReadMessage()
 		if err != nil {
-			log.Println("Could not read message")
+			log.Println("Could not read message", err)
 			continue
 		}
 		if isRunningStage(curStage) {
