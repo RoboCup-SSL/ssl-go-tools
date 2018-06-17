@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/sslproto"
 	"log"
 	"net"
@@ -10,12 +11,14 @@ import (
 )
 
 type Logger struct {
-	logWriter   *sslproto.LogWriter
-	refereeAddr string
-	visionAddr  string
+	logWriter             *sslproto.LogWriter
+	refereeAddr           string
+	visionAddr            string
+	numberOfFramesVision  int
+	numberOfFramesReferee int
 }
 
-const maxDatagramSize = 8192
+const maxDatagramSize = 8192 * 2
 
 func main() {
 
@@ -27,12 +30,16 @@ func main() {
 	go logger.AcceptPackages(refListener, sslproto.MESSAGE_SSL_REFBOX_2013)
 
 	visionListener := logger.openConnection(logger.visionAddr)
-	logger.AcceptPackages(visionListener, sslproto.MESSAGE_SSL_VISION_2014)
+	go logger.AcceptPackages(visionListener, sslproto.MESSAGE_SSL_VISION_2014)
 
+	for {
+		fmt.Printf("\rCaptured %d vision frames and %d referee frames", logger.numberOfFramesVision, logger.numberOfFramesReferee)
+		time.Sleep(time.Millisecond * 500)
+	}
 }
 
 func NewLogger() Logger {
-	return Logger{refereeAddr: "224.5.23.1:10003", visionAddr: "224.5.23.2:10006"}
+	return Logger{refereeAddr: "224.5.23.1:10003", visionAddr: "224.5.23.2:10006", numberOfFramesReferee: 0, numberOfFramesVision: 0}
 }
 
 func (l *Logger) Start() (err error) {
@@ -100,6 +107,11 @@ func (l *Logger) AcceptPackages(listener *net.UDPConn, messageType int) {
 			timestamp := time.Now().UnixNano()
 			logMessage := sslproto.LogMessage{Timestamp: timestamp, MessageType: messageType, Message: data[:n]}
 			l.logWriter.WriteMessage(&logMessage)
+			if messageType == sslproto.MESSAGE_SSL_REFBOX_2013 {
+				l.numberOfFramesReferee++
+			} else if messageType == sslproto.MESSAGE_SSL_VISION_2014 {
+				l.numberOfFramesVision++
+			}
 		}
 	}
 }
