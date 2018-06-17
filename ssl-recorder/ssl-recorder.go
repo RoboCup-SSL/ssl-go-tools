@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 )
 
@@ -16,6 +17,7 @@ type Logger struct {
 	visionAddr            string
 	numberOfFramesVision  int
 	numberOfFramesReferee int
+	mutex                 sync.Mutex
 }
 
 const maxDatagramSize = 8192 * 2
@@ -106,7 +108,9 @@ func (l *Logger) AcceptPackages(listener *net.UDPConn, messageType int) {
 		} else {
 			timestamp := time.Now().UnixNano()
 			logMessage := sslproto.LogMessage{Timestamp: timestamp, MessageType: messageType, Message: data[:n]}
+			l.mutex.Lock()
 			l.logWriter.WriteMessage(&logMessage)
+			l.mutex.Unlock()
 			if messageType == sslproto.MESSAGE_SSL_REFBOX_2013 {
 				l.numberOfFramesReferee++
 			} else if messageType == sslproto.MESSAGE_SSL_VISION_2014 {
