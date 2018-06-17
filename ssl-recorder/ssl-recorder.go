@@ -45,7 +45,7 @@ func (l *Logger) Start() (err error) {
 
 func (l *Logger) openLogWriter() (err error) {
 	nowStr := time.Now().Format("2006-01-02_15-04-05")
-	logFileName := "log/" + nowStr + ".log"
+	logFileName := "logs/" + nowStr + ".log.gz"
 	l.logWriter, err = sslproto.NewLogWriter(logFileName)
 	if err != nil {
 		log.Fatal("could not open log file for write: ", err)
