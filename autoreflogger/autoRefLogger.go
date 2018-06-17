@@ -131,7 +131,7 @@ func (l *Logger) AcceptRefereePackages() {
 			log.Println("Received referee message:", message)
 			timestamp := time.Now().UnixNano()
 			messageType := sslproto.MESSAGE_SSL_REFBOX_2013
-			logMessage := sslproto.LogMessage{Timestamp: timestamp, MessageType: messageType, Message: data}
+			logMessage := sslproto.LogMessage{Timestamp: timestamp, MessageType: messageType, Message: data[:n]}
 			l.logWriter.WriteMessage(&logMessage)
 			lastCommandId = *message.CommandCounter
 		}
