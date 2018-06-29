@@ -8,6 +8,7 @@ import (
 
 var useDetectionTimingExport = flag.Bool("detectionTimingExport", false, "Use this processor")
 var useDetectionTiming = flag.Bool("detectionTiming", false, "Use this processor")
+var useAll = flag.Bool("all", false, "Use all processors")
 
 func main() {
 	flag.Parse()
@@ -34,11 +35,13 @@ func processLogFile(logFile string) {
 	channel := make(chan *sslproto.LogMessage, 100)
 	go logReader.CreateLogMessageChannel(channel)
 
+	allProcessors := useAll != nil && *useAll
+
 	var processors []FrameProcessor
-	if useDetectionTimingExport != nil && *useDetectionTimingExport {
+	if allProcessors || (useDetectionTimingExport != nil && *useDetectionTimingExport) {
 		processors = append(processors, new(DetectionTimingExportProcessor))
 	}
-	if useDetectionTiming != nil && *useDetectionTiming {
+	if allProcessors || (useDetectionTiming != nil && *useDetectionTiming) {
 		processors = append(processors, new(DetectionTimingProcessor))
 	}
 
