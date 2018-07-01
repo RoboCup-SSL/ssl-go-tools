@@ -78,6 +78,10 @@ func (l *LogReader) ReadMessage() (msg *LogMessage, err error) {
 	if err != nil {
 		return
 	}
+	if length < 0 {
+		err = errors.New(fmt.Sprintf("Length is invalid: %d", length))
+		return
+	}
 	msg.Message, err = l.readBytes(int(length))
 	if err != nil {
 		return
