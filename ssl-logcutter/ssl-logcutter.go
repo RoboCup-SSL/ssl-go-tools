@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/sslproto"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -69,8 +70,8 @@ func process(logFile string) {
 }
 
 func logFileName(refereeMsg *sslproto.SSL_Referee, r *sslproto.LogMessage) string {
-	teamNameYellow := *refereeMsg.Yellow.Name
-	teamNameBlue := *refereeMsg.Blue.Name
+	teamNameYellow := strings.Replace(*refereeMsg.Yellow.Name, " ", "_", -1)
+	teamNameBlue := strings.Replace(*refereeMsg.Blue.Name, " ", "_", -1)
 	date := time.Unix(0, r.Timestamp).Format("2006-01-02_15-04")
 	logFileName := fmt.Sprintf("%s_%s-vs-%s.log.gz", date, teamNameYellow, teamNameBlue)
 	return logFileName
