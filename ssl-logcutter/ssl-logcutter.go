@@ -40,9 +40,14 @@ func process(logFile string) {
 		if logMessage.MessageType == sslproto.MESSAGE_SSL_REFBOX_2013 {
 			refereeMsg := logMessage.ParseReferee()
 			switch *refereeMsg.Stage {
-			case sslproto.SSL_Referee_NORMAL_FIRST_HALF_PRE:
-				if *refereeMsg.Command != sslproto.SSL_Referee_HALT && logWriter == nil {
-					log.Println("Game start detected")
+			case sslproto.SSL_Referee_NORMAL_FIRST_HALF,
+				sslproto.SSL_Referee_NORMAL_SECOND_HALF,
+				sslproto.SSL_Referee_EXTRA_FIRST_HALF,
+				sslproto.SSL_Referee_EXTRA_SECOND_HALF:
+				// we have to start at a point, where team names are guarantied to have been entered
+				// the NORMAL_START command is only allowed, if team names were entered. So we will begin at least there
+				// we are not that much interested in the kick-off preparation, so we start with the transition to the half-stages
+				if logWriter == nil {
 					logFileName := logFileName(refereeMsg, logMessage)
 					logWriter, err = sslproto.NewLogWriter(logFileName)
 					if err != nil {
@@ -52,7 +57,7 @@ func process(logFile string) {
 					log.Println("Saving to", logFileName)
 				}
 			case sslproto.SSL_Referee_POST_GAME:
-				log.Println("POST_GAME found")
+				log.Println("POST_GAME found. Stop processing.")
 				return
 			}
 		}
@@ -60,6 +65,7 @@ func process(logFile string) {
 			logWriter.WriteMessage(logMessage)
 		}
 	}
+	log.Println("Processing done")
 }
 
 func logFileName(refereeMsg *sslproto.SSL_Referee, r *sslproto.LogMessage) string {
