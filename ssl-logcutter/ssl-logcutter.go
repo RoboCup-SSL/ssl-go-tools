@@ -39,7 +39,11 @@ func process(logFile string) {
 
 	for logMessage := range channel {
 		if logMessage.MessageType == sslproto.MESSAGE_SSL_REFBOX_2013 {
-			refereeMsg := logMessage.ParseReferee()
+			refereeMsg, err := logMessage.ParseReferee()
+			if err != nil {
+				log.Println("Could not parse referee message. Stop processing.", err)
+				return
+			}
 			switch *refereeMsg.Stage {
 			case sslproto.SSL_Referee_NORMAL_FIRST_HALF,
 				sslproto.SSL_Referee_NORMAL_SECOND_HALF,

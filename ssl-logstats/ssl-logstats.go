@@ -55,7 +55,11 @@ func processLogFile(logFile string) {
 
 	for r := range channel {
 		if r.MessageType == sslproto.MESSAGE_SSL_VISION_2014 {
-			visionMsg := r.ParseVisionWrapper()
+			visionMsg, err := r.ParseVisionWrapper()
+			if err != nil {
+				log.Println("Could not parse vision wrapper message:", err)
+				continue
+			}
 			if visionMsg.Detection != nil {
 				for _, p := range processors {
 					p.ProcessDetection(r, visionMsg.Detection)

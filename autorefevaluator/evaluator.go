@@ -29,11 +29,19 @@ func main() {
 		t := time.Unix(0, m.Timestamp).Format("2006-01-02 15:04:05")
 		switch m.MessageType {
 		case sslproto.MESSAGE_SSL_REFBOX_2013:
-			ref := m.ParseReferee()
-			fmt.Printf(format, t, ref.Command, "")
+			ref, err := m.ParseReferee()
+			if err != nil {
+				fmt.Println("Could not parse referee message:", err)
+			} else {
+				fmt.Printf(format, t, ref.Command, "")
+			}
 		case sslproto.MESSAGE_SSL_REFBOX_RCON_2018:
-			rcon := m.ParseRefereeRemoteControlRequest()
-			fmt.Printf(format, t, "", rcon.Command)
+			rcon, err := m.ParseRefereeRemoteControlRequest()
+			if err != nil {
+				fmt.Println("Could not parse rcon message:", err)
+			} else {
+				fmt.Printf(format, t, "", rcon.Command)
+			}
 		}
 	}
 }

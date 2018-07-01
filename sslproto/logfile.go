@@ -20,22 +20,22 @@ const (
 	MESSAGE_SSL_REFBOX_RCON_2018 = 5
 )
 
-func (m *LogMessage) ParseVisionWrapper() *SSL_WrapperPacket {
+func (m *LogMessage) ParseVisionWrapper() (*SSL_WrapperPacket, error) {
 	packet := new(SSL_WrapperPacket)
-	ParseMessage(m.Message, packet)
-	return packet
+	err := ParseMessage(m.Message, packet)
+	return packet, err
 }
 
-func (m *LogMessage) ParseReferee() *SSL_Referee {
+func (m *LogMessage) ParseReferee() (*SSL_Referee, error) {
 	packet := new(SSL_Referee)
-	ParseMessage(m.Message, packet)
-	return packet
+	err := ParseMessage(m.Message, packet)
+	return packet, err
 }
 
-func (m *LogMessage) ParseRefereeRemoteControlRequest() *SSL_RefereeRemoteControlRequest {
+func (m *LogMessage) ParseRefereeRemoteControlRequest() (*SSL_RefereeRemoteControlRequest, error) {
 	packet := new(SSL_RefereeRemoteControlRequest)
-	ParseMessage(m.Message, packet)
-	return packet
+	err := ParseMessage(m.Message, packet)
+	return packet, err
 }
 
 func ParseMessage(data []byte, message proto.Message) error {

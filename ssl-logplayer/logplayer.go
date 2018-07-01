@@ -84,8 +84,12 @@ func main() {
 		}
 
 		if *skipNonRunningStages && msg.MessageType == sslproto.MESSAGE_SSL_REFBOX_2013 {
-			refMsg := msg.ParseReferee()
-			curStage = *refMsg.Stage
+			refMsg, err := msg.ParseReferee()
+			if err != nil {
+				log.Println("Could not parse referee message:", err)
+			} else {
+				curStage = *refMsg.Stage
+			}
 		}
 	}
 }
