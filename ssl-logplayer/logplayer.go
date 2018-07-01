@@ -30,7 +30,7 @@ func NewBroadcaster(address string) *net.UDPConn {
 
 func main() {
 	logFile := flag.String("logfile", "", "The log file to play")
-	skipNonRunningStages := flag.Bool("skip", true, "Skip frames while not in a running stage")
+	skipNonRunningStages := flag.Bool("skip", false, "Skip frames while not in a running stage")
 
 	flag.Parse()
 
