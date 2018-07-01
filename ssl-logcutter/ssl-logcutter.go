@@ -26,7 +26,8 @@ func main() {
 func process(logFile string) {
 	logReader, err := sslproto.NewLogReader(logFile)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println("Could not process log file:", err)
+		return
 	}
 	defer logReader.Close()
 
