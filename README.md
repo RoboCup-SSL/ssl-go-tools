@@ -1,3 +1,5 @@
+![travis build](https://travis-ci.org/RoboCup-SSL/ssl-go-tools.svg?branch=master "travis build status")
+
 # ssl-go-tools
 
 Collection of packages to do common stuff for the RoboCup SSL league like reading, writing, sending, receiving and parsing messages.
