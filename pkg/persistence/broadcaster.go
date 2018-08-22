@@ -1,17 +1,25 @@
-package main
+package persistence
 
 import (
-	"flag"
 	"github.com/RoboCup-SSL/ssl-go-tools/sslproto"
 	"log"
 	"net"
 	"time"
 )
 
-const maxDatagramSize = 8192
+type Broadcaster struct {
+	Slots                []*Slot
+	conns                map[MessageId]*net.UDPConn
+	reader               *Reader
+	SkipNonRunningStages bool
+}
+
+func NewBroadcaster() Broadcaster {
+	return Broadcaster{Slots: make([]*Slot, 0), conns: make(map[MessageId]*net.UDPConn)}
+}
 
 // NewBroadcaster creates a new UDP multicast connection on which to broadcast
-func NewBroadcaster(address string) *net.UDPConn {
+func connectForPublishing(address string) *net.UDPConn {
 	addr, err := net.ResolveUDPAddr("udp", address)
 	if err != nil {
 		log.Fatalln(err)
@@ -25,34 +33,44 @@ func NewBroadcaster(address string) *net.UDPConn {
 	log.Println("Connected to", address)
 
 	return conn
-
 }
 
-func main() {
-	logFile := flag.String("logfile", "", "The log file to play")
-	skipNonRunningStages := flag.Bool("skip", false, "Skip frames while not in a running stage")
+func (b *Broadcaster) AddSlot(messageType MessageType, address string) {
+	b.Slots = append(b.Slots, &Slot{address: address, MessageType: messageType})
+}
 
-	flag.Parse()
-
-	if logFile == nil {
-		log.Fatalln("Missing logfile")
-	}
-
-	logReader, err := sslproto.NewLogReader(*logFile)
+func (b *Broadcaster) Start(filename string) error {
+	reader, err := NewReader(filename)
 	if err != nil {
-		return
+		return err
 	}
-	defer logReader.Close()
+	b.reader = reader
 
-	legacyVisionConn := NewBroadcaster("224.5.23.2:10005")
-	visionConn := NewBroadcaster("224.5.23.2:10006")
-	refereeConn := NewBroadcaster("224.5.23.1:10003")
+	for _, slot := range b.Slots {
+		conn := connectForPublishing(slot.address)
+		b.conns[slot.MessageType.Id] = conn
+	}
 
+	b.publish()
+	return nil
+}
+
+func (b *Broadcaster) Stop() error {
+	for _, conn := range b.conns {
+		conn.Close()
+	}
+	if b.reader != nil {
+		return b.reader.Close()
+	}
+	return nil
+}
+
+func (b *Broadcaster) publish() {
 	startTime := time.Now()
 	refTimestamp := int64(0)
 	curStage := sslproto.SSL_Referee_Stage(-1)
-	for logReader.HasMessage() {
-		msg, err := logReader.ReadMessage()
+	for b.reader.HasMessage() {
+		msg, err := b.reader.ReadMessage()
 		if err != nil {
 			log.Println("Could not read message", err)
 			continue
@@ -69,21 +87,15 @@ func main() {
 				refTimestamp = msg.Timestamp
 			}
 
-			switch msg.MessageType {
-			case sslproto.MESSAGE_SSL_VISION_2010:
-				legacyVisionConn.Write(msg.Message)
-			case sslproto.MESSAGE_SSL_VISION_2014:
-				visionConn.Write(msg.Message)
-			case sslproto.MESSAGE_SSL_REFBOX_2013:
-				refereeConn.Write(msg.Message)
-			default:
-				log.Println("Unknown message type: ", msg.MessageType)
+			conn := b.conns[msg.MessageType.Id]
+			if conn != nil {
+				conn.Write(msg.Message)
 			}
 		} else {
 			refTimestamp = 0
 		}
 
-		if *skipNonRunningStages && msg.MessageType == sslproto.MESSAGE_SSL_REFBOX_2013 {
+		if b.SkipNonRunningStages && msg.MessageType.Id == MessageSslRefbox2013 {
 			refMsg, err := msg.ParseReferee()
 			if err != nil {
 				log.Println("Could not parse referee message:", err)

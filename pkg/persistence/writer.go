@@ -1,4 +1,4 @@
-package sslproto
+package persistence
 
 import (
 	"bufio"
@@ -8,16 +8,16 @@ import (
 	"os"
 )
 
-type LogWriter struct {
+type Writer struct {
 	file   *os.File
 	writer *bufio.Writer
 }
 
-func NewLogWriter(filename string) (logWriter *LogWriter, err error) {
-	logWriter = new(LogWriter)
+func NewWriter(filename string) (logWriter Writer, err error) {
 	logWriter.file, err = os.Create(filename)
 	if err != nil {
-		return nil, errors.Wrap(err, "Could not create log file: "+filename)
+		err = errors.Wrap(err, "Could not create log file: "+filename)
+		return
 	}
 
 	if filename[len(filename)-2:] == "gz" {
@@ -30,7 +30,7 @@ func NewLogWriter(filename string) (logWriter *LogWriter, err error) {
 	return
 }
 
-func (l *LogWriter) writeHeader() error {
+func (l *Writer) writeHeader() error {
 	_, err := l.writer.WriteString("SSL_LOG_FILE")
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func (l *LogWriter) writeHeader() error {
 	return err
 }
 
-func (l *LogWriter) Close() error {
+func (l *Writer) Close() error {
 	err := l.writer.Flush()
 	if err != nil {
 		return err
@@ -47,12 +47,12 @@ func (l *LogWriter) Close() error {
 	return l.file.Close()
 }
 
-func (l *LogWriter) WriteMessage(msg *LogMessage) (err error) {
+func (l *Writer) Write(msg *Message) (err error) {
 	err = l.writeInt64(msg.Timestamp)
 	if err != nil {
 		return
 	}
-	err = l.writeInt32(int32(msg.MessageType))
+	err = l.writeInt32(int32(msg.MessageType.Id))
 	if err != nil {
 		return
 	}
@@ -67,22 +67,22 @@ func (l *LogWriter) WriteMessage(msg *LogMessage) (err error) {
 	return
 }
 
-func (l *LogWriter) writeBytes(data []byte) error {
+func (l *Writer) writeBytes(data []byte) error {
 	_, err := l.writer.Write(data)
 	return err
 }
 
-func (l *LogWriter) writeString(data string) error {
+func (l *Writer) writeString(data string) error {
 	_, err := l.writer.WriteString(data)
 	return err
 }
 
-func (l *LogWriter) writeInt32(data int32) error {
+func (l *Writer) writeInt32(data int32) error {
 	err := binary.Write(l.writer, binary.BigEndian, data)
 	return err
 }
 
-func (l *LogWriter) writeInt64(data int64) error {
+func (l *Writer) writeInt64(data int64) error {
 	err := binary.Write(l.writer, binary.BigEndian, data)
 	return err
 }
