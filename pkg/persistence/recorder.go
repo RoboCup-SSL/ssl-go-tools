@@ -67,7 +67,7 @@ func (r *Recorder) openLogWriter() error {
 	logFileName := nowStr + ".log.gz"
 	writer, err := NewWriter(logFileName)
 	if err != nil {
-		return errors.Errorf("could not open log file for write: ", err)
+		return errors.Errorf("could not open log file for write: %v", err)
 	}
 	r.writer = writer
 	return nil
