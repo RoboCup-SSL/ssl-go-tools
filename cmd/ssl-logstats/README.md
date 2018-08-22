@@ -12,7 +12,7 @@ Following statistics are currently supported:
 Use go-get to install this executable:
 
 ```
-go get -u github.com/RoboCup-SSL/ssl-go-tools/ssl-logstats
+go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-logstats
 ```
 
 ## Usage

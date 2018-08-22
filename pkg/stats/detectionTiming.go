@@ -1,15 +1,16 @@
-package main
+package stats
 
 import (
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/sslproto"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 )
 
 const maxDt = 0.080
 
 type DetectionTimingProcessor struct {
 	lastDetection  *sslproto.SSL_DetectionFrame
-	lastLogMessage *sslproto.LogMessage
+	lastLogMessage *persistence.Message
 
 	NumDetection uint64
 
@@ -32,7 +33,7 @@ func (p *DetectionTimingProcessor) Close() error {
 	return nil
 }
 
-func (p *DetectionTimingProcessor) ProcessDetection(logMessage *sslproto.LogMessage, frame *sslproto.SSL_DetectionFrame) {
+func (p *DetectionTimingProcessor) ProcessDetection(logMessage *persistence.Message, frame *sslproto.SSL_DetectionFrame) {
 	if p.lastDetection != nil && p.lastLogMessage != nil {
 		tCaptureDiff := *frame.TCapture - *p.lastDetection.TCapture
 		tSentDiff := *frame.TSent - *p.lastDetection.TSent

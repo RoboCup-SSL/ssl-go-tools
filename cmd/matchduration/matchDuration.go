@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	. "github.com/RoboCup-SSL/ssl-go-tools/sslproto"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	. "github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"io/ioutil"
 	"log"
 	"os"
@@ -49,14 +50,13 @@ func matchStats(filename string) (m *MatchStats, err error) {
 	m = new(MatchStats)
 	m.Filename = filename
 
-	logReader, err := NewLogReader(filename)
+	logReader, err := persistence.NewReader(filename)
 	if err != nil {
 		return
 	}
 	defer logReader.Close()
 
-	channel := make(chan *SSL_Referee, 100)
-	go logReader.CreateRefereeChannel(channel)
+	channel := logReader.CreateChannel()
 
 	var lastCmdId *uint32
 	var halfStartTimestamp *uint64
@@ -68,7 +68,15 @@ func matchStats(filename string) (m *MatchStats, err error) {
 	m.StateTotalTime[GameStateRunning] = 0
 
 	var lastRefereeMsg *SSL_Referee
-	for r := range channel {
+	for c := range channel {
+		if c.MessageType.Id != persistence.MessageSslRefbox2013 {
+			continue
+		}
+		r, err := c.ParseReferee()
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
 		if lastCmdId != nil && *r.CommandCounter == *lastCmdId {
 			continue
 		}

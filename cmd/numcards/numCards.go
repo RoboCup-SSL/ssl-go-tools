@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/sslproto"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"io/ioutil"
 	"log"
 	"os"
@@ -42,18 +43,23 @@ func main() {
 }
 
 func findCards(filename string) (err error) {
-	logReader, err := sslproto.NewLogReader(filename)
+	logReader, err := persistence.NewReader(filename)
 	if err != nil {
 		return
 	}
 	defer logReader.Close()
 
-	channel := make(chan *sslproto.SSL_Referee, 100)
-	go logReader.CreateRefereeChannel(channel)
+	channel := logReader.CreateChannel()
 
 	var lastRefereeMsg *sslproto.SSL_Referee
-	for r := range channel {
-		lastRefereeMsg = r
+	for c := range channel {
+		if c.MessageType.Id != persistence.MessageSslRefbox2013 {
+			continue
+		}
+		lastRefereeMsg, err = c.ParseReferee()
+		if err != nil {
+			return err
+		}
 	}
 
 	yellowCards[*lastRefereeMsg.Yellow.Name] += *lastRefereeMsg.Yellow.YellowCards

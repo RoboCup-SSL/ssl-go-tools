@@ -1,7 +1,7 @@
 package persistence
 
 import (
-	"github.com/RoboCup-SSL/ssl-go-tools/sslproto"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 )

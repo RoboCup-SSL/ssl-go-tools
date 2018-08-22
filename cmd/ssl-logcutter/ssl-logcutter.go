@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/sslproto"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"log"
 	"strings"
 	"time"
@@ -24,21 +25,20 @@ func main() {
 	}
 }
 
-func process(logFile string) {
-	logReader, err := sslproto.NewLogReader(logFile)
+func process(filename string) {
+	logReader, err := persistence.NewReader(filename)
 	if err != nil {
 		log.Println("Could not process log file:", err)
 		return
 	}
 	defer logReader.Close()
 
-	channel := make(chan *sslproto.LogMessage, 100)
-	go logReader.CreateLogMessageChannel(channel)
+	channel := logReader.CreateChannel()
 
-	var logWriter *sslproto.LogWriter
+	var logWriter *persistence.Writer
 
 	for logMessage := range channel {
-		if logMessage.MessageType == sslproto.MESSAGE_SSL_REFBOX_2013 {
+		if logMessage.MessageType.Id == persistence.MessageSslRefbox2013 {
 			refereeMsg, err := logMessage.ParseReferee()
 			if err != nil {
 				log.Println("Could not parse referee message. Stop processing.", err)
@@ -54,11 +54,12 @@ func process(logFile string) {
 				// we are not that much interested in the kick-off preparation, so we start with the transition to the half-stages
 				if logWriter == nil {
 					logFileName := logFileName(refereeMsg, logMessage)
-					logWriter, err = sslproto.NewLogWriter(logFileName)
+					w, err := persistence.NewWriter(logFileName)
 					if err != nil {
 						log.Println("Can not create log writer: ", err)
 						return
 					}
+					logWriter = &w
 					log.Println("Saving to", logFileName)
 				}
 			case sslproto.SSL_Referee_POST_GAME:
@@ -67,13 +68,13 @@ func process(logFile string) {
 			}
 		}
 		if logWriter != nil {
-			logWriter.WriteMessage(logMessage)
+			logWriter.Write(logMessage)
 		}
 	}
 	log.Println("Processing done")
 }
 
-func logFileName(refereeMsg *sslproto.SSL_Referee, r *sslproto.LogMessage) string {
+func logFileName(refereeMsg *sslproto.SSL_Referee, r *persistence.Message) string {
 	teamNameYellow := strings.Replace(*refereeMsg.Yellow.Name, " ", "_", -1)
 	teamNameBlue := strings.Replace(*refereeMsg.Blue.Name, " ", "_", -1)
 	date := time.Unix(0, r.Timestamp).Format("2006-01-02_15-04")

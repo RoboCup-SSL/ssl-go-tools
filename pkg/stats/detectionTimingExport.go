@@ -1,8 +1,9 @@
-package main
+package stats
 
 import (
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/sslproto"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"os"
 )
 
@@ -28,7 +29,7 @@ func (p *DetectionTimingExportProcessor) Close() error {
 	return nil
 }
 
-func (p *DetectionTimingExportProcessor) ProcessDetection(logMessage *sslproto.LogMessage, frame *sslproto.SSL_DetectionFrame) {
+func (p *DetectionTimingExportProcessor) ProcessDetection(logMessage *persistence.Message, frame *sslproto.SSL_DetectionFrame) {
 	p.file.WriteString(fmt.Sprintf("%v,%v,%.30f,%.30f\n", logMessage.Timestamp, *frame.CameraId, *frame.TCapture, *frame.TSent))
 }
 
