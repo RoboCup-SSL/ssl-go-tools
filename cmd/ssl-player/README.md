@@ -16,4 +16,5 @@ go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-player
 
 ## Usage
 
-The binary is called `ssl-player`. Run it with `-h` to get the available parameters.
+The binary is called `ssl-player`.
+Run it with `-h` to print usage information.

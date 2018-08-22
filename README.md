@@ -23,4 +23,11 @@ The executables are installed to your $GOPATH/bin folder. If you have it on your
 
 ## Usage and further details
 
-Have a look at the individual packages and their containing READMEs.
+Have a look at the individual packages and their containing READMEs:
+
+ * [ssl-recorder](cmd/ssl-recorder/README.md)
+ * [ssl-player](cmd/ssl-player/README.md)
+ * [ssl-logcutter](cmd/ssl-logcutter/README.md)
+ * [ssl-logstats](cmd/ssl-logstats/README.md)
+ * [matchduration](cmd/matchduration/README.md)
+ * [numcards](cmd/numcards/README.md)

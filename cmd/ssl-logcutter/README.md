@@ -11,9 +11,10 @@ Team names and the timestamp of the first used frame will be used for the log fi
 Use go-get to install this executable:
 
 ```
-go get -u github.com/RoboCup-SSL/ssl-go-tools/ssl-logcutter
+go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-logcutter
 ```
 
 ## Usage
 
-The binary is called `ssl-logcutter`. There are no parameters available right now. A list of log files that should be processed must be provided after the parameters.
+The binary is called `ssl-logcutter`.
+Run it with `-h` to print usage information.

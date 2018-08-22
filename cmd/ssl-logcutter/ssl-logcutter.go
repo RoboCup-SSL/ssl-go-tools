@@ -6,11 +6,16 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"log"
+	"os"
 	"strings"
 	"time"
 )
 
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Pass one or more log files that should be cut.\n")
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 
 	args := flag.Args()

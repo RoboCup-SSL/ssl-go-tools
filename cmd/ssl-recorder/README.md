@@ -12,4 +12,6 @@ go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-recorder
 
 ## Usage
 
-The binary is called `ssl-recorder`. Run it with `-h` to see the available parameters. Logs will be written to a compressed log file in the current working directory.
+The binary is called `ssl-recorder`.
+Run it with `-h` to print usage information.
+Logs will be written to a compressed log file in the current working directory.

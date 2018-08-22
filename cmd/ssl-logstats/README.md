@@ -17,4 +17,5 @@ go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-logstats
 
 ## Usage
 
-The binary is called `ssl-logstats`. Run it with `-h` to get the available parameters. A list of log files that should be processed must be provided after the parameters.
+The binary is called `ssl-logstats`.
+Run it with `-h` to print usage information.

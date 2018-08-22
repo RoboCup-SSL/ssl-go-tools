@@ -2,8 +2,10 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/stats"
 	"log"
+	"os"
 )
 
 var useDetectionTimingExport = flag.Bool("detectionTimingExport", false, "Use this processor")
@@ -11,6 +13,10 @@ var useDetectionTiming = flag.Bool("detectionTiming", false, "Use this processor
 var useAll = flag.Bool("all", false, "Use all processors")
 
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Pass one or more log files and specify one or more processors with following flags:\n")
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 
 	args := flag.Args()
