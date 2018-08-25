@@ -72,8 +72,7 @@ func (b *Broadcaster) publish() {
 	for b.reader.HasMessage() {
 		msg, err := b.reader.ReadMessage()
 		if err != nil {
-			log.Println("Could not read message", err)
-			continue
+			log.Fatal("Could not read message: ", err)
 		}
 		if isRunningStage(curStage) {
 
