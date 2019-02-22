@@ -13,8 +13,9 @@ import (
 const channelBufferSize = 100
 
 type Reader struct {
-	file   *os.File
-	reader *bufio.Reader
+	file       *os.File
+	reader     *bufio.Reader
+	gzipReader *gzip.Reader
 }
 
 func NewReader(filename string) (logReader *Reader, err error) {
@@ -25,19 +26,23 @@ func NewReader(filename string) (logReader *Reader, err error) {
 	}
 
 	if filename[len(filename)-2:] == "gz" {
-		gzipReader, err := gzip.NewReader(logReader.file)
+		logReader.gzipReader, err = gzip.NewReader(logReader.file)
 		if err != nil {
 			return nil, err
 		}
-		logReader.reader = bufio.NewReader(gzipReader)
+		logReader.reader = bufio.NewReader(logReader.gzipReader)
 	} else {
 		logReader.reader = bufio.NewReader(logReader.file)
 	}
-	logReader.verifyLogFile()
+	err = logReader.verifyLogFile()
 	return
 }
 
 func (l *Reader) Close() error {
+	err := l.gzipReader.Close()
+	if err != nil {
+		return err
+	}
 	return l.file.Close()
 }
 

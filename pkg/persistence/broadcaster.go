@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"log"
 	"net"
@@ -29,7 +30,10 @@ func connectForPublishing(address string) *net.UDPConn {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	conn.SetReadBuffer(maxDatagramSize)
+	err = conn.SetReadBuffer(maxDatagramSize)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	log.Println("Connected to", address)
 
 	return conn
@@ -55,14 +59,19 @@ func (b *Broadcaster) Start(filename string) error {
 	return nil
 }
 
-func (b *Broadcaster) Stop() error {
+func (b *Broadcaster) Stop() {
 	for _, conn := range b.conns {
-		conn.Close()
+		err := conn.Close()
+		if err != nil {
+			fmt.Println("Could not close connection: ", err)
+		}
 	}
 	if b.reader != nil {
-		return b.reader.Close()
+		err := b.reader.Close()
+		if err != nil {
+			fmt.Println("Could not close reader: ", err)
+		}
 	}
-	return nil
 }
 
 func (b *Broadcaster) publish() {
@@ -86,9 +95,11 @@ func (b *Broadcaster) publish() {
 				refTimestamp = msg.Timestamp
 			}
 
-			conn := b.conns[msg.MessageType.Id]
-			if conn != nil {
-				conn.Write(msg.Message)
+			if conn := b.conns[msg.MessageType.Id]; conn != nil {
+				_, err := conn.Write(msg.Message)
+				if err != nil {
+					log.Println("Could not write message: ", err)
+				}
 			}
 		} else {
 			refTimestamp = 0

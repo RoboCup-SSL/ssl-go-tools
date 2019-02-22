@@ -24,7 +24,11 @@ func main() {
 
 	logger := persistence.NewRecorder()
 	addSlots(&logger)
-	logger.Start()
+	err := logger.Start()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	logger.RegisterToInterrupt()
 
 	for {
