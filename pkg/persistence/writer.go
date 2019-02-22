@@ -9,11 +9,14 @@ import (
 )
 
 type Writer struct {
-	file   *os.File
-	writer *bufio.Writer
+	file       *os.File
+	writer     *bufio.Writer
+	gzipWriter *gzip.Writer
+	Open       bool
 }
 
 func NewWriter(filename string) (logWriter Writer, err error) {
+	logWriter.Open = false
 	logWriter.file, err = os.Create(filename)
 	if err != nil {
 		err = errors.Wrap(err, "Could not create log file: "+filename)
@@ -21,12 +24,17 @@ func NewWriter(filename string) (logWriter Writer, err error) {
 	}
 
 	if filename[len(filename)-2:] == "gz" {
-		gzipWriter := gzip.NewWriter(logWriter.file)
-		logWriter.writer = bufio.NewWriter(gzipWriter)
+		logWriter.gzipWriter = gzip.NewWriter(logWriter.file)
+		logWriter.writer = bufio.NewWriter(logWriter.gzipWriter)
 	} else {
 		logWriter.writer = bufio.NewWriter(logWriter.file)
 	}
-	logWriter.writeHeader()
+	err = logWriter.writeHeader()
+	if err != nil {
+		err = errors.Wrap(err, "Could not write header")
+		return
+	}
+	logWriter.Open = true
 	return
 }
 
@@ -40,9 +48,19 @@ func (l *Writer) writeHeader() error {
 }
 
 func (l *Writer) Close() error {
+	if l.writer == nil {
+		// not open
+		return nil
+	}
 	err := l.writer.Flush()
 	if err != nil {
 		return err
+	}
+	if l.gzipWriter != nil {
+		err = l.gzipWriter.Close()
+		if err != nil {
+			return err
+		}
 	}
 	return l.file.Close()
 }

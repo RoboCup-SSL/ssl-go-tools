@@ -56,7 +56,10 @@ func (r *Recorder) RegisterToInterrupt() {
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		for range c {
-			r.Stop()
+			err := r.Stop()
+			if err != nil {
+				log.Println("Could not stop recorder: ", err)
+			}
 			os.Exit(0)
 		}
 	}()
@@ -82,7 +85,10 @@ func openConnection(address string) (listener *net.UDPConn, err error) {
 	if err != nil {
 		return
 	}
-	listener.SetReadBuffer(maxDatagramSize)
+	err = listener.SetReadBuffer(maxDatagramSize)
+	if err != nil {
+		return
+	}
 	log.Printf("Listening on %s", address)
 	return
 }
@@ -102,7 +108,10 @@ func (r *Recorder) acceptMessages(listener *net.UDPConn, slot *Slot) {
 			timestamp := time.Now().UnixNano()
 			logMessage := Message{Timestamp: timestamp, MessageType: slot.MessageType, Message: data[:n]}
 			r.mutex.Lock()
-			r.writer.Write(&logMessage)
+			err = r.writer.Write(&logMessage)
+			if err != nil {
+				log.Println("Could not write log message: ", err)
+			}
 			r.mutex.Unlock()
 			slot.ReceivedMessages++
 		}
