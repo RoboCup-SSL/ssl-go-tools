@@ -47,33 +47,72 @@ func process(filename string) {
 
 	channel := logReader.CreateChannel()
 
-	var logWriter persistence.Writer
+	tmpLogFilename := "tmp.log.gz"
+	logWriter, err := persistence.NewWriter(tmpLogFilename)
+	if err != nil {
+		log.Println("Could not open temporary writer:", err)
+		return
+	}
 
+	var lastRefereeMsg *sslproto.SSL_Referee = nil
+	var lastStage *sslproto.SSL_Referee_Stage = nil
 	for logMessage := range channel {
 		refereeMsg, err := getRefereeMsg(logMessage)
 		if err != nil {
 			log.Println(err)
 			break
 		}
-		if refereeMsg != nil && !logWriter.Open {
-			logWriter, err = createLogWriter(refereeMsg)
+		if refereeMsg != nil && (lastStage == nil || *refereeMsg.Stage > *lastStage) {
+			switch *refereeMsg.Stage {
+			case sslproto.SSL_Referee_NORMAL_FIRST_HALF:
+				log.Println("Found first half")
+			case sslproto.SSL_Referee_NORMAL_SECOND_HALF:
+				log.Println("Found second half")
+			case sslproto.SSL_Referee_EXTRA_FIRST_HALF:
+				log.Println("Found extra first half")
+			case sslproto.SSL_Referee_EXTRA_SECOND_HALF:
+				log.Println("Found extra second half")
+			case sslproto.SSL_Referee_PENALTY_SHOOTOUT:
+				log.Println("Found shootout")
+			case sslproto.SSL_Referee_POST_GAME:
+				log.Println("Found post game")
+			}
 		}
-		if refereeMsg != nil && *refereeMsg.Stage == sslproto.SSL_Referee_POST_GAME {
-			log.Println("POST_GAME found. Stop processing.")
-			break
+
+		if refereeMsg != nil {
+			lastRefereeMsg = refereeMsg
+
+			if lastStage == nil {
+				lastStage = new(sslproto.SSL_Referee_Stage)
+			}
+			*lastStage = *refereeMsg.Stage
+
+			if *refereeMsg.Stage == sslproto.SSL_Referee_POST_GAME {
+				continue
+			}
 		}
-		if logWriter.Open {
-			err = logWriter.Write(logMessage)
+
+		if err := logWriter.Write(logMessage); err != nil {
+			log.Println("Could not write log message:", err)
 		}
 	}
 
-	err = logWriter.Close()
-	if err != nil {
+	if err := logWriter.Close(); err != nil {
 		log.Println("Could not close log writer: ", err)
 	}
-	err = logReader.Close()
-	if err != nil {
-		log.Println("Could not close log reader: ", err)
+
+	if lastRefereeMsg == nil {
+		if err := os.Remove(tmpLogFilename); err != nil {
+			log.Println("Could not remove tmp log file:", err)
+			return
+		}
+	}
+
+	newLogFilename := logFileName(lastRefereeMsg)
+	if err := os.Rename(tmpLogFilename, newLogFilename); err != nil {
+		log.Printf("Could not rename file from '%v' to '%v'.", tmpLogFilename, newLogFilename)
+	} else {
+		log.Println("Saved to", newLogFilename)
 	}
 }
 
@@ -84,25 +123,6 @@ func getRefereeMsg(logMessage *persistence.Message) (refereeMsg *sslproto.SSL_Re
 	refereeMsg, err = logMessage.ParseReferee()
 	if err != nil {
 		err = errors.Wrap(err, "Could not parse referee message")
-	}
-	return
-}
-
-func createLogWriter(refereeMsg *sslproto.SSL_Referee) (logWriter persistence.Writer, err error) {
-	switch *refereeMsg.Stage {
-	case sslproto.SSL_Referee_NORMAL_FIRST_HALF,
-		sslproto.SSL_Referee_NORMAL_SECOND_HALF,
-		sslproto.SSL_Referee_EXTRA_FIRST_HALF,
-		sslproto.SSL_Referee_EXTRA_SECOND_HALF:
-		// we have to start at a point, where team names are guarantied to have been entered
-		// the NORMAL_START command is only allowed, if team names were entered. So we will begin at least there
-		// we are not that much interested in the kick-off preparation, so we start with the transition to the half-stages
-		logFileName := logFileName(refereeMsg)
-		logWriter, err = persistence.NewWriter(logFileName)
-		if err != nil {
-			err = errors.Wrap(err, "Can not create log writer")
-		}
-		log.Println("Saving to", logFileName)
 	}
 	return
 }

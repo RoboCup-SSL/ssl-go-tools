@@ -72,7 +72,7 @@ func (r *Recorder) openLogWriter() error {
 	if err != nil {
 		return errors.Errorf("could not open log file for write: %v", err)
 	}
-	r.writer = writer
+	r.writer = *writer
 	return nil
 }
 

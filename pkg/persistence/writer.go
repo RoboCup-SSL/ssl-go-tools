@@ -15,7 +15,8 @@ type Writer struct {
 	Open       bool
 }
 
-func NewWriter(filename string) (logWriter Writer, err error) {
+func NewWriter(filename string) (logWriter *Writer, err error) {
+	logWriter = new(Writer)
 	logWriter.Open = false
 	logWriter.file, err = os.Create(filename)
 	if err != nil {
