@@ -56,13 +56,19 @@ func process(filename string) {
 
 	var lastRefereeMsg *sslproto.SSL_Referee = nil
 	var lastStage *sslproto.SSL_Referee_Stage = nil
+	skipped := 0
 	for logMessage := range channel {
 		refereeMsg, err := getRefereeMsg(logMessage)
 		if err != nil {
-			log.Println(err)
-			break
+			log.Fatal(err)
 		}
-		if refereeMsg != nil && (lastStage == nil || *refereeMsg.Stage > *lastStage) {
+
+		if refereeMsg != nil && lastRefereeMsg != nil && *refereeMsg.CommandCounter < *lastRefereeMsg.CommandCounter {
+			skipped++
+			continue
+		}
+
+		if refereeMsg != nil && (lastStage == nil || *refereeMsg.Stage != *lastStage) {
 			switch *refereeMsg.Stage {
 			case sslproto.SSL_Referee_NORMAL_FIRST_HALF:
 				log.Println("Found first half")
@@ -104,8 +110,12 @@ func process(filename string) {
 	if lastRefereeMsg == nil {
 		if err := os.Remove(tmpLogFilename); err != nil {
 			log.Println("Could not remove tmp log file:", err)
-			return
 		}
+		return
+	}
+
+	if skipped > 0 {
+		log.Printf("Skipped %d referee messages, because they were out of order (probably a second referee source).", skipped)
 	}
 
 	newLogFilename := logFileName(lastRefereeMsg)
