@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"io"
+	"log"
 	"os"
 )
 
@@ -39,9 +40,11 @@ func NewReader(filename string) (logReader *Reader, err error) {
 }
 
 func (l *Reader) Close() error {
-	err := l.gzipReader.Close()
-	if err != nil {
-		return err
+	if l.gzipReader != nil {
+		err := l.gzipReader.Close()
+		if err != nil {
+			return err
+		}
 	}
 	return l.file.Close()
 }
