@@ -29,6 +29,7 @@ func main() {
 		log.Println("Processing", arg)
 		process(arg)
 		log.Println("Processing done")
+		log.Println("")
 	}
 }
 
@@ -64,7 +65,9 @@ func process(filename string) {
 		if refereeMsg != nil {
 			numRefereeMessages++
 
-			if lastRefereeMsg != nil && *refereeMsg.CommandCounter < *lastRefereeMsg.CommandCounter {
+			if *refereeMsg.Yellow.Name == "" ||
+				*refereeMsg.Blue.Name == "" ||
+				*refereeMsg.Yellow.Name == *refereeMsg.Blue.Name {
 				numSkippedRefereeMessages++
 				continue
 			}
@@ -109,10 +112,8 @@ func process(filename string) {
 		closeLogWriter(logWriter, lastRefereeMsg)
 	}
 
-	if numSkippedRefereeMessages > 0 {
-		log.Printf("Skipped %d of %d referee messages, because they were out of order (probably a second referee source).",
-			numSkippedRefereeMessages, numRefereeMessages)
-	}
+	log.Printf("Found %d valid referee messages, skipped %d unreasonable referee messages.",
+		numRefereeMessages, numSkippedRefereeMessages)
 }
 
 func closeLogWriter(logWriter *persistence.Writer, lastRefereeMsg *sslproto.SSL_Referee) {
