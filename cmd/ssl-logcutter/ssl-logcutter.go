@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+var tmpLogFilename = "tmp.log.gz"
+
 func main() {
 	flag.Usage = usage
 	flag.Parse()
@@ -47,80 +49,85 @@ func process(filename string) {
 
 	channel := logReader.CreateChannel()
 
-	tmpLogFilename := "tmp.log.gz"
-	logWriter, err := persistence.NewWriter(tmpLogFilename)
-	if err != nil {
-		log.Println("Could not open temporary writer:", err)
-		return
-	}
+	var logWriter *persistence.Writer = nil
 
 	var lastRefereeMsg *sslproto.SSL_Referee = nil
 	var lastStage *sslproto.SSL_Referee_Stage = nil
-	skipped := 0
+	numSkippedRefereeMessages := 0
+	numRefereeMessages := 0
 	for logMessage := range channel {
 		refereeMsg, err := getRefereeMsg(logMessage)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if refereeMsg != nil && lastRefereeMsg != nil && *refereeMsg.CommandCounter < *lastRefereeMsg.CommandCounter {
-			skipped++
-			continue
-		}
-
-		if refereeMsg != nil && (lastStage == nil || *refereeMsg.Stage != *lastStage) {
-			switch *refereeMsg.Stage {
-			case sslproto.SSL_Referee_NORMAL_FIRST_HALF:
-				log.Println("Found first half")
-			case sslproto.SSL_Referee_NORMAL_SECOND_HALF:
-				log.Println("Found second half")
-			case sslproto.SSL_Referee_EXTRA_FIRST_HALF:
-				log.Println("Found extra first half")
-			case sslproto.SSL_Referee_EXTRA_SECOND_HALF:
-				log.Println("Found extra second half")
-			case sslproto.SSL_Referee_PENALTY_SHOOTOUT:
-				log.Println("Found shootout")
-			case sslproto.SSL_Referee_POST_GAME:
-				log.Println("Found post game")
-			}
-		}
-
 		if refereeMsg != nil {
-			lastRefereeMsg = refereeMsg
+			numRefereeMessages++
+
+			if lastRefereeMsg != nil && *refereeMsg.CommandCounter < *lastRefereeMsg.CommandCounter {
+				numSkippedRefereeMessages++
+				continue
+			}
+
+			if lastStage == nil || *refereeMsg.Stage != *lastStage {
+				log.Printf("Found stage '%v'", sslproto.SSL_Referee_Stage_name[int32(*refereeMsg.Stage)])
+			}
+
+			if logWriter == nil &&
+				*refereeMsg.Stage != sslproto.SSL_Referee_POST_GAME &&
+				*refereeMsg.Command != sslproto.SSL_Referee_HALT {
+				log.Print("Start log writer")
+				logWriter, err = persistence.NewWriter(tmpLogFilename)
+				if err != nil {
+					log.Fatal("Could not open temporary writer:", err)
+				}
+			}
+
+			if logWriter != nil &&
+				*refereeMsg.Stage == sslproto.SSL_Referee_POST_GAME {
+				log.Print("Stop log writer")
+				closeLogWriter(logWriter, lastRefereeMsg)
+				logWriter = nil
+			}
 
 			if lastStage == nil {
 				lastStage = new(sslproto.SSL_Referee_Stage)
 			}
 			*lastStage = *refereeMsg.Stage
 
-			if *refereeMsg.Stage == sslproto.SSL_Referee_POST_GAME {
-				continue
+			lastRefereeMsg = refereeMsg
+		}
+
+		if logWriter != nil {
+			if err := logWriter.Write(logMessage); err != nil {
+				log.Println("Could not write log message:", err)
 			}
 		}
-
-		if err := logWriter.Write(logMessage); err != nil {
-			log.Println("Could not write log message:", err)
-		}
 	}
 
+	if logWriter != nil {
+		closeLogWriter(logWriter, lastRefereeMsg)
+	}
+
+	if numSkippedRefereeMessages > 0 {
+		log.Printf("Skipped %d of %d referee messages, because they were out of order (probably a second referee source).",
+			numSkippedRefereeMessages, numRefereeMessages)
+	}
+}
+
+func closeLogWriter(logWriter *persistence.Writer, lastRefereeMsg *sslproto.SSL_Referee) {
 	if err := logWriter.Close(); err != nil {
-		log.Println("Could not close log writer: ", err)
+		log.Fatal("Could not close log writer: ", err)
 	}
-
 	if lastRefereeMsg == nil {
 		if err := os.Remove(tmpLogFilename); err != nil {
-			log.Println("Could not remove tmp log file:", err)
+			log.Fatal("Could not remove tmp log file:", err)
 		}
 		return
 	}
-
-	if skipped > 0 {
-		log.Printf("Skipped %d referee messages, because they were out of order (probably a second referee source).", skipped)
-	}
-
 	newLogFilename := logFileName(lastRefereeMsg)
 	if err := os.Rename(tmpLogFilename, newLogFilename); err != nil {
-		log.Printf("Could not rename file from '%v' to '%v'.", tmpLogFilename, newLogFilename)
+		log.Fatalf("Could not rename file from '%v' to '%v'.", tmpLogFilename, newLogFilename)
 	} else {
 		log.Println("Saved to", newLogFilename)
 	}
