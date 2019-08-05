@@ -80,6 +80,26 @@ func (l *Reader) ReadMessage() (msg *Message, err error) {
 	return
 }
 
+func (l *Reader) SkipMessage() (bytesRead int, err error) {
+	headerBytes := 12
+	if n, err := l.reader.Discard(headerBytes); err != nil {
+		if err == io.EOF {
+			return 0, nil
+		}
+		log.Fatalf("Could not discard %v header bytes. Discarded: %v bytes: %v", headerBytes, n, err)
+	}
+
+	length, err := l.readInt32()
+	if err != nil {
+		return -1, err
+	}
+
+	if n, err := l.reader.Discard(int(length)); err != nil {
+		log.Fatalf("Could not discard %v message bytes. Discarded: %v bytes: %v", length, n, err)
+	}
+	return headerBytes + 4 + int(length), nil
+}
+
 func (l *Reader) CreateChannel() (channel chan *Message) {
 	channel = make(chan *Message, channelBufferSize)
 	go l.readToChannel(channel)
