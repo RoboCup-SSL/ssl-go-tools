@@ -86,8 +86,10 @@ func process(filename string) {
 				}
 			}
 
-			if logWriter != nil &&
-				*refereeMsg.Stage == sslproto.SSL_Referee_POST_GAME {
+			if logWriter != nil && lastRefereeMsg != nil &&
+				*refereeMsg.Command == sslproto.SSL_Referee_HALT &&
+				(*refereeMsg.Stage == sslproto.SSL_Referee_POST_GAME ||
+					*refereeMsg.Stage == sslproto.SSL_Referee_NORMAL_FIRST_HALF_PRE) {
 				log.Print("Stop log writer")
 				closeLogWriter(logWriter, lastRefereeMsg)
 				logWriter = nil
