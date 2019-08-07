@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  tools:
+    docker:
+    - image: circleci/golang:1.10
+    working_directory: /go/src/github.com/RoboCup-SSL/ssl-go-tools
+    steps:
+    - checkout
+    - attach_workspace:
+        at: .
+    - run: go get -v -t -d ./...
+    - run: go test -v -covermode=count -coverprofile=count.out ./...
+    - run: go tool cover -html=count.out -o coverage.html
+    - store_artifacts:
+        path: coverage.html
+        destination: coverage
+
+workflows:
+  version: 2
+  main:
+    jobs:
+    - tools:
+        filters:
+          tags:
+            only: /.*/

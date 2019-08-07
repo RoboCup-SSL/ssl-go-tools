@@ -1,6 +1,8 @@
-![travis build](https://travis-ci.org/RoboCup-SSL/ssl-go-tools.svg?branch=master "travis build status")
+[![CircleCI](https://circleci.com/gh/RoboCup-SSL/ssl-go-tools/tree/master.svg?style=svg)](https://circleci.com/gh/RoboCup-SSL/ssl-go-tools/tree/master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/RoboCup-SSL/ssl-go-tools?style=flat-square)](https://goreportcard.com/report/github.com/RoboCup-SSL/ssl-go-tools)
-[![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/RoboCup-SSL/ssl-go-tools)
+[![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/RoboCup-SSL/ssl-go-tools)
+[![Coverage](https://img.shields.io/badge/coverage-report-blue.svg)](https://circleci.com/api/v1.1/project/github/RoboCup-SSL/ssl-go-tools/latest/artifacts/0/coverage?branch=master)
+
 
 # ssl-go-tools
 
