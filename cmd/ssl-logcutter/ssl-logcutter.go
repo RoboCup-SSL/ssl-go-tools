@@ -56,6 +56,7 @@ func process(filename string) {
 	var lastStage *sslproto.SSL_Referee_Stage = nil
 	numSkippedRefereeMessages := 0
 	numRefereeMessages := 0
+	unreasonableTeamNames := map[string]int{}
 	for logMessage := range channel {
 		refereeMsg, err := getRefereeMsg(logMessage)
 		if err != nil {
@@ -69,6 +70,14 @@ func process(filename string) {
 				*refereeMsg.Blue.Name == "" ||
 				*refereeMsg.Yellow.Name == *refereeMsg.Blue.Name {
 				numSkippedRefereeMessages++
+				if *refereeMsg.Yellow.Name != "" && *refereeMsg.Yellow.Name == *refereeMsg.Blue.Name {
+					i, ok := unreasonableTeamNames[*refereeMsg.Yellow.Name]
+					if ok {
+						unreasonableTeamNames[*refereeMsg.Yellow.Name] = i + 1
+					} else {
+						unreasonableTeamNames[*refereeMsg.Yellow.Name] = 1
+					}
+				}
 				continue
 			}
 
@@ -114,8 +123,8 @@ func process(filename string) {
 		closeLogWriter(logWriter, lastRefereeMsg)
 	}
 
-	log.Printf("Found %d valid referee messages, skipped %d unreasonable referee messages.",
-		numRefereeMessages, numSkippedRefereeMessages)
+	log.Printf("Found %d valid referee messages, skipped %d unreasonable referee messages with these team names: %v",
+		numRefereeMessages, numSkippedRefereeMessages, unreasonableTeamNames)
 }
 
 func closeLogWriter(logWriter *persistence.Writer, lastRefereeMsg *sslproto.SSL_Referee) {
