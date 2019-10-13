@@ -6,15 +6,18 @@ import (
 	"github.com/pkg/errors"
 	"log"
 	"path/filepath"
+	"time"
 )
 
 type MatchStatGenerator struct {
 	metaDataProcessor MetaDataProcessor
+	gamePhaseDetector GamePhaseDetector
 }
 
 func NewMatchStatsGenerator() *MatchStatGenerator {
 	generator := new(MatchStatGenerator)
 	generator.metaDataProcessor = MetaDataProcessor{}
+	generator.gamePhaseDetector = GamePhaseDetector{}
 	return generator
 }
 
@@ -44,12 +47,12 @@ func (m *MatchStatGenerator) Process(filename string) (*sslproto.MatchStats, err
 			m.OnFirstRefereeMessage(matchStats, r)
 		}
 
-		if lastRefereeMsg == nil || *r.Command != *lastRefereeMsg.Command {
-			m.OnNewCommand(matchStats, r)
-		}
-
 		if lastRefereeMsg == nil || *r.Stage != *lastRefereeMsg.Stage {
 			m.OnNewStage(matchStats, r)
+		}
+
+		if lastRefereeMsg == nil || *r.Command != *lastRefereeMsg.Command {
+			m.OnNewCommand(matchStats, r)
 		}
 
 		lastRefereeMsg = r
@@ -61,15 +64,11 @@ func (m *MatchStatGenerator) Process(filename string) (*sslproto.MatchStats, err
 }
 
 func (m *MatchStatGenerator) OnNewStage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
-
+	m.gamePhaseDetector.OnNewStage(matchStats, referee)
 }
 
 func (m *MatchStatGenerator) OnNewCommand(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
-
-}
-
-func (m *MatchStatGenerator) OnNewGameEvent(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
-
+	m.gamePhaseDetector.OnNewCommand(matchStats, referee)
 }
 
 func (m *MatchStatGenerator) OnFirstRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
@@ -78,4 +77,10 @@ func (m *MatchStatGenerator) OnFirstRefereeMessage(matchStats *sslproto.MatchSta
 
 func (m *MatchStatGenerator) OnLastRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
 	m.metaDataProcessor.OnLastRefereeMessage(matchStats, referee)
+}
+
+func packetTimeStampToTime(packetTimestamp uint64) time.Time {
+	seconds := int64(packetTimestamp / 1_000_000)
+	nanoSeconds := int64(packetTimestamp-uint64(seconds*1_000_000)) * 1000
+	return time.Unix(seconds, nanoSeconds)
 }

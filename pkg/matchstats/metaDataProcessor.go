@@ -33,9 +33,3 @@ func processTeam(stats *sslproto.TeamStats, team *sslproto.Referee_TeamInfo) {
 	stats.YellowCards = *team.YellowCards
 	stats.RedCards = *team.RedCards
 }
-
-func packetTimeStampToTime(packetTimestamp uint64) time.Time {
-	seconds := int64(packetTimestamp / 1_000_000)
-	nanoSeconds := int64(packetTimestamp-uint64(seconds*1_000_000)) * 1000
-	return time.Unix(seconds, nanoSeconds)
-}
