@@ -1,10 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/matchstats"
+	"github.com/golang/protobuf/jsonpb"
 	"log"
 	"os"
 )
@@ -29,7 +29,8 @@ func main() {
 			log.Printf("%v: %v\n", filename, err)
 		} else {
 			log.Printf("Processed %v\n", filename)
-			b, err := json.MarshalIndent(*matchStats, "", "  ")
+			marshaler := jsonpb.Marshaler{EmitDefaults: true, Indent: "  "}
+			b, err := marshaler.MarshalToString(matchStats)
 			if err != nil {
 				log.Println("Could not marshal match stats to json:", err)
 			}
