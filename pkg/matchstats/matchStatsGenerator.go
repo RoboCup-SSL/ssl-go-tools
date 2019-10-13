@@ -9,24 +9,21 @@ import (
 	"time"
 )
 
-type MatchStatGenerator struct {
-	Collection          sslproto.MatchStatsCollection
+type Generator struct {
 	metaDataProcessor   MetaDataProcessor
 	gamePhaseDetector   GamePhaseDetector
 	gamePhaseAggregator GamePhaseAggregator
 }
 
-func NewMatchStatsGenerator() *MatchStatGenerator {
-	generator := new(MatchStatGenerator)
-	generator.Collection = sslproto.MatchStatsCollection{}
-	generator.Collection.MatchStats = []*sslproto.MatchStats{}
+func NewGenerator() *Generator {
+	generator := new(Generator)
 	generator.metaDataProcessor = MetaDataProcessor{}
 	generator.gamePhaseDetector = GamePhaseDetector{}
 	generator.gamePhaseAggregator = GamePhaseAggregator{}
 	return generator
 }
 
-func (m *MatchStatGenerator) Process(filename string) (*sslproto.MatchStats, error) {
+func (m *Generator) Process(filename string) (*sslproto.MatchStats, error) {
 
 	logReader, err := persistence.NewReader(filename)
 	if err != nil {
@@ -34,7 +31,6 @@ func (m *MatchStatGenerator) Process(filename string) (*sslproto.MatchStats, err
 	}
 
 	matchStats := new(sslproto.MatchStats)
-	m.Collection.MatchStats = append(m.Collection.MatchStats, matchStats)
 	matchStats.Name = filepath.Base(filename)
 	var lastRefereeMsg *sslproto.Referee
 
@@ -71,21 +67,21 @@ func (m *MatchStatGenerator) Process(filename string) (*sslproto.MatchStats, err
 	return matchStats, logReader.Close()
 }
 
-func (m *MatchStatGenerator) OnNewStage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+func (m *Generator) OnNewStage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
 	m.metaDataProcessor.OnNewStage(matchStats, referee)
 	m.gamePhaseDetector.OnNewStage(matchStats, referee)
 }
 
-func (m *MatchStatGenerator) OnNewCommand(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+func (m *Generator) OnNewCommand(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
 	m.metaDataProcessor.OnNewCommand(matchStats, referee)
 	m.gamePhaseDetector.OnNewCommand(matchStats, referee)
 }
 
-func (m *MatchStatGenerator) OnFirstRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+func (m *Generator) OnFirstRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
 	m.metaDataProcessor.OnFirstRefereeMessage(matchStats, referee)
 }
 
-func (m *MatchStatGenerator) OnLastRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+func (m *Generator) OnLastRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
 	m.metaDataProcessor.OnLastRefereeMessage(matchStats, referee)
 	m.gamePhaseDetector.OnLastRefereeMessage(matchStats, referee)
 }

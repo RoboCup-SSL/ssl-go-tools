@@ -28,6 +28,6 @@ func (d *GamePhaseAggregator) Aggregate(matchStats *sslproto.MatchStats) {
 	}
 
 	if matchStats.MatchDuration != checkSum {
-		log.Printf("Match duration mismatch. Total: %v, Sum of phases: %v", matchStats.MatchDuration, checkSum)
+		log.Printf("Match duration mismatch. Total: %v, Sum of phases: %v, Diff: %v", matchStats.MatchDuration, checkSum, matchStats.MatchDuration-checkSum)
 	}
 }
