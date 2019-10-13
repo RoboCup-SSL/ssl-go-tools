@@ -42,7 +42,7 @@ func (a *Aggregator) WriteJson(filename string) error {
 	if err != nil {
 		return errors.Wrap(err, "Could not marshal match stats to json")
 	}
-	return nil
+	return f.Close()
 }
 
 func (a *Aggregator) WriteBin(filename string) error {
@@ -59,5 +59,5 @@ func (a *Aggregator) WriteBin(filename string) error {
 	if err != nil {
 		return errors.Wrap(err, "Could not write match stats to binary")
 	}
-	return nil
+	return f.Close()
 }
