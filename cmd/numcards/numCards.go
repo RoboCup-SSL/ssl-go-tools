@@ -51,7 +51,7 @@ func findCards(filename string) (err error) {
 
 	channel := logReader.CreateChannel()
 
-	var lastRefereeMsg *sslproto.SSL_Referee
+	var lastRefereeMsg *sslproto.Referee
 	for c := range channel {
 		if c.MessageType.Id != persistence.MessageSslRefbox2013 {
 			continue

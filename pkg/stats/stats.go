@@ -9,7 +9,7 @@ import (
 
 type FrameProcessor interface {
 	ProcessDetection(*persistence.Message, *sslproto.SSL_DetectionFrame)
-	ProcessReferee(*persistence.Message, *sslproto.SSL_Referee)
+	ProcessReferee(*persistence.Message, *sslproto.Referee)
 	Init(logFile string) error
 	io.Closer
 }

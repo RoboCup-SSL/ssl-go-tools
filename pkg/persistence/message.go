@@ -33,14 +33,8 @@ func (m *Message) ParseVisionWrapper() (*sslproto.SSL_WrapperPacket, error) {
 	return packet, err
 }
 
-func (m *Message) ParseReferee() (*sslproto.SSL_Referee, error) {
-	packet := new(sslproto.SSL_Referee)
-	err := ParseMessage(m.Message, packet)
-	return packet, err
-}
-
-func (m *Message) ParseRefereeRemoteControlRequest() (*sslproto.SSL_RefereeRemoteControlRequest, error) {
-	packet := new(sslproto.SSL_RefereeRemoteControlRequest)
+func (m *Message) ParseReferee() (*sslproto.Referee, error) {
+	packet := new(sslproto.Referee)
 	err := ParseMessage(m.Message, packet)
 	return packet, err
 }

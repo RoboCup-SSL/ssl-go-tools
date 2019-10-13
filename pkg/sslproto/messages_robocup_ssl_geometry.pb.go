@@ -3,9 +3,11 @@
 
 package sslproto
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -16,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // A 2D float vector.
 type Vector2F struct {
@@ -31,16 +33,17 @@ func (m *Vector2F) Reset()         { *m = Vector2F{} }
 func (m *Vector2F) String() string { return proto.CompactTextString(m) }
 func (*Vector2F) ProtoMessage()    {}
 func (*Vector2F) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{0}
+	return fileDescriptor_5f8800b4b7eed3c6, []int{0}
 }
+
 func (m *Vector2F) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Vector2F.Unmarshal(m, b)
 }
 func (m *Vector2F) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Vector2F.Marshal(b, m, deterministic)
 }
-func (dst *Vector2F) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Vector2F.Merge(dst, src)
+func (m *Vector2F) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Vector2F.Merge(m, src)
 }
 func (m *Vector2F) XXX_Size() int {
 	return xxx_messageInfo_Vector2F.Size(m)
@@ -87,16 +90,17 @@ func (m *SSL_FieldLineSegment) Reset()         { *m = SSL_FieldLineSegment{} }
 func (m *SSL_FieldLineSegment) String() string { return proto.CompactTextString(m) }
 func (*SSL_FieldLineSegment) ProtoMessage()    {}
 func (*SSL_FieldLineSegment) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{1}
+	return fileDescriptor_5f8800b4b7eed3c6, []int{1}
 }
+
 func (m *SSL_FieldLineSegment) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SSL_FieldLineSegment.Unmarshal(m, b)
 }
 func (m *SSL_FieldLineSegment) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SSL_FieldLineSegment.Marshal(b, m, deterministic)
 }
-func (dst *SSL_FieldLineSegment) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SSL_FieldLineSegment.Merge(dst, src)
+func (m *SSL_FieldLineSegment) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_FieldLineSegment.Merge(m, src)
 }
 func (m *SSL_FieldLineSegment) XXX_Size() int {
 	return xxx_messageInfo_SSL_FieldLineSegment.Size(m)
@@ -159,16 +163,17 @@ func (m *SSL_FieldCicularArc) Reset()         { *m = SSL_FieldCicularArc{} }
 func (m *SSL_FieldCicularArc) String() string { return proto.CompactTextString(m) }
 func (*SSL_FieldCicularArc) ProtoMessage()    {}
 func (*SSL_FieldCicularArc) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{2}
+	return fileDescriptor_5f8800b4b7eed3c6, []int{2}
 }
+
 func (m *SSL_FieldCicularArc) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SSL_FieldCicularArc.Unmarshal(m, b)
 }
 func (m *SSL_FieldCicularArc) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SSL_FieldCicularArc.Marshal(b, m, deterministic)
 }
-func (dst *SSL_FieldCicularArc) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SSL_FieldCicularArc.Merge(dst, src)
+func (m *SSL_FieldCicularArc) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_FieldCicularArc.Merge(m, src)
 }
 func (m *SSL_FieldCicularArc) XXX_Size() int {
 	return xxx_messageInfo_SSL_FieldCicularArc.Size(m)
@@ -238,16 +243,17 @@ func (m *SSL_GeometryFieldSize) Reset()         { *m = SSL_GeometryFieldSize{} }
 func (m *SSL_GeometryFieldSize) String() string { return proto.CompactTextString(m) }
 func (*SSL_GeometryFieldSize) ProtoMessage()    {}
 func (*SSL_GeometryFieldSize) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{3}
+	return fileDescriptor_5f8800b4b7eed3c6, []int{3}
 }
+
 func (m *SSL_GeometryFieldSize) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SSL_GeometryFieldSize.Unmarshal(m, b)
 }
 func (m *SSL_GeometryFieldSize) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SSL_GeometryFieldSize.Marshal(b, m, deterministic)
 }
-func (dst *SSL_GeometryFieldSize) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SSL_GeometryFieldSize.Merge(dst, src)
+func (m *SSL_GeometryFieldSize) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_GeometryFieldSize.Merge(m, src)
 }
 func (m *SSL_GeometryFieldSize) XXX_Size() int {
 	return xxx_messageInfo_SSL_GeometryFieldSize.Size(m)
@@ -332,16 +338,17 @@ func (m *SSL_GeometryCameraCalibration) Reset()         { *m = SSL_GeometryCamer
 func (m *SSL_GeometryCameraCalibration) String() string { return proto.CompactTextString(m) }
 func (*SSL_GeometryCameraCalibration) ProtoMessage()    {}
 func (*SSL_GeometryCameraCalibration) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{4}
+	return fileDescriptor_5f8800b4b7eed3c6, []int{4}
 }
+
 func (m *SSL_GeometryCameraCalibration) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SSL_GeometryCameraCalibration.Unmarshal(m, b)
 }
 func (m *SSL_GeometryCameraCalibration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SSL_GeometryCameraCalibration.Marshal(b, m, deterministic)
 }
-func (dst *SSL_GeometryCameraCalibration) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SSL_GeometryCameraCalibration.Merge(dst, src)
+func (m *SSL_GeometryCameraCalibration) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_GeometryCameraCalibration.Merge(m, src)
 }
 func (m *SSL_GeometryCameraCalibration) XXX_Size() int {
 	return xxx_messageInfo_SSL_GeometryCameraCalibration.Size(m)
@@ -469,16 +476,17 @@ func (m *SSL_GeometryData) Reset()         { *m = SSL_GeometryData{} }
 func (m *SSL_GeometryData) String() string { return proto.CompactTextString(m) }
 func (*SSL_GeometryData) ProtoMessage()    {}
 func (*SSL_GeometryData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7, []int{5}
+	return fileDescriptor_5f8800b4b7eed3c6, []int{5}
 }
+
 func (m *SSL_GeometryData) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SSL_GeometryData.Unmarshal(m, b)
 }
 func (m *SSL_GeometryData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SSL_GeometryData.Marshal(b, m, deterministic)
 }
-func (dst *SSL_GeometryData) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SSL_GeometryData.Merge(dst, src)
+func (m *SSL_GeometryData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_GeometryData.Merge(m, src)
 }
 func (m *SSL_GeometryData) XXX_Size() int {
 	return xxx_messageInfo_SSL_GeometryData.Size(m)
@@ -513,10 +521,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("messages_robocup_ssl_geometry.proto", fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7)
+	proto.RegisterFile("messages_robocup_ssl_geometry.proto", fileDescriptor_5f8800b4b7eed3c6)
 }
 
-var fileDescriptor_messages_robocup_ssl_geometry_2172b5ca33d9c3f7 = []byte{
+var fileDescriptor_5f8800b4b7eed3c6 = []byte{
 	// 615 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x93, 0xdf, 0x4e, 0x13, 0x41,
 	0x14, 0xc6, 0xd3, 0x2d, 0x05, 0xf6, 0x94, 0x3f, 0x3a, 0x02, 0x8e, 0x51, 0x10, 0x6b, 0x34, 0xc4,

@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+import "ssl_game_event_2019.proto";
+
+enum TeamColor {
+    TEAM_UNKNOWN = 0;
+    TEAM_YELLOW = 1;
+    TEAM_BLUE = 2;
+}
+
+enum Command {
+    COMMAND_UNKNOWN = 0;
+    COMMAND_HALT = 1;
+    COMMAND_STOP = 2;
+    COMMAND_NORMAL_START = 3;
+    COMMAND_FORCE_START = 4;
+    COMMAND_PREPARE_KICKOFF = 5;
+    COMMAND_PREPARE_PENALTY = 6;
+    COMMAND_DIRECT_FREE = 7;
+    COMMAND_INDIRECT_FREE = 8;
+    COMMAND_TIMEOUT = 9;
+    COMMAND_BALL_PLACEMENT = 10;
+}
+
+enum GamePhaseType {
+    PHASE_UNKNOWN = 0;
+    PHASE_HALT = 1;
+    PHASE_STOP = 2;
+    PHASE_RUNNING = 3;
+    PHASE_TIMEOUT = 4;
+    PHASE_BREAK = 5;
+    PHASE_POST_GAME = 6;
+    PHASE_PREPARE_KICKOFF = 7;
+    PHASE_KICKOFF = 8;
+    PHASE_PREPARE_PENALTY = 9;
+    PHASE_PENALTY = 10;
+    PHASE_DIRECT_FREE = 11;
+    PHASE_INDIRECT_FREE = 12;
+    PHASE_BALL_PLACEMENT = 13;
+}
+
+message GamePhase {
+    uint64 start_time = 1;
+    uint64 end_time = 2;
+    float duration = 3;
+    GamePhaseType type = 4;
+    oneof phase {
+        OtherGamePhase other = 5;
+        StopGamePhase stop = 6;
+        RunningGamePhase running = 7;
+        StandardGamePhase standard = 8;
+        BallPlacementGamePhase ball_placement = 9;
+    }
+}
+
+message OtherGamePhase {
+}
+
+message RunningGamePhase {
+    Command initiating_command = 1;
+}
+
+message StopGamePhase {
+    GameEvent initial_game_event = 1;
+    repeated GameEvent game_events = 2;
+    repeated GameEvent revoked_game_events = 3;
+    Command proposed_next_command = 4;
+    Command real_next_command = 5;
+}
+
+message StandardGamePhase {
+    TeamColor for_team = 1;
+}
+
+message BallPlacementGamePhase {
+    TeamColor for_team = 1;
+    bool successful = 2;
+}
+
+message TeamStats {
+    uint32 goals = 1;
+    uint32 fouls = 2;
+    uint32 yellow_cards = 3;
+    uint32 red_cards = 4;
+    uint32 penalty_shots_total = 5;
+    uint32 penalty_shots_success = 6;
+    uint32 timeouts_remaining = 7;
+    uint32 timeout_time_remaining = 8;
+}
+
+message MatchStats {
+    string name = 1;
+    string team_name_yellow = 2;
+    string team_name_blue = 3;
+    repeated GamePhase game_phases = 4;
+    float match_duration = 5; // real time
+    map<uint32, GamePhaseType> time_per_game_phase = 6;
+    TeamStats team_stats = 7;
+}

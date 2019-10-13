@@ -3,9 +3,11 @@
 
 package sslproto
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -16,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type SSL_DetectionBall struct {
 	Confidence           *float32 `protobuf:"fixed32,1,req,name=confidence" json:"confidence,omitempty"`
@@ -35,16 +37,17 @@ func (m *SSL_DetectionBall) Reset()         { *m = SSL_DetectionBall{} }
 func (m *SSL_DetectionBall) String() string { return proto.CompactTextString(m) }
 func (*SSL_DetectionBall) ProtoMessage()    {}
 func (*SSL_DetectionBall) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_robocup_ssl_detection_845148c4b3278070, []int{0}
+	return fileDescriptor_49252e7ed2122b91, []int{0}
 }
+
 func (m *SSL_DetectionBall) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SSL_DetectionBall.Unmarshal(m, b)
 }
 func (m *SSL_DetectionBall) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SSL_DetectionBall.Marshal(b, m, deterministic)
 }
-func (dst *SSL_DetectionBall) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SSL_DetectionBall.Merge(dst, src)
+func (m *SSL_DetectionBall) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_DetectionBall.Merge(m, src)
 }
 func (m *SSL_DetectionBall) XXX_Size() int {
 	return xxx_messageInfo_SSL_DetectionBall.Size(m)
@@ -122,16 +125,17 @@ func (m *SSL_DetectionRobot) Reset()         { *m = SSL_DetectionRobot{} }
 func (m *SSL_DetectionRobot) String() string { return proto.CompactTextString(m) }
 func (*SSL_DetectionRobot) ProtoMessage()    {}
 func (*SSL_DetectionRobot) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_robocup_ssl_detection_845148c4b3278070, []int{1}
+	return fileDescriptor_49252e7ed2122b91, []int{1}
 }
+
 func (m *SSL_DetectionRobot) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SSL_DetectionRobot.Unmarshal(m, b)
 }
 func (m *SSL_DetectionRobot) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SSL_DetectionRobot.Marshal(b, m, deterministic)
 }
-func (dst *SSL_DetectionRobot) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SSL_DetectionRobot.Merge(dst, src)
+func (m *SSL_DetectionRobot) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_DetectionRobot.Merge(m, src)
 }
 func (m *SSL_DetectionRobot) XXX_Size() int {
 	return xxx_messageInfo_SSL_DetectionRobot.Size(m)
@@ -215,16 +219,17 @@ func (m *SSL_DetectionFrame) Reset()         { *m = SSL_DetectionFrame{} }
 func (m *SSL_DetectionFrame) String() string { return proto.CompactTextString(m) }
 func (*SSL_DetectionFrame) ProtoMessage()    {}
 func (*SSL_DetectionFrame) Descriptor() ([]byte, []int) {
-	return fileDescriptor_messages_robocup_ssl_detection_845148c4b3278070, []int{2}
+	return fileDescriptor_49252e7ed2122b91, []int{2}
 }
+
 func (m *SSL_DetectionFrame) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SSL_DetectionFrame.Unmarshal(m, b)
 }
 func (m *SSL_DetectionFrame) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_SSL_DetectionFrame.Marshal(b, m, deterministic)
 }
-func (dst *SSL_DetectionFrame) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SSL_DetectionFrame.Merge(dst, src)
+func (m *SSL_DetectionFrame) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SSL_DetectionFrame.Merge(m, src)
 }
 func (m *SSL_DetectionFrame) XXX_Size() int {
 	return xxx_messageInfo_SSL_DetectionFrame.Size(m)
@@ -291,10 +296,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("messages_robocup_ssl_detection.proto", fileDescriptor_messages_robocup_ssl_detection_845148c4b3278070)
+	proto.RegisterFile("messages_robocup_ssl_detection.proto", fileDescriptor_49252e7ed2122b91)
 }
 
-var fileDescriptor_messages_robocup_ssl_detection_845148c4b3278070 = []byte{
+var fileDescriptor_49252e7ed2122b91 = []byte{
 	// 383 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x92, 0x4f, 0x8b, 0xd4, 0x30,
 	0x18, 0xc6, 0x49, 0x77, 0xfa, 0xc7, 0xb7, 0x33, 0x07, 0x23, 0x6a, 0x44, 0x90, 0x3a, 0x78, 0xe8,

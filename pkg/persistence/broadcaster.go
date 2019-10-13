@@ -77,7 +77,7 @@ func (b *Broadcaster) Stop() {
 func (b *Broadcaster) publish() {
 	startTime := time.Now()
 	refTimestamp := int64(0)
-	curStage := sslproto.SSL_Referee_Stage(-1)
+	curStage := sslproto.Referee_Stage(-1)
 	for b.reader.HasMessage() {
 		msg, err := b.reader.ReadMessage()
 		if err != nil {
@@ -115,17 +115,17 @@ func (b *Broadcaster) publish() {
 		}
 	}
 }
-func isRunningStage(stage sslproto.SSL_Referee_Stage) bool {
+func isRunningStage(stage sslproto.Referee_Stage) bool {
 	switch stage {
 	case -1:
 		return true
-	case sslproto.SSL_Referee_NORMAL_FIRST_HALF:
+	case sslproto.Referee_NORMAL_FIRST_HALF:
 		return true
-	case sslproto.SSL_Referee_NORMAL_SECOND_HALF:
+	case sslproto.Referee_NORMAL_SECOND_HALF:
 		return true
-	case sslproto.SSL_Referee_EXTRA_FIRST_HALF:
+	case sslproto.Referee_EXTRA_FIRST_HALF:
 		return true
-	case sslproto.SSL_Referee_EXTRA_SECOND_HALF:
+	case sslproto.Referee_EXTRA_SECOND_HALF:
 		return true
 	}
 	return false

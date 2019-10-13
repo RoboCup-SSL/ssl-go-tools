@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
-	. "github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"io/ioutil"
 	"log"
 	"os"
@@ -67,7 +67,7 @@ func matchStats(filename string) (m *MatchStats, err error) {
 	m.StateTotalTime[GameStateStop] = 0
 	m.StateTotalTime[GameStateRunning] = 0
 
-	var lastRefereeMsg *SSL_Referee
+	var lastRefereeMsg *sslproto.Referee
 	for c := range channel {
 		if c.MessageType.Id != persistence.MessageSslRefbox2013 {
 			continue
@@ -82,7 +82,7 @@ func matchStats(filename string) (m *MatchStats, err error) {
 		}
 		lastCmdId = r.CommandCounter
 		switch *r.Stage {
-		case SSL_Referee_NORMAL_FIRST_HALF, SSL_Referee_NORMAL_SECOND_HALF, SSL_Referee_EXTRA_FIRST_HALF, SSL_Referee_EXTRA_SECOND_HALF:
+		case sslproto.Referee_NORMAL_FIRST_HALF, sslproto.Referee_NORMAL_SECOND_HALF, sslproto.Referee_EXTRA_FIRST_HALF, sslproto.Referee_EXTRA_SECOND_HALF:
 			if halfStartTimestamp == nil {
 				halfStartTimestamp = r.CommandTimestamp
 			}
@@ -91,13 +91,13 @@ func matchStats(filename string) (m *MatchStats, err error) {
 			}
 			var nextGameState GameState
 			switch *r.Command {
-			case SSL_Referee_HALT, SSL_Referee_TIMEOUT_BLUE, SSL_Referee_TIMEOUT_YELLOW:
+			case sslproto.Referee_HALT, sslproto.Referee_TIMEOUT_BLUE, sslproto.Referee_TIMEOUT_YELLOW:
 				nextGameState = GameStateHalt
-			case SSL_Referee_STOP, SSL_Referee_BALL_PLACEMENT_BLUE, SSL_Referee_BALL_PLACEMENT_YELLOW:
+			case sslproto.Referee_STOP, sslproto.Referee_BALL_PLACEMENT_BLUE, sslproto.Referee_BALL_PLACEMENT_YELLOW:
 				nextGameState = GameStateStop
-			case SSL_Referee_FORCE_START, SSL_Referee_NORMAL_START, SSL_Referee_DIRECT_FREE_YELLOW, SSL_Referee_DIRECT_FREE_BLUE, SSL_Referee_INDIRECT_FREE_YELLOW, SSL_Referee_INDIRECT_FREE_BLUE, SSL_Referee_PREPARE_KICKOFF_BLUE, SSL_Referee_PREPARE_KICKOFF_YELLOW, SSL_Referee_PREPARE_PENALTY_BLUE, SSL_Referee_PREPARE_PENALTY_YELLOW:
+			case sslproto.Referee_FORCE_START, sslproto.Referee_NORMAL_START, sslproto.Referee_DIRECT_FREE_YELLOW, sslproto.Referee_DIRECT_FREE_BLUE, sslproto.Referee_INDIRECT_FREE_YELLOW, sslproto.Referee_INDIRECT_FREE_BLUE, sslproto.Referee_PREPARE_KICKOFF_BLUE, sslproto.Referee_PREPARE_KICKOFF_YELLOW, sslproto.Referee_PREPARE_PENALTY_BLUE, sslproto.Referee_PREPARE_PENALTY_YELLOW:
 				nextGameState = GameStateRunning
-			case SSL_Referee_GOAL_BLUE, SSL_Referee_GOAL_YELLOW:
+			case sslproto.Referee_GOAL_BLUE, sslproto.Referee_GOAL_YELLOW:
 				nextGameState = gameState
 			default:
 				log.Printf("Unknown command: %v", *r.Command)
@@ -107,7 +107,7 @@ func matchStats(filename string) (m *MatchStats, err error) {
 				gameState = nextGameState
 				lastGameStateTimestamp = r.CommandTimestamp
 			}
-		case SSL_Referee_NORMAL_HALF_TIME, SSL_Referee_EXTRA_TIME_BREAK, SSL_Referee_EXTRA_HALF_TIME, SSL_Referee_POST_GAME:
+		case sslproto.Referee_NORMAL_HALF_TIME, sslproto.Referee_EXTRA_TIME_BREAK, sslproto.Referee_EXTRA_HALF_TIME, sslproto.Referee_POST_GAME:
 			if halfStartTimestamp != nil {
 				m.MatchTotalTime += time.Duration((*r.CommandTimestamp - *halfStartTimestamp) * 1000)
 				halfStartTimestamp = nil
