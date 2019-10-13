@@ -45,7 +45,7 @@ message Command {
 message GamePhase {
     uint64 start_time = 1;
     uint64 end_time = 2;
-    float duration = 3;
+    uint32 duration = 3;
     GamePhaseType type = 4;
 
     Command command_entry = 5;
@@ -66,15 +66,15 @@ message TeamStats {
     uint32 red_cards = 5;
     uint32 penalty_shots_total = 6;
     uint32 penalty_shots_success = 7;
-    uint32 timeouts_remaining = 8;
-    uint32 timeout_time_remaining = 9;
+    repeated uint32 timeout_times = 9;
 }
 
 message MatchStats {
     string name = 1;
     repeated GamePhase game_phases = 4;
-    float match_duration = 5; // real time
-    map<uint32, GamePhaseType> time_per_game_phase = 6;
-    TeamStats team_stats_yellow = 7;
-    TeamStats team_stats_blue = 8;
+    uint32 match_duration = 5;
+    map<string, uint32> time_per_game_phase = 6;
+    map<string, float> rel_time_per_game_phase = 7;
+    TeamStats team_stats_yellow = 8;
+    TeamStats team_stats_blue = 9;
 }

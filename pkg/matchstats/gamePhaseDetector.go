@@ -11,20 +11,25 @@ type GamePhaseDetector struct {
 }
 
 func (d *GamePhaseDetector) startNewPhase(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
-	if d.currentPhase != nil {
-		d.currentPhase.EndTime = *referee.PacketTimestamp
-		start := packetTimeStampToTime(d.currentPhase.StartTime)
-		end := packetTimeStampToTime(d.currentPhase.EndTime)
-		d.currentPhase.Duration = float32(end.Sub(start).Seconds())
-		matchStats.GamePhases = append(matchStats.GamePhases, d.currentPhase)
-		d.currentPhase.CommandExit = mapProtoCommandToCommand(*referee.Command)
-		if referee.NextCommand != nil && int32(*referee.NextCommand) >= 0 {
-			d.currentPhase.NextCommandProposed = mapProtoCommandToCommand(*referee.NextCommand)
-		}
-		d.currentPhase.GameEventsExit = referee.GameEvents
-	}
+	d.stopCurrentPhase(matchStats, referee)
 	d.currentPhase = new(sslproto.GamePhase)
 	d.currentPhase.StartTime = *referee.PacketTimestamp
+}
+
+func (d *GamePhaseDetector) stopCurrentPhase(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+	if d.currentPhase == nil {
+		return
+	}
+	d.currentPhase.EndTime = *referee.PacketTimestamp
+	start := packetTimeStampToTime(d.currentPhase.StartTime)
+	end := packetTimeStampToTime(d.currentPhase.EndTime)
+	d.currentPhase.Duration = uint32(end.Sub(start).Microseconds())
+	matchStats.GamePhases = append(matchStats.GamePhases, d.currentPhase)
+	d.currentPhase.CommandExit = mapProtoCommandToCommand(*referee.Command)
+	if referee.NextCommand != nil && int32(*referee.NextCommand) >= 0 {
+		d.currentPhase.NextCommandProposed = mapProtoCommandToCommand(*referee.NextCommand)
+	}
+	d.currentPhase.GameEventsExit = referee.GameEvents
 }
 
 func (d *GamePhaseDetector) OnNewStage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
@@ -64,6 +69,10 @@ func (d *GamePhaseDetector) OnNewCommand(matchStats *sslproto.MatchStats, refere
 	d.currentPhase.CommandEntry = mapProtoCommandToCommand(*referee.Command)
 	d.currentPhase.ForTeam = mapProtoCommandToTeam(*referee.Command)
 	d.currentPhase.GameEventsEntry = referee.GameEvents
+}
+
+func (d *GamePhaseDetector) OnLastRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+	d.stopCurrentPhase(matchStats, referee)
 }
 
 func mapProtoCommandToCommand(command sslproto.Referee_Command) *sslproto.Command {

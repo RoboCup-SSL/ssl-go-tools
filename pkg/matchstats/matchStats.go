@@ -10,14 +10,16 @@ import (
 )
 
 type MatchStatGenerator struct {
-	metaDataProcessor MetaDataProcessor
-	gamePhaseDetector GamePhaseDetector
+	metaDataProcessor   MetaDataProcessor
+	gamePhaseDetector   GamePhaseDetector
+	gamePhaseAggregator GamePhaseAggregator
 }
 
 func NewMatchStatsGenerator() *MatchStatGenerator {
 	generator := new(MatchStatGenerator)
 	generator.metaDataProcessor = MetaDataProcessor{}
 	generator.gamePhaseDetector = GamePhaseDetector{}
+	generator.gamePhaseAggregator = GamePhaseAggregator{}
 	return generator
 }
 
@@ -60,6 +62,8 @@ func (m *MatchStatGenerator) Process(filename string) (*sslproto.MatchStats, err
 
 	m.OnLastRefereeMessage(matchStats, lastRefereeMsg)
 
+	m.gamePhaseAggregator.Aggregate(matchStats)
+
 	return matchStats, logReader.Close()
 }
 
@@ -77,6 +81,7 @@ func (m *MatchStatGenerator) OnFirstRefereeMessage(matchStats *sslproto.MatchSta
 
 func (m *MatchStatGenerator) OnLastRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
 	m.metaDataProcessor.OnLastRefereeMessage(matchStats, referee)
+	m.gamePhaseDetector.OnLastRefereeMessage(matchStats, referee)
 }
 
 func packetTimeStampToTime(packetTimestamp uint64) time.Time {

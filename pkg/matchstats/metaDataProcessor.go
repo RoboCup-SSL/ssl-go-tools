@@ -23,7 +23,7 @@ func (m *MetaDataProcessor) OnLastRefereeMessage(matchStats *sslproto.MatchStats
 	processTeam(matchStats.TeamStatsBlue, referee.Blue)
 	processTeam(matchStats.TeamStatsYellow, referee.Yellow)
 	endTime := packetTimeStampToTime(*referee.PacketTimestamp)
-	matchStats.MatchDuration = float32(endTime.Sub(m.startTime).Seconds())
+	matchStats.MatchDuration = uint32(endTime.Sub(m.startTime).Microseconds())
 }
 
 func processTeam(stats *sslproto.TeamStats, team *sslproto.Referee_TeamInfo) {
