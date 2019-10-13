@@ -1,6 +1,6 @@
 # ssl-recorder
 
-Record official log files as described in the [SSL wiki](http://wiki.robocup.org/Small_Size_League/Game_Logs).
+Record official log files as described on the [SSL website](https://ssl.robocup.org/game-logs/).
 
 ## Installation
 

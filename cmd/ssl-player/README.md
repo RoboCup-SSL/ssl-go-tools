@@ -1,6 +1,6 @@
 # ssl-player
 
-Play back official log files as described in the [SSL wiki](http://wiki.robocup.org/Small_Size_League/Game_Logs) in real time. Both, uncompressed and compressed log files are supported. Compressed log files should end with `.gz`. 
+Play back official log files as described on the [SSL website](https://ssl.robocup.org/game-logs/) in real time. Both, uncompressed and compressed log files are supported. Compressed log files should end with `.gz`. 
 
 Vision and referee data will be send into the network and can be watched by any vision/referee client, like the graphical client from [ssl-vision](https://github.com/RoboCup-SSL/ssl-vision) or the more recent [ssl-vision-client](https://github.com/RoboCup-SSL/ssl-vision-client).
 

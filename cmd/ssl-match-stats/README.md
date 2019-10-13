@@ -1,16 +1,16 @@
-# matchduration
+# ssl-match-stats
 
-Calculate the duration of a match, divided into stop, running and halt.
+Gather statistics from a set of [official SSL log files](https://ssl.robocup.org/game-logs/).
 
 ## Installation
 
 Use go-get to install this executable:
 
 ```
-go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/matchduration
+go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-match-stats
 ```
 
 ## Usage
 
-The binary is called `matchduration`.
-Run it with `-h` to print usage information.
+The binary is called `ssl-match-stats`.
+Pass in a list of log files to be processed, e.g.: `ssl-match-stats *.log.gz`
