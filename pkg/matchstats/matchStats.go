@@ -5,20 +5,17 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"github.com/pkg/errors"
 	"log"
+	"path/filepath"
 )
 
-type MatchStatProcessor interface {
-	OnNewStage(referee *sslproto.Referee)
-	OnNewCommand(referee *sslproto.Referee)
-	OnNewGameEvent(referee *sslproto.Referee)
-}
-
 type MatchStatGenerator struct {
-	processors []*MatchStatProcessor
+	metaDataProcessor MetaDataProcessor
 }
 
 func NewMatchStatsGenerator() *MatchStatGenerator {
-	return new(MatchStatGenerator)
+	generator := new(MatchStatGenerator)
+	generator.metaDataProcessor = MetaDataProcessor{}
+	return generator
 }
 
 func (m *MatchStatGenerator) Process(filename string) (*sslproto.MatchStats, error) {
@@ -29,6 +26,7 @@ func (m *MatchStatGenerator) Process(filename string) (*sslproto.MatchStats, err
 	}
 
 	matchStats := new(sslproto.MatchStats)
+	matchStats.Name = filepath.Base(filename)
 	var lastRefereeMsg *sslproto.Referee
 
 	channel := logReader.CreateChannel()
@@ -41,26 +39,43 @@ func (m *MatchStatGenerator) Process(filename string) (*sslproto.MatchStats, err
 			log.Println("Could not parse referee message: ", err)
 			continue
 		}
+
+		if lastRefereeMsg == nil {
+			m.OnFirstRefereeMessage(matchStats, r)
+		}
+
 		if lastRefereeMsg == nil || *r.Command != *lastRefereeMsg.Command {
-			for _, p := range m.processors {
-				(*p).OnNewCommand(r)
-			}
+			m.OnNewCommand(matchStats, r)
 		}
 
 		if lastRefereeMsg == nil || *r.Stage != *lastRefereeMsg.Stage {
-			for _, p := range m.processors {
-				(*p).OnNewStage(r)
-			}
+			m.OnNewStage(matchStats, r)
 		}
-
-		//if lastRefereeMsg == nil || *r.GameEvents != *lastRefereeMsg.GameEvents {
-		//	for _, p := range m.processors {
-		//		(*p).OnNewStage(r)
-		//	}
-		//}
 
 		lastRefereeMsg = r
 	}
 
+	m.OnLastRefereeMessage(matchStats, lastRefereeMsg)
+
 	return matchStats, logReader.Close()
+}
+
+func (m *MatchStatGenerator) OnNewStage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+
+}
+
+func (m *MatchStatGenerator) OnNewCommand(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+
+}
+
+func (m *MatchStatGenerator) OnNewGameEvent(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+
+}
+
+func (m *MatchStatGenerator) OnFirstRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+	m.metaDataProcessor.OnFirstRefereeMessage(matchStats, referee)
+}
+
+func (m *MatchStatGenerator) OnLastRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+	m.metaDataProcessor.OnLastRefereeMessage(matchStats, referee)
 }
