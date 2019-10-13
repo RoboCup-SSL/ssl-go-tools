@@ -66,13 +66,15 @@ message TeamStats {
     uint32 red_cards = 5;
     uint32 penalty_shots_total = 6;
     uint32 penalty_shots_success = 7;
-    repeated uint32 timeout_times = 9;
+    uint32 timeout_time = 9;
 }
 
 message MatchStats {
     string name = 1;
-    repeated GamePhase game_phases = 4;
-    uint32 match_duration = 5;
+    repeated GamePhase game_phases = 2;
+    uint32 match_duration = 3;
+    bool extra_time = 4;
+    bool shootout = 5;
     map<string, uint32> time_per_game_phase = 6;
     map<string, float> rel_time_per_game_phase = 7;
     TeamStats team_stats_yellow = 8;

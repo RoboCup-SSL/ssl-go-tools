@@ -68,10 +68,12 @@ func (m *MatchStatGenerator) Process(filename string) (*sslproto.MatchStats, err
 }
 
 func (m *MatchStatGenerator) OnNewStage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+	m.metaDataProcessor.OnNewStage(matchStats, referee)
 	m.gamePhaseDetector.OnNewStage(matchStats, referee)
 }
 
 func (m *MatchStatGenerator) OnNewCommand(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+	m.metaDataProcessor.OnNewCommand(matchStats, referee)
 	m.gamePhaseDetector.OnNewCommand(matchStats, referee)
 }
 
