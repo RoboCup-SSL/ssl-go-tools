@@ -80,3 +80,7 @@ message MatchStats {
     TeamStats team_stats_yellow = 8;
     TeamStats team_stats_blue = 9;
 }
+
+message MatchStatsCollection {
+    repeated MatchStats match_stats = 1;
+}

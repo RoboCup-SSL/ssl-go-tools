@@ -10,6 +10,7 @@ import (
 )
 
 type MatchStatGenerator struct {
+	Collection          sslproto.MatchStatsCollection
 	metaDataProcessor   MetaDataProcessor
 	gamePhaseDetector   GamePhaseDetector
 	gamePhaseAggregator GamePhaseAggregator
@@ -17,6 +18,8 @@ type MatchStatGenerator struct {
 
 func NewMatchStatsGenerator() *MatchStatGenerator {
 	generator := new(MatchStatGenerator)
+	generator.Collection = sslproto.MatchStatsCollection{}
+	generator.Collection.MatchStats = []*sslproto.MatchStats{}
 	generator.metaDataProcessor = MetaDataProcessor{}
 	generator.gamePhaseDetector = GamePhaseDetector{}
 	generator.gamePhaseAggregator = GamePhaseAggregator{}
@@ -31,6 +34,7 @@ func (m *MatchStatGenerator) Process(filename string) (*sslproto.MatchStats, err
 	}
 
 	matchStats := new(sslproto.MatchStats)
+	m.Collection.MatchStats = append(m.Collection.MatchStats, matchStats)
 	matchStats.Name = filepath.Base(filename)
 	var lastRefereeMsg *sslproto.Referee
 
