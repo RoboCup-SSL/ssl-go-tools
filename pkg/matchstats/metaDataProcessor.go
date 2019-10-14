@@ -2,25 +2,23 @@ package matchstats
 
 import (
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
-	"log"
 	"time"
 )
 
 type MetaDataProcessor struct {
 	startTime         time.Time
 	timeoutTimeNormal uint32
+	timeoutsNormal    uint32
 	timeoutTimeExtra  uint32
+	timeoutsExtra     uint32
 }
 
 func (m *MetaDataProcessor) OnNewStage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
-	if *referee.Stage == sslproto.Referee_NORMAL_FIRST_HALF {
-		m.timeoutTimeNormal = *referee.Yellow.TimeoutTime
-	}
-	if *referee.Stage == sslproto.Referee_EXTRA_FIRST_HALF_PRE {
-		m.timeoutTimeExtra = *referee.Yellow.TimeoutTime
-	}
 	if *referee.Stage == sslproto.Referee_EXTRA_TIME_BREAK {
 		matchStats.TeamStatsYellow.TimeoutTime = m.timeoutTimeNormal - *referee.Yellow.TimeoutTime
+		matchStats.TeamStatsBlue.TimeoutTime = m.timeoutTimeNormal - *referee.Blue.TimeoutTime
+		matchStats.TeamStatsYellow.Timeouts = m.timeoutsNormal - *referee.Yellow.Timeouts
+		matchStats.TeamStatsBlue.Timeouts = m.timeoutsNormal - *referee.Blue.Timeouts
 	}
 	if *referee.Stage == sslproto.Referee_PENALTY_SHOOTOUT {
 		matchStats.Shootout = true
@@ -55,18 +53,16 @@ func (m *MetaDataProcessor) OnLastRefereeMessage(matchStats *sslproto.MatchStats
 	matchStats.MatchDuration = uint32(endTime.Sub(m.startTime).Microseconds())
 
 	if uint32(*referee.Stage) <= uint32(sslproto.Referee_NORMAL_SECOND_HALF) {
-		if m.timeoutTimeNormal == 0 {
-			log.Println("normal timeout time not set!")
-		}
 		matchStats.TeamStatsYellow.TimeoutTime = m.timeoutTimeNormal - *referee.Yellow.TimeoutTime
 		matchStats.TeamStatsBlue.TimeoutTime = m.timeoutTimeNormal - *referee.Blue.TimeoutTime
+		matchStats.TeamStatsYellow.Timeouts = m.timeoutsNormal - *referee.Yellow.Timeouts
+		matchStats.TeamStatsBlue.Timeouts = m.timeoutsNormal - *referee.Blue.Timeouts
 		matchStats.ExtraTime = false
 	} else {
-		if m.timeoutTimeExtra == 0 {
-			log.Println("extra timeout time not set!")
-		}
 		matchStats.TeamStatsYellow.TimeoutTime += m.timeoutTimeExtra - *referee.Yellow.TimeoutTime
 		matchStats.TeamStatsBlue.TimeoutTime += m.timeoutTimeExtra - *referee.Blue.TimeoutTime
+		matchStats.TeamStatsYellow.Timeouts += m.timeoutsExtra - *referee.Yellow.Timeouts
+		matchStats.TeamStatsBlue.Timeouts += m.timeoutsExtra - *referee.Blue.Timeouts
 		matchStats.ExtraTime = true
 	}
 }

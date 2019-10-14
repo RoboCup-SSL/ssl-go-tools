@@ -20,6 +20,12 @@ func NewGenerator() *Generator {
 	generator.metaDataProcessor = MetaDataProcessor{}
 	generator.gamePhaseDetector = GamePhaseDetector{}
 	generator.gamePhaseAggregator = GamePhaseAggregator{}
+
+	generator.metaDataProcessor.timeoutTimeNormal = 300_000_000
+	generator.metaDataProcessor.timeoutTimeExtra = 150_000_000
+	generator.metaDataProcessor.timeoutsNormal = 4
+	generator.metaDataProcessor.timeoutsExtra = 2
+
 	return generator
 }
 
