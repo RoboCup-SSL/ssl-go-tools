@@ -11,8 +11,8 @@ import (
 func main() {
 	flag.Usage = usage
 
-	fGenerate := flag.Bool("generate", false, "")
-	fExportCsv := flag.Bool("exportCsv", false, "")
+	fGenerate := flag.Bool("generate", false, "Generate statistics based on passed in log files")
+	fExportCsv := flag.Bool("exportCsv", false, "Export data from a generated out.bin file to CSV")
 
 	flag.Parse()
 
