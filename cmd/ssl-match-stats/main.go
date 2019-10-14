@@ -18,10 +18,9 @@ func main() {
 
 	if *fGenerate {
 		generate()
-	} else if *fExportCsv {
+	}
+	if *fExportCsv {
 		exportCsv()
-	} else {
-		usage()
 	}
 }
 
@@ -63,6 +62,12 @@ func exportCsv() {
 	}
 
 	if err := matchstats.WriteGamePhaseDurations(&a.Collection, "game-phase-durations.csv"); err != nil {
+		log.Fatal(err)
+	}
+	if err := matchstats.WriteTeamMetricsPerGame(&a.Collection, "team-metrics-per-game.csv"); err != nil {
+		log.Fatal(err)
+	}
+	if err := matchstats.WriteTeamMetricsSum(&a.Collection, "team-metrics-sum.csv"); err != nil {
 		log.Fatal(err)
 	}
 }
