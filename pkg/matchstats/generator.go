@@ -87,7 +87,7 @@ func (m *Generator) OnLastRefereeMessage(matchStats *sslproto.MatchStats, refere
 }
 
 func packetTimeStampToTime(packetTimestamp uint64) time.Time {
-	seconds := int64(packetTimestamp / 1000000)
-	nanoSeconds := int64(packetTimestamp-uint64(seconds*1000000)) * 1000
+	seconds := int64(packetTimestamp / 1_000_000)
+	nanoSeconds := int64(packetTimestamp-uint64(seconds*1_000_000)) * 1000
 	return time.Unix(seconds, nanoSeconds)
 }
