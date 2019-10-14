@@ -57,14 +57,14 @@ func WriteGamePhaseDurations(matchStatsCollection *sslproto.MatchStatsCollection
 
 func WriteTeamMetricsPerGame(matchStatsCollection *sslproto.MatchStatsCollection, filename string) error {
 
-	header := []string{"File", "Team", "Goals", "Fouls", "Yellow Cards", "Red Cards", "Timeout Time", "Penalty Shots"}
+	header := []string{"File", "Extra time", "Shootout", "Team", "Goals", "Fouls", "Yellow Cards", "Red Cards", "Timeout Time", "Penalty Shots"}
 
 	var records [][]string
 	for _, matchStats := range matchStatsCollection.MatchStats {
-		recordYellow := []string{matchStats.Name}
+		recordYellow := []string{matchStats.Name, strconv.FormatBool(matchStats.ExtraTime), strconv.FormatBool(matchStats.Shootout)}
 		recordYellow = append(recordYellow, teamNumbers(matchStats.TeamStatsYellow)...)
 		records = append(records, recordYellow)
-		recordBlue := []string{matchStats.Name}
+		recordBlue := []string{matchStats.Name, strconv.FormatBool(matchStats.ExtraTime), strconv.FormatBool(matchStats.Shootout)}
 		recordBlue = append(recordBlue, teamNumbers(matchStats.TeamStatsBlue)...)
 		records = append(records, recordBlue)
 	}
