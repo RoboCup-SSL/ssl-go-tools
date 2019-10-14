@@ -20,6 +20,25 @@ enum CommandType {
     COMMAND_INDIRECT_FREE = 8;
     COMMAND_TIMEOUT = 9;
     COMMAND_BALL_PLACEMENT = 10;
+    COMMAND_GOAL = 11;
+}
+
+enum StageType {
+    STAGE_UNKNOWN = 0;
+    STAGE_NORMAL_FIRST_HALF_PRE = 1;
+    STAGE_NORMAL_FIRST_HALF = 2;
+    STAGE_NORMAL_HALF_TIME = 3;
+    STAGE_NORMAL_SECOND_HALF_PRE = 4;
+    STAGE_NORMAL_SECOND_HALF = 5;
+    STAGE_EXTRA_TIME_BREAK = 6;
+    STAGE_EXTRA_FIRST_HALF_PRE = 7;
+    STAGE_EXTRA_FIRST_HALF = 8;
+    STAGE_EXTRA_HALF_TIME = 9;
+    STAGE_EXTRA_SECOND_HALF_PRE = 10;
+    STAGE_EXTRA_SECOND_HALF = 11;
+    STAGE_PENALTY_SHOOTOUT_BREAK = 12;
+    STAGE_PENALTY_SHOOTOUT = 13;
+    STAGE_POST_GAME = 14;
 }
 
 enum GamePhaseType {
@@ -56,6 +75,9 @@ message GamePhase {
     repeated GameEvent game_events_exit = 9;
 
     Command next_command_proposed = 10;
+    StageType stage = 11;
+    sint32 stage_time_left_entry = 12;
+    sint32 stage_time_left_exit = 13;
 }
 
 message TeamStats {
