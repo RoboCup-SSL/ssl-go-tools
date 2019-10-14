@@ -86,9 +86,9 @@ message TeamStats {
     uint32 fouls = 3;
     uint32 yellow_cards = 4;
     uint32 red_cards = 5;
-    uint32 penalty_shots_total = 6;
-    uint32 penalty_shots_success = 7;
-    uint32 timeout_time = 9;
+    uint32 timeout_time = 6;
+    uint32 penalty_shots_total = 7;
+    uint32 penalty_shots_success = 8;
 }
 
 message MatchStats {
