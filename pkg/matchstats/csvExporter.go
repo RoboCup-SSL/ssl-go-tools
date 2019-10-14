@@ -16,8 +16,8 @@ func WriteGamePhaseDurations(matchStatsCollection *sslproto.MatchStatsCollection
 	}
 
 	header := []string{"Name"}
-	for _, name := range sslproto.GamePhaseType_name {
-		header = append(header, name)
+	for i := 0; i < len(sslproto.GamePhaseType_name); i++ {
+		header = append(header, sslproto.GamePhaseType_name[int32(i)])
 	}
 
 	if _, err := f.WriteString("#" + strings.Join(header, ",") + "\n"); err != nil {
@@ -28,7 +28,8 @@ func WriteGamePhaseDurations(matchStatsCollection *sslproto.MatchStatsCollection
 
 	for _, matchStats := range matchStatsCollection.MatchStats {
 		record := []string{matchStats.Name}
-		for _, name := range sslproto.GamePhaseType_name {
+		for i := 0; i < len(sslproto.GamePhaseType_name); i++ {
+			name := sslproto.GamePhaseType_name[int32(i)]
 			record = append(record, strconv.FormatUint(uint64(matchStats.TimePerGamePhase[name]), 10))
 		}
 		if err := w.Write(record); err != nil {
