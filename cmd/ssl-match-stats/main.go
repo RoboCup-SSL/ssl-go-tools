@@ -10,8 +10,22 @@ import (
 
 func main() {
 	flag.Usage = usage
+
+	fGenerate := flag.Bool("generate", false, "")
+	fExportCsv := flag.Bool("exportCsv", false, "")
+
 	flag.Parse()
 
+	if *fGenerate {
+		generate()
+	} else if *fExportCsv {
+		exportCsv()
+	} else {
+		usage()
+	}
+}
+
+func generate() {
 	args := flag.Args()
 
 	if len(args) == 0 {
@@ -37,6 +51,19 @@ func main() {
 
 	if err := a.WriteJson("out.json"); err != nil {
 		log.Println("Could not write JSON file", err)
+	}
+}
+
+func exportCsv() {
+
+	a := matchstats.NewAggregator()
+
+	if err := a.ReadBin("out.bin"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := matchstats.WriteGamePhaseDurations(&a.Collection, "game-phase-durations.csv"); err != nil {
+		log.Fatal(err)
 	}
 }
 

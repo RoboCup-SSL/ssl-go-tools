@@ -5,6 +5,7 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
+	"io/ioutil"
 	"os"
 )
 
@@ -60,4 +61,23 @@ func (a *Aggregator) WriteBin(filename string) error {
 		return errors.Wrap(err, "Could not write match stats to binary")
 	}
 	return f.Close()
+}
+
+func (a *Aggregator) ReadBin(filename string) error {
+	f, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+
+	bytes, err := ioutil.ReadAll(f)
+	if err != nil {
+		return err
+	}
+
+	err = proto.Unmarshal(bytes, &a.Collection)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
