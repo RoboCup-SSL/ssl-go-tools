@@ -22,7 +22,7 @@ func NewGenerator() *Generator {
 	generator.gamePhaseAggregator = GamePhaseAggregator{}
 
 	generator.metaDataProcessor.timeoutTimeNormal = 300_000_000
-	generator.metaDataProcessor.timeoutTimeExtra = 150_000_000
+	generator.metaDataProcessor.timeoutTimeExtra = 300_000_000 // should be 150_000_000 for all except 2019 (wrong config in new GC)
 	generator.metaDataProcessor.timeoutsNormal = 4
 	generator.metaDataProcessor.timeoutsExtra = 2
 
