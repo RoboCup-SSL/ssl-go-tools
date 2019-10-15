@@ -74,7 +74,7 @@ func WriteTeamMetricsPerGame(matchStatsCollection *sslproto.MatchStatsCollection
 
 func WriteTeamMetricsSum(matchStatsCollection *sslproto.MatchStatsCollection, filename string) error {
 
-	header := []string{"Team", "Goals", "Fouls", "Yellow Cards", "Red Cards", "Timeout Time", "Timeouts", "Penalty Shots"}
+	header := []string{"Team", "Scored Goals", "Conceded Goals", "Fouls", "Yellow Cards", "Red Cards", "Timeout Time", "Timeouts", "Penalty Shots"}
 
 	teams := map[string]*sslproto.TeamStats{}
 	for _, matchStats := range matchStatsCollection.MatchStats {
@@ -83,8 +83,8 @@ func WriteTeamMetricsSum(matchStatsCollection *sslproto.MatchStatsCollection, fi
 	}
 
 	for _, matchStats := range matchStatsCollection.MatchStats {
-		addTeamStats(matchStats.TeamStatsYellow, teams[matchStats.TeamStatsYellow.Name])
-		addTeamStats(matchStats.TeamStatsBlue, teams[matchStats.TeamStatsBlue.Name])
+		addTeamStats(teams[matchStats.TeamStatsYellow.Name], matchStats.TeamStatsYellow)
+		addTeamStats(teams[matchStats.TeamStatsBlue.Name], matchStats.TeamStatsBlue)
 	}
 
 	var teamNamesSorted []string
@@ -157,20 +157,22 @@ func WriteGamePhases(matchStatsCollection *sslproto.MatchStatsCollection, filena
 	return writeCsv(header, records, filename)
 }
 
-func addTeamStats(from *sslproto.TeamStats, to *sslproto.TeamStats) {
-	to.Goals += from.Goals
-	to.Fouls += from.Fouls
-	to.YellowCards += from.YellowCards
-	to.RedCards += from.RedCards
-	to.TimeoutTime += from.TimeoutTime
-	to.Timeouts += from.Timeouts
-	to.PenaltyShotsTotal += from.PenaltyShotsTotal
+func addTeamStats(to *sslproto.TeamStats, team *sslproto.TeamStats) {
+	to.Goals += team.Goals
+	to.ConcededGoals += team.ConcededGoals
+	to.Fouls += team.Fouls
+	to.YellowCards += team.YellowCards
+	to.RedCards += team.RedCards
+	to.TimeoutTime += team.TimeoutTime
+	to.Timeouts += team.Timeouts
+	to.PenaltyShotsTotal += team.PenaltyShotsTotal
 }
 
 func teamNumbers(stats *sslproto.TeamStats) []string {
 	return []string{
 		stats.Name,
 		uintToStr(stats.Goals),
+		uintToStr(stats.ConcededGoals),
 		uintToStr(stats.Fouls),
 		uintToStr(stats.YellowCards),
 		uintToStr(stats.RedCards),

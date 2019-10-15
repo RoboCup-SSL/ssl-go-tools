@@ -91,6 +91,7 @@ message TeamStats {
     uint32 timeouts = 7;
     uint32 penalty_shots_total = 8;
     uint32 penalty_shots_success = 9;
+    uint32 conceded_goals = 10;
 }
 
 message MatchStats {
