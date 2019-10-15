@@ -74,7 +74,7 @@ func WriteTeamMetricsPerGame(matchStatsCollection *sslproto.MatchStatsCollection
 
 func WriteTeamMetricsSum(matchStatsCollection *sslproto.MatchStatsCollection, filename string) error {
 
-	header := []string{"Team", "Scored Goals", "Conceded Goals", "Fouls", "Yellow Cards", "Red Cards", "Timeout Time", "Timeouts", "Penalty Shots"}
+	header := []string{"Team", "Scored Goals", "Conceded Goals", "Fouls", "Yellow Cards", "Red Cards", "Timeout Time", "Timeouts", "Penalty Shots", "Ball Placement Time"}
 
 	teams := map[string]*sslproto.TeamStats{}
 	for _, matchStats := range matchStatsCollection.MatchStats {
@@ -166,6 +166,7 @@ func addTeamStats(to *sslproto.TeamStats, team *sslproto.TeamStats) {
 	to.TimeoutTime += team.TimeoutTime
 	to.Timeouts += team.Timeouts
 	to.PenaltyShotsTotal += team.PenaltyShotsTotal
+	to.BallPlacementTime += team.BallPlacementTime
 }
 
 func teamNumbers(stats *sslproto.TeamStats) []string {
@@ -179,6 +180,7 @@ func teamNumbers(stats *sslproto.TeamStats) []string {
 		uintToStr(stats.TimeoutTime),
 		uintToStr(stats.Timeouts),
 		uintToStr(stats.PenaltyShotsTotal),
+		uintToStr(stats.BallPlacementTime),
 	}
 }
 

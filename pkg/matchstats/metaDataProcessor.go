@@ -65,6 +65,16 @@ func (m *MetaDataProcessor) OnLastRefereeMessage(matchStats *sslproto.MatchStats
 		matchStats.TeamStatsBlue.Timeouts += m.timeoutsExtra - *referee.Blue.Timeouts
 		matchStats.ExtraTime = true
 	}
+
+	for _, gamePhase := range matchStats.GamePhases {
+		if gamePhase.Type == sslproto.GamePhaseType_PHASE_BALL_PLACEMENT {
+			if gamePhase.ForTeam == sslproto.TeamColor_TEAM_BLUE {
+				matchStats.TeamStatsBlue.BallPlacementTime += gamePhase.Duration
+			} else if gamePhase.ForTeam == sslproto.TeamColor_TEAM_YELLOW {
+				matchStats.TeamStatsYellow.BallPlacementTime += gamePhase.Duration
+			}
+		}
+	}
 }
 
 func processTeam(stats *sslproto.TeamStats, team *sslproto.Referee_TeamInfo, otherTeam *sslproto.Referee_TeamInfo) {
