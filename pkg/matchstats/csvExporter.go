@@ -102,6 +102,61 @@ func WriteTeamMetricsSum(matchStatsCollection *sslproto.MatchStatsCollection, fi
 	return writeCsv(header, records, filename)
 }
 
+func WriteGamePhases(matchStatsCollection *sslproto.MatchStatsCollection, filename string) error {
+	header := []string{
+		"File",
+		"Type",
+		"For Team",
+		"Duration",
+		"Stage",
+		"Stage time left entry",
+		"Stage time left exit",
+		"Command Entry",
+		"Command Entry Team",
+		"Command Exit",
+		"Command Exit Team",
+		"Next Command",
+		"Next Command Team",
+		"Primary Game Event Entry",
+	}
+
+	var records [][]string
+	for _, matchStats := range matchStatsCollection.MatchStats {
+		for _, gamePhase := range matchStats.GamePhases {
+			primaryGameEvent := ""
+			if len(gamePhase.GameEventsEntry) > 0 {
+				primaryGameEvent = gamePhase.GameEventsEntry[0].Type.String()
+			}
+			nextCommandType := ""
+			nextCommandForTeam := ""
+			if gamePhase.NextCommandProposed != nil {
+				nextCommandType = gamePhase.NextCommandProposed.Type.String()[8:]
+				nextCommandForTeam = gamePhase.NextCommandProposed.ForTeam.String()[5:]
+			}
+
+			record := []string{
+				matchStats.Name,
+				gamePhase.Type.String()[6:],
+				gamePhase.ForTeam.String()[5:],
+				uintToStr(gamePhase.Duration),
+				gamePhase.Stage.String()[6:],
+				intToStr(gamePhase.StageTimeLeftEntry),
+				intToStr(gamePhase.StageTimeLeftExit),
+				gamePhase.CommandEntry.Type.String()[8:],
+				gamePhase.CommandEntry.ForTeam.String()[5:],
+				gamePhase.CommandExit.Type.String()[8:],
+				gamePhase.CommandExit.ForTeam.String()[5:],
+				nextCommandType,
+				nextCommandForTeam,
+				primaryGameEvent,
+			}
+			records = append(records, record)
+		}
+	}
+
+	return writeCsv(header, records, filename)
+}
+
 func addTeamStats(from *sslproto.TeamStats, to *sslproto.TeamStats) {
 	to.Goals += from.Goals
 	to.Fouls += from.Fouls
@@ -127,4 +182,8 @@ func teamNumbers(stats *sslproto.TeamStats) []string {
 
 func uintToStr(n uint32) string {
 	return strconv.FormatUint(uint64(n), 10)
+}
+
+func intToStr(n int32) string {
+	return strconv.FormatInt(int64(n), 10)
 }

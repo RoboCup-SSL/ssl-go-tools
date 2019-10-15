@@ -6,6 +6,7 @@ enum TeamColor {
     TEAM_UNKNOWN = 0;
     TEAM_YELLOW = 1;
     TEAM_BLUE = 2;
+    TEAM_NONE = 3;
 }
 
 enum CommandType {

@@ -70,6 +70,9 @@ func exportCsv() {
 	if err := matchstats.WriteTeamMetricsSum(&a.Collection, "team-metrics-sum.csv"); err != nil {
 		log.Fatal(err)
 	}
+	if err := matchstats.WriteGamePhases(&a.Collection, "game-phases.csv"); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func usage() {

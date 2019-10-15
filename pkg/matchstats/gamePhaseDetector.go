@@ -162,23 +162,23 @@ func mapProtoCommandToTeam(command sslproto.Referee_Command) sslproto.TeamColor 
 	case sslproto.Referee_HALT,
 		sslproto.Referee_STOP,
 		sslproto.Referee_NORMAL_START,
-		sslproto.Referee_FORCE_START,
-		sslproto.Referee_GOAL_YELLOW,
-		sslproto.Referee_GOAL_BLUE:
-		return sslproto.TeamColor_TEAM_UNKNOWN
+		sslproto.Referee_FORCE_START:
+		return sslproto.TeamColor_TEAM_NONE
 	case sslproto.Referee_PREPARE_KICKOFF_YELLOW,
 		sslproto.Referee_PREPARE_PENALTY_YELLOW,
 		sslproto.Referee_DIRECT_FREE_YELLOW,
 		sslproto.Referee_INDIRECT_FREE_YELLOW,
 		sslproto.Referee_TIMEOUT_YELLOW,
-		sslproto.Referee_BALL_PLACEMENT_YELLOW:
+		sslproto.Referee_BALL_PLACEMENT_YELLOW,
+		sslproto.Referee_GOAL_YELLOW:
 		return sslproto.TeamColor_TEAM_YELLOW
 	case sslproto.Referee_PREPARE_KICKOFF_BLUE,
 		sslproto.Referee_PREPARE_PENALTY_BLUE,
 		sslproto.Referee_DIRECT_FREE_BLUE,
 		sslproto.Referee_INDIRECT_FREE_BLUE,
 		sslproto.Referee_TIMEOUT_BLUE,
-		sslproto.Referee_BALL_PLACEMENT_BLUE:
+		sslproto.Referee_BALL_PLACEMENT_BLUE,
+		sslproto.Referee_GOAL_BLUE:
 		return sslproto.TeamColor_TEAM_BLUE
 	}
 	log.Printf("Command %v not mapped to any team", command)
