@@ -70,8 +70,10 @@ func (m *MetaDataProcessor) OnLastRefereeMessage(matchStats *sslproto.MatchStats
 		if gamePhase.Type == sslproto.GamePhaseType_PHASE_BALL_PLACEMENT {
 			if gamePhase.ForTeam == sslproto.TeamColor_TEAM_BLUE {
 				matchStats.TeamStatsBlue.BallPlacementTime += gamePhase.Duration
+				matchStats.TeamStatsBlue.BallPlacements++
 			} else if gamePhase.ForTeam == sslproto.TeamColor_TEAM_YELLOW {
 				matchStats.TeamStatsYellow.BallPlacementTime += gamePhase.Duration
+				matchStats.TeamStatsYellow.BallPlacements++
 			}
 		}
 	}
