@@ -39,7 +39,7 @@ func WriteGamePhaseDurations(matchStatsCollection *sslproto.MatchStatsCollection
 
 	header := []string{"File", "Extra time", "Shootout"}
 	for i := 0; i < len(sslproto.GamePhaseType_name); i++ {
-		header = append(header, sslproto.GamePhaseType_name[int32(i)])
+		header = append(header, sslproto.GamePhaseType_name[int32(i)][6:])
 	}
 
 	var records [][]string
