@@ -143,9 +143,9 @@ func mapProtoCommandToGamePhaseType(command sslproto.Referee_Command) sslproto.G
 	case sslproto.Referee_PREPARE_PENALTY_YELLOW, sslproto.Referee_PREPARE_PENALTY_BLUE:
 		return sslproto.GamePhaseType_PHASE_PREPARE_PENALTY
 	case sslproto.Referee_DIRECT_FREE_YELLOW, sslproto.Referee_DIRECT_FREE_BLUE:
-		return sslproto.GamePhaseType_PHASE_DIRECT_FREE
+		return sslproto.GamePhaseType_PHASE_RUNNING
 	case sslproto.Referee_INDIRECT_FREE_YELLOW, sslproto.Referee_INDIRECT_FREE_BLUE:
-		return sslproto.GamePhaseType_PHASE_INDIRECT_FREE
+		return sslproto.GamePhaseType_PHASE_RUNNING
 	case sslproto.Referee_TIMEOUT_YELLOW, sslproto.Referee_TIMEOUT_BLUE:
 		return sslproto.GamePhaseType_PHASE_TIMEOUT
 	case sslproto.Referee_BALL_PLACEMENT_YELLOW, sslproto.Referee_BALL_PLACEMENT_BLUE:
