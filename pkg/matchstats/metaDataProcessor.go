@@ -79,6 +79,18 @@ func (m *MetaDataProcessor) OnLastRefereeMessage(matchStats *sslproto.MatchStats
 	}
 }
 
+func (m *MetaDataProcessor) OnNewRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+	m.updateMaxActiveYellowCards(referee.Blue, matchStats.TeamStatsBlue)
+	m.updateMaxActiveYellowCards(referee.Yellow, matchStats.TeamStatsYellow)
+}
+
+func (m *MetaDataProcessor) updateMaxActiveYellowCards(teamInfo *sslproto.Referee_TeamInfo, teamStats *sslproto.TeamStats) {
+	activeCards := uint32(len(teamInfo.YellowCardTimes))
+	if teamStats.MaxActiveYellowCards < activeCards {
+		teamStats.MaxActiveYellowCards = activeCards
+	}
+}
+
 func processTeam(stats *sslproto.TeamStats, team *sslproto.Referee_TeamInfo, otherTeam *sslproto.Referee_TeamInfo) {
 	stats.Name = *team.Name
 	stats.Goals = *team.Score

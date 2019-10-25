@@ -66,6 +66,8 @@ func (m *Generator) Process(filename string) (*sslproto.MatchStats, error) {
 			m.OnNewCommand(matchStats, r)
 		}
 
+		m.OnNewRefereeMessage(matchStats, r)
+
 		lastRefereeMsg = r
 	}
 
@@ -93,6 +95,10 @@ func (m *Generator) OnFirstRefereeMessage(matchStats *sslproto.MatchStats, refer
 func (m *Generator) OnLastRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
 	m.metaDataProcessor.OnLastRefereeMessage(matchStats, referee)
 	m.gamePhaseDetector.OnLastRefereeMessage(matchStats, referee)
+}
+
+func (m *Generator) OnNewRefereeMessage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {
+	m.metaDataProcessor.OnNewRefereeMessage(matchStats, referee)
 }
 
 func packetTimeStampToTime(packetTimestamp uint64) time.Time {

@@ -57,7 +57,7 @@ func WriteGamePhaseDurations(matchStatsCollection *sslproto.MatchStatsCollection
 
 func WriteTeamMetricsPerGame(matchStatsCollection *sslproto.MatchStatsCollection, filename string) error {
 
-	header := []string{"File", "Team", "Scored Goals", "Conceded Goals", "Fouls", "Yellow Cards", "Red Cards", "Timeout Time", "Timeouts", "Penalty Shots", "Ball Placement Time", "Ball Placements"}
+	header := []string{"File", "Team", "Scored Goals", "Conceded Goals", "Fouls", "Yellow Cards", "Red Cards", "Timeout Time", "Timeouts", "Penalty Shots", "Ball Placement Time", "Ball Placements", "Max active Yellow Cards"}
 
 	var records [][]string
 	for _, matchStats := range matchStatsCollection.MatchStats {
@@ -74,7 +74,7 @@ func WriteTeamMetricsPerGame(matchStatsCollection *sslproto.MatchStatsCollection
 
 func WriteTeamMetricsSum(matchStatsCollection *sslproto.MatchStatsCollection, filename string) error {
 
-	header := []string{"Team", "Scored Goals", "Conceded Goals", "Fouls", "Yellow Cards", "Red Cards", "Timeout Time", "Timeouts", "Penalty Shots", "Ball Placement Time", "Ball Placements"}
+	header := []string{"Team", "Scored Goals", "Conceded Goals", "Fouls", "Yellow Cards", "Red Cards", "Timeout Time", "Timeouts", "Penalty Shots", "Ball Placement Time", "Ball Placements", "Max active Yellow Cards"}
 
 	teams := map[string]*sslproto.TeamStats{}
 	for _, matchStats := range matchStatsCollection.MatchStats {
@@ -181,6 +181,9 @@ func addTeamStats(to *sslproto.TeamStats, team *sslproto.TeamStats) {
 	to.PenaltyShotsTotal += team.PenaltyShotsTotal
 	to.BallPlacementTime += team.BallPlacementTime
 	to.BallPlacements += team.BallPlacements
+	if to.MaxActiveYellowCards < team.MaxActiveYellowCards {
+		to.MaxActiveYellowCards = team.MaxActiveYellowCards
+	}
 }
 
 func teamNumbers(stats *sslproto.TeamStats) []string {
@@ -196,6 +199,7 @@ func teamNumbers(stats *sslproto.TeamStats) []string {
 		uintToStr(stats.PenaltyShotsTotal),
 		uintToStr(stats.BallPlacementTime),
 		uintToStr(stats.BallPlacements),
+		uintToStr(stats.MaxActiveYellowCards),
 	}
 }
 

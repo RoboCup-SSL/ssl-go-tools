@@ -92,6 +92,7 @@ message TeamStats {
     uint32 conceded_goals = 10;
     uint32 ball_placement_time = 11;
     uint32 ball_placements = 12;
+    uint32 max_active_yellow_cards = 13;
 }
 
 message MatchStats {
