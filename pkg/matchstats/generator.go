@@ -53,6 +53,9 @@ func (m *Generator) Process(filename string) (*sslproto.MatchStats, error) {
 
 		if lastRefereeMsg == nil {
 			m.OnFirstRefereeMessage(matchStats, r)
+		} else if *r.CommandCounter < *lastRefereeMsg.CommandCounter {
+			log.Printf("Ignoring possible foreign referee command. Command counter %v < %v", *r.CommandCounter, *lastRefereeMsg.CommandCounter)
+			continue
 		}
 
 		if lastRefereeMsg == nil || *r.Stage != *lastRefereeMsg.Stage {
