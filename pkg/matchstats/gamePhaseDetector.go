@@ -16,7 +16,9 @@ func (d *GamePhaseDetector) startNewPhase(matchStats *sslproto.MatchStats, refer
 	d.currentPhase.Type = phaseType
 	d.currentPhase.StartTime = *referee.PacketTimestamp
 	d.currentPhase.Stage = mapProtoStageToStageType(*referee.Stage)
-	d.currentPhase.StageTimeLeftEntry = *referee.StageTimeLeft
+	if referee.StageTimeLeft != nil {
+		d.currentPhase.StageTimeLeftEntry = *referee.StageTimeLeft
+	}
 	d.currentPhase.CommandEntry = mapProtoCommandToCommand(*referee.Command)
 	d.currentPhase.ForTeam = mapProtoCommandToTeam(*referee.Command)
 	d.currentPhase.GameEventsEntry = referee.GameEvents
@@ -40,7 +42,9 @@ func (d *GamePhaseDetector) stopCurrentPhase(matchStats *sslproto.MatchStats, re
 		d.currentPhase.NextCommandProposed = mapProtoCommandToCommand(*referee.NextCommand)
 	}
 	d.currentPhase.GameEventsExit = referee.GameEvents
-	d.currentPhase.StageTimeLeftExit = *referee.StageTimeLeft
+	if referee.StageTimeLeft != nil {
+		d.currentPhase.StageTimeLeftExit = *referee.StageTimeLeft
+	}
 }
 
 func (d *GamePhaseDetector) OnNewStage(matchStats *sslproto.MatchStats, referee *sslproto.Referee) {

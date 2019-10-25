@@ -83,7 +83,9 @@ func processTeam(stats *sslproto.TeamStats, team *sslproto.Referee_TeamInfo, oth
 	stats.Name = *team.Name
 	stats.Goals = *team.Score
 	stats.ConcededGoals = *otherTeam.Score
-	stats.Fouls = *team.FoulCounter
 	stats.YellowCards = *team.YellowCards
 	stats.RedCards = *team.RedCards
+	if team.FoulCounter != nil {
+		stats.Fouls = *team.FoulCounter
+	}
 }
