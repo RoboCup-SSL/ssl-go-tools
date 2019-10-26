@@ -77,6 +77,8 @@ message GamePhase {
     StageType stage = 11;
     sint32 stage_time_left_entry = 12;
     sint32 stage_time_left_exit = 13;
+
+    Command command_prev = 14;
 }
 
 message TeamStats {

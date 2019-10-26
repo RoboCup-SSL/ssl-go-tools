@@ -12,6 +12,7 @@ type GamePhaseDetector struct {
 
 func (d *GamePhaseDetector) startNewPhase(matchStats *sslproto.MatchStats, referee *sslproto.Referee, phaseType sslproto.GamePhaseType) {
 	d.stopCurrentPhase(matchStats, referee)
+	prevPhase := d.currentPhase
 	d.currentPhase = new(sslproto.GamePhase)
 	d.currentPhase.Type = phaseType
 	d.currentPhase.StartTime = *referee.PacketTimestamp
@@ -22,6 +23,12 @@ func (d *GamePhaseDetector) startNewPhase(matchStats *sslproto.MatchStats, refer
 	d.currentPhase.CommandEntry = mapProtoCommandToCommand(*referee.Command)
 	d.currentPhase.ForTeam = mapProtoCommandToTeam(*referee.Command)
 	d.currentPhase.GameEventsEntry = referee.GameEvents
+
+	if prevPhase != nil {
+		d.currentPhase.CommandPrev = prevPhase.CommandEntry
+	} else {
+		d.currentPhase.CommandPrev = &sslproto.Command{Type: sslproto.CommandType_COMMAND_UNKNOWN, ForTeam: sslproto.TeamColor_TEAM_UNKNOWN}
+	}
 
 	if d.currentPhase.CommandEntry.Type == sslproto.CommandType_COMMAND_UNKNOWN {
 		log.Println("Warn")

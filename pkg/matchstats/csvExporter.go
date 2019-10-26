@@ -120,6 +120,8 @@ func WriteGamePhases(matchStatsCollection *sslproto.MatchStatsCollection, filena
 		"Primary Game Event Entry",
 		"All Game Events Entry",
 		"All Game Events Exit",
+		"Command Prev",
+		"Command Prev Team",
 	}
 
 	var records [][]string
@@ -162,6 +164,8 @@ func WriteGamePhases(matchStatsCollection *sslproto.MatchStatsCollection, filena
 				primaryGameEvent,
 				strings.Join(gameEventsEntry, "|"),
 				strings.Join(gameEventsExit, "|"),
+				gamePhase.CommandPrev.Type.String()[8:],
+				gamePhase.CommandPrev.ForTeam.String()[5:],
 			}
 			records = append(records, record)
 		}
