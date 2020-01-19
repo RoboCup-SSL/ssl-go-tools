@@ -20,11 +20,12 @@ type Message struct {
 }
 
 const (
-	MessageBlank         MessageId = 0 //(ignore message)
-	MessageUnknown       MessageId = 1 //(try to guess message type by parsing the data)
-	MessageSslVision2010 MessageId = 2
-	MessageSslRefbox2013 MessageId = 3
-	MessageSslVision2014 MessageId = 4
+	MessageBlank                MessageId = 0 //(ignore message)
+	MessageUnknown              MessageId = 1 //(try to guess message type by parsing the data)
+	MessageSslVision2010        MessageId = 2
+	MessageSslRefbox2013        MessageId = 3
+	MessageSslVision2014        MessageId = 4
+	MessageSslVisionTracker2020 MessageId = 5
 )
 
 func (m *Message) ParseVisionWrapper() (*sslproto.SSL_WrapperPacket, error) {
