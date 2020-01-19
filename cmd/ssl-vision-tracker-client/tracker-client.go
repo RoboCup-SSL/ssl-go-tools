@@ -47,18 +47,20 @@ func main() {
 		if n >= maxDatagramSize {
 			log.Fatal("Buffer size too small")
 		}
-		frame := sslproto.TrackedFrame{}
+		frame := sslproto.TrackerWrapperPacket{}
 		if err := proto.Unmarshal(b[0:n], &frame); err != nil {
 			log.Println("Could not unmarshal frame")
 			continue
 		}
 
-		if *noBalls {
-			frame.Balls = []*sslproto.TrackedBall{}
-			frame.KickedBall = nil
-		}
-		if *noRobots {
-			frame.Robots = []*sslproto.TrackedRobot{}
+		if frame.TrackedFrame != nil {
+			if *noBalls {
+				frame.TrackedFrame.Balls = []*sslproto.TrackedBall{}
+				frame.TrackedFrame.KickedBall = nil
+			}
+			if *noRobots {
+				frame.TrackedFrame.Robots = []*sslproto.TrackedRobot{}
+			}
 		}
 
 		if *fullScreen || *oneFrame {
