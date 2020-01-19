@@ -55,6 +55,7 @@ func main() {
 
 		if *noBalls {
 			frame.Balls = []*sslproto.TrackedBall{}
+			frame.KickedBall = nil
 		}
 		if *noRobots {
 			frame.Robots = []*sslproto.TrackedRobot{}
