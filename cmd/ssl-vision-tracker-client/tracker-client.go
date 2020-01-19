@@ -16,6 +16,8 @@ const maxDatagramSize = 8192
 var address = flag.String("address", "224.5.23.2:10009", "The multicast address of the tracking source")
 var fullScreen = flag.Bool("fullScreen", false, "Print the formatted frame to the console, clearing the screen during print")
 var oneFrame = flag.Bool("oneFrame", false, "Print the formatted frame to the console, exit after a single frame was received")
+var noBalls = flag.Bool("noBalls", false, "Do not print balls")
+var noRobots = flag.Bool("noRobots", false, "Do not print robots")
 
 func main() {
 	flag.Parse()
@@ -49,6 +51,13 @@ func main() {
 		if err := proto.Unmarshal(b[0:n], &frame); err != nil {
 			log.Println("Could not unmarshal frame")
 			continue
+		}
+
+		if *noBalls {
+			frame.Balls = []*sslproto.TrackedBall{}
+		}
+		if *noRobots {
+			frame.Robots = []*sslproto.TrackedRobot{}
 		}
 
 		if *fullScreen || *oneFrame {
