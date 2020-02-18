@@ -57,6 +57,9 @@ func (p *DetectionTimingProcessor) ProcessDetection(logMessage *persistence.Mess
 	p.lastLogMessage = logMessage
 }
 
+func (p *DetectionTimingProcessor) ProcessReferee(*persistence.Message, *sslproto.Referee) {
+}
+
 func (p *DetectionTimingProcessor) String() (res string) {
 	res = fmt.Sprintf("Detection frames: %d", p.NumDetection)
 	res += fmt.Sprintf("\navg tCapture: %.4f", p.TCaptureDiffSum/float64(p.NumDetection))

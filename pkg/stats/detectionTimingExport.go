@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
+	"log"
 	"os"
 )
 
@@ -30,7 +31,13 @@ func (p *DetectionTimingExportProcessor) Close() error {
 }
 
 func (p *DetectionTimingExportProcessor) ProcessDetection(logMessage *persistence.Message, frame *sslproto.SSL_DetectionFrame) {
-	p.file.WriteString(fmt.Sprintf("%v,%v,%.30f,%.30f\n", logMessage.Timestamp, *frame.CameraId, *frame.TCapture, *frame.TSent))
+	_, err := p.file.WriteString(fmt.Sprintf("%v,%v,%.30f,%.30f\n", logMessage.Timestamp, *frame.CameraId, *frame.TCapture, *frame.TSent))
+	if err != nil {
+		log.Println("Could not write timing: ", err)
+	}
+}
+
+func (p *DetectionTimingExportProcessor) ProcessReferee(*persistence.Message, *sslproto.Referee) {
 }
 
 func (p *DetectionTimingExportProcessor) String() string {

@@ -18,6 +18,8 @@ type Processor struct {
 	UseAll                   bool
 	UseDetectionTimingExport bool
 	UseDetectionTiming       bool
+	UseDetectionQuality      bool
+	PrintQualityDataLosses   bool
 }
 
 func (p Processor) ProcessFile(logFile string) {
@@ -25,7 +27,11 @@ func (p Processor) ProcessFile(logFile string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer logReader.Close()
+	defer func() {
+		if err := logReader.Close(); err != nil {
+			log.Println("Could not close log reader: ", err)
+		}
+	}()
 
 	channel := logReader.CreateChannel()
 
@@ -37,6 +43,11 @@ func (p Processor) ProcessFile(logFile string) {
 	}
 	if allProcessors || p.UseDetectionTiming {
 		processors = append(processors, new(DetectionTimingProcessor))
+	}
+	if allProcessors || p.UseDetectionQuality {
+		proc := new(DetectionQualityProcessor)
+		processors = append(processors, proc)
+		proc.PrintDataLosses = p.PrintQualityDataLosses
 	}
 
 	for _, p := range processors {
@@ -59,11 +70,22 @@ func (p Processor) ProcessFile(logFile string) {
 					p.ProcessDetection(r, visionMsg.Detection)
 				}
 			}
+		} else if r.MessageType.Id == persistence.MessageSslRefbox2013 {
+			refereeMsg, err := r.ParseReferee()
+			if err != nil {
+				log.Println("Could not parse referee massage: ", err)
+				continue
+			}
+			for _, p := range processors {
+				p.ProcessReferee(r, refereeMsg)
+			}
 		}
 	}
 
 	for _, p := range processors {
 		log.Println(p)
-		p.Close()
+		if err := p.Close(); err != nil {
+			log.Println("Could not close processor: ", err)
+		}
 	}
 }
