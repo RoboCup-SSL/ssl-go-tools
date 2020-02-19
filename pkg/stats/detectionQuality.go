@@ -12,6 +12,7 @@ import (
 
 const maxRobotDt = time.Millisecond * 500
 const maxDuration = time.Millisecond * 100
+const minAge = time.Second * 5
 
 type DetectionQualityProcessor struct {
 	active          bool
@@ -186,12 +187,16 @@ func (p *DetectionQualityProcessor) dataLossOverThreshold() (res string) {
 
 func (p *DetectionQualityProcessor) dataLossOverThresholdSum() (res string) {
 	numOverMax := 0
+	numOverMaxAndAged := 0
 	for _, dataLoss := range p.robotDataLosses {
 		if dataLoss.Duration > maxDuration {
 			numOverMax++
+			if dataLoss.ObjectAge > minAge {
+				numOverMaxAndAged++
+			}
 		}
 	}
-	res += fmt.Sprintf("Number of data losses over %v: %v", maxDuration, numOverMax)
+	res += fmt.Sprintf("Number of data losses over %v: %v, %v older than %v", maxDuration, numOverMax, numOverMaxAndAged, minAge)
 	return
 }
 
