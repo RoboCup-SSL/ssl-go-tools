@@ -7,13 +7,10 @@ age = D(:,4);
 numFrames = D(:,5);
 duration = D(:,6);
 
-% duration = rmoutliers(duration, 'quartiles');
+bins = (0.1:0.001:0.5);
 
 figure
-histogram(duration/1e6, (0:1:100))
-% subplot(3,1,1)
-% plot(timestampDt)
-% subplot(3,1,2)
-% plot(tCaptureDt)
-% subplot(3,1,3)
-% plot(tSentDt)
+histogram(duration/1e9, bins)
+xlabel('duration [s]')
+ylabel('count')
+title('Histogram over data loss duration')
