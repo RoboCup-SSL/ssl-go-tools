@@ -24,6 +24,7 @@ type DetectionQualityProcessor struct {
 	robotDataLosses []*DataLoss
 	ballDataLosses  []*DataLoss
 	robotsFile      *os.File
+	ballFile        *os.File
 	PrintDataLosses bool
 
 	FrameProcessor
@@ -73,6 +74,12 @@ func (p *DetectionQualityProcessor) Init(logFile string) error {
 	}
 	p.robotsFile = f
 
+	f, err = os.Create(logFile + "_ball.csv")
+	if err != nil {
+		return err
+	}
+	p.ballFile = f
+
 	return nil
 }
 
@@ -81,13 +88,29 @@ func (p *DetectionQualityProcessor) Close() error {
 	for _, dataLoss := range p.robotDataLosses {
 		_, err := p.robotsFile.WriteString(fmt.Sprintf("%v,%v,%v,%v,%v,%v\n", dataLoss.Time.UnixNano(), dataLoss.TeamColor, dataLoss.RobotId, dataLoss.ObjectAge.Nanoseconds(), dataLoss.NumFrames, dataLoss.Duration.Nanoseconds()))
 		if err != nil {
-			log.Println("Could not write timing: ", err)
+			log.Println("Could not write robot timing: ", err)
 			break
 		}
 	}
 
 	if p.robotsFile != nil {
-		return p.robotsFile.Close()
+		if err := p.robotsFile.Close(); err != nil {
+			return err
+		}
+	}
+
+	for _, dataLoss := range p.ballDataLosses {
+		_, err := p.ballFile.WriteString(fmt.Sprintf("%v,%v,%v,%v\n", dataLoss.Time.UnixNano(), dataLoss.ObjectAge.Nanoseconds(), dataLoss.NumFrames, dataLoss.Duration.Nanoseconds()))
+		if err != nil {
+			log.Println("Could not write ball timing: ", err)
+			break
+		}
+	}
+
+	if p.ballFile != nil {
+		if err := p.ballFile.Close(); err != nil {
+			return err
+		}
 	}
 
 	return nil
