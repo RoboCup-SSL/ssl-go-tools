@@ -84,11 +84,12 @@ func (p *DetectionTimingProcessor) ProcessReferee(*persistence.Message, *sslprot
 }
 
 func (p *DetectionTimingProcessor) String() (res string) {
-	res = fmt.Sprintf("Detection frames: %d", p.NumDetection)
+	res = fmt.Sprintf("Overall frames: %d", p.NumDetection)
 	res += fmt.Sprintf("\navg tReceive: %.4f", p.TReceiveDiffSum/float64(p.NumDetection))
 	res += fmt.Sprintf("\nNumber of frames with dt >%.4f -> receive: %d", maxDt, p.NumReceiveDtOutlyer)
 	for cameraId, cameraTiming := range p.cameraTimings {
 		res += fmt.Sprintf("\nCamera %v", cameraId)
+		res += fmt.Sprintf("\nDetection frames: %d", cameraTiming.NumDetection)
 		res += fmt.Sprintf("\navg tCapture: %.4f", cameraTiming.TCaptureDiffSum/float64(cameraTiming.NumDetection))
 		res += fmt.Sprintf("\navg tSent: %.4f", cameraTiming.TSentDiffSum/float64(cameraTiming.NumDetection))
 		res += fmt.Sprintf("\nNumber of frames with dt >%.4f -> capture: %d, sent: %d", maxDt, cameraTiming.NumCaptureDtOutlyer, cameraTiming.NumSentDtOutlyer)
