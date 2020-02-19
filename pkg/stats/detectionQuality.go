@@ -210,11 +210,11 @@ func (p *DetectionQualityProcessor) skippedRobotFrames() (res string) {
 		frameMisses[int(dataLoss.NumFrames)]++
 	}
 	maxNumFrames := 6
-	maxNumFramesCount := 0
+	maxNumFramesCount := uint32(0)
 	var numFramesList []int
-	for numFrames := range frameMisses {
+	for numFrames, numFramesCount := range frameMisses {
 		if numFrames >= maxNumFrames {
-			maxNumFramesCount++
+			maxNumFramesCount += numFramesCount
 		} else {
 			numFramesList = append(numFramesList, numFrames)
 		}
