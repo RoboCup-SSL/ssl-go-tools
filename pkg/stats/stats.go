@@ -1,6 +1,7 @@
 package stats
 
 import (
+	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"io"
@@ -83,7 +84,7 @@ func (p Processor) ProcessFile(logFile string) {
 	}
 
 	for _, p := range processors {
-		log.Println(p)
+		fmt.Println(p)
 		if err := p.Close(); err != nil {
 			log.Println("Could not close processor: ", err)
 		}
