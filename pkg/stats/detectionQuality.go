@@ -246,7 +246,7 @@ func (p *DetectionQualityProcessor) robotDataLossOverThreshold() (res string) {
 	})
 	for _, dataLoss := range p.robotDataLosses {
 		if dataLoss.Duration > maxRobotLoss {
-			res += fmt.Sprintf("%42v | %2d %v: %4v frames, %13v (%14v old)\n", dataLoss.Time, dataLoss.RobotId, teamColorStr(dataLoss.TeamColor), dataLoss.NumFrames, dataLoss.Duration, dataLoss.ObjectAge)
+			res += fmt.Sprintf("%v | %2d %v: %4v frames, %13v (%14v old)\n", dataLoss.Time.UnixNano(), dataLoss.RobotId, teamColorStr(dataLoss.TeamColor), dataLoss.NumFrames, dataLoss.Duration, dataLoss.ObjectAge)
 		}
 	}
 	return
@@ -260,7 +260,7 @@ func (p *DetectionQualityProcessor) ballDataLossOverThreshold() (res string) {
 	})
 	for _, dataLoss := range p.ballDataLosses {
 		if dataLoss.Duration > maxBallLoss {
-			res += fmt.Sprintf("%42v | ball: %4v frames, %13v (%14v old)\n", dataLoss.Time, dataLoss.NumFrames, dataLoss.Duration, dataLoss.ObjectAge)
+			res += fmt.Sprintf("%v | ball: %4v frames, %13v (%14v old)\n", dataLoss.Time.UnixNano(), dataLoss.NumFrames, dataLoss.Duration, dataLoss.ObjectAge)
 		}
 	}
 	return
