@@ -24,6 +24,8 @@ var RefereeType = persistence.MessageType{Id: persistence.MessageSslRefbox2013, 
 var logFile = flag.String("file", "", "The log file to play")
 var skipNonRunningStages = flag.Bool("skip", false, "Skip frames while not in a running stage")
 
+var startTimestamp = flag.Int64("startTimestamp", 0, "The unix timestamp [ns] at which the log file should be started")
+
 func main() {
 	flag.Parse()
 
@@ -36,7 +38,7 @@ func main() {
 	addSlots(&broadcaster)
 
 	defer broadcaster.Stop()
-	if err := broadcaster.Start(*logFile); err != nil {
+	if err := broadcaster.Start(*logFile, *startTimestamp); err != nil {
 		log.Fatal(err)
 	}
 }

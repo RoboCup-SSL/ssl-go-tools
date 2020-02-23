@@ -43,7 +43,7 @@ func (b *Broadcaster) AddSlot(messageType MessageType, address string) {
 	b.Slots = append(b.Slots, &Slot{address: address, MessageType: messageType})
 }
 
-func (b *Broadcaster) Start(filename string) error {
+func (b *Broadcaster) Start(filename string, startTimestamp int64) error {
 	reader, err := NewReader(filename)
 	if err != nil {
 		return err
@@ -55,7 +55,7 @@ func (b *Broadcaster) Start(filename string) error {
 		b.conns[slot.MessageType.Id] = conn
 	}
 
-	b.publish()
+	b.publish(startTimestamp)
 	return nil
 }
 
@@ -74,7 +74,7 @@ func (b *Broadcaster) Stop() {
 	}
 }
 
-func (b *Broadcaster) publish() {
+func (b *Broadcaster) publish(startTimestamp int64) {
 	startTime := time.Now()
 	refTimestamp := int64(0)
 	curStage := sslproto.Referee_Stage(-1)
@@ -82,6 +82,9 @@ func (b *Broadcaster) publish() {
 		msg, err := b.reader.ReadMessage()
 		if err != nil {
 			log.Fatal("Could not read message: ", err)
+		}
+		if msg.Timestamp < startTimestamp {
+			continue
 		}
 		if isRunningStage(curStage) {
 
