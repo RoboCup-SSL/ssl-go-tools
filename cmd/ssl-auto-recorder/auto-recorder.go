@@ -2,12 +2,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/auto"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
-	"log"
 	"os"
 	"os/signal"
-	"time"
 )
 
 var addressVisionLegacy = flag.String("vision-legacy-address", "224.5.23.2:10005", "Multicast address for vision 2010 (legacy)")
@@ -28,23 +26,17 @@ var RefereeType = persistence.MessageType{Id: persistence.MessageSslRefbox2013, 
 func main() {
 	flag.Parse()
 
-	logger := persistence.NewRecorder()
-	addSlots(&logger)
-	err := logger.Start()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	registerToInterrupt(&logger)
+	refereeServer := auto.NewMulticastServer(*addressReferee)
+	autoRecorder := auto.NewRecorder(refereeServer)
 
-	for {
-		fmt.Print("\r")
-		for _, slot := range logger.Slots {
-			fmt.Printf(" | %v: %7d", slot.MessageType.Name, slot.ReceivedMessages)
-		}
-		fmt.Print(" |")
+	addSlots(autoRecorder.Recorder)
+	autoRecorder.Start()
 
-		time.Sleep(time.Millisecond * 500)
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	for range c {
+		autoRecorder.Stop()
+		os.Exit(0)
 	}
 }
 
@@ -61,18 +53,4 @@ func addSlots(logger *persistence.Recorder) {
 	if *refereeEnabled {
 		logger.AddSlot(RefereeType, *addressReferee)
 	}
-}
-
-func registerToInterrupt(recorder *persistence.Recorder) {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		for range c {
-			err := recorder.Stop()
-			if err != nil {
-				log.Println("Could not stop recorder: ", err)
-			}
-			os.Exit(0)
-		}
-	}()
 }

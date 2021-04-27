@@ -4,8 +4,6 @@ import (
 	"github.com/pkg/errors"
 	"log"
 	"net"
-	"os"
-	"os/signal"
 	"sync"
 	"time"
 )
@@ -13,9 +11,10 @@ import (
 const maxDatagramSize = 8192 * 2
 
 type Recorder struct {
-	Slots  []*Slot
-	writer Writer
-	mutex  sync.Mutex
+	Slots   []*Slot
+	writer  Writer
+	running bool
+	mutex   sync.Mutex
 }
 
 type Slot struct {
@@ -33,6 +32,9 @@ func (r *Recorder) AddSlot(messageType MessageType, address string) {
 }
 
 func (r *Recorder) Start() error {
+	if r.running {
+		return errors.New("Recorder already started")
+	}
 	if err := r.openLogWriter(); err != nil {
 		return err
 	}
@@ -44,25 +46,20 @@ func (r *Recorder) Start() error {
 			go r.acceptMessages(listener, slot)
 		}
 	}
+	r.running = true
 	return nil
 }
 
 func (r *Recorder) Stop() error {
+	if !r.running {
+		return nil
+	}
+	r.running = false
 	return r.writer.Close()
 }
 
-func (r *Recorder) RegisterToInterrupt() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		for range c {
-			err := r.Stop()
-			if err != nil {
-				log.Println("Could not stop recorder: ", err)
-			}
-			os.Exit(0)
-		}
-	}()
+func (r *Recorder) IsRunning() bool {
+	return r.running
 }
 
 func (r *Recorder) openLogWriter() error {
@@ -94,26 +91,22 @@ func openConnection(address string) (listener *net.UDPConn, err error) {
 }
 
 func (r *Recorder) acceptMessages(listener *net.UDPConn, slot *Slot) {
-	for {
-		data := make([]byte, maxDatagramSize)
+	data := make([]byte, maxDatagramSize)
+	for r.running {
 		n, _, err := listener.ReadFromUDP(data)
 		if err != nil {
 			log.Print("ReadFromUDP failed:", err)
 			return
 		}
 
+		timestamp := time.Now().UnixNano()
+		logMessage := Message{Timestamp: timestamp, MessageType: slot.MessageType, Message: data[:n]}
+		r.mutex.Lock()
+		err = r.writer.Write(&logMessage)
 		if err != nil {
-			log.Print("Could not parse message: ", err)
-		} else {
-			timestamp := time.Now().UnixNano()
-			logMessage := Message{Timestamp: timestamp, MessageType: slot.MessageType, Message: data[:n]}
-			r.mutex.Lock()
-			err = r.writer.Write(&logMessage)
-			if err != nil {
-				log.Println("Could not write log message: ", err)
-			}
-			r.mutex.Unlock()
-			slot.ReceivedMessages++
+			log.Println("Could not write log message: ", err)
 		}
+		r.mutex.Unlock()
+		slot.ReceivedMessages++
 	}
 }
