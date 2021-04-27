@@ -2,7 +2,7 @@ version: 2
 jobs:
   tools:
     docker:
-    - image: circleci/golang:1.13
+    - image: circleci/golang:1.16
     working_directory: /go/src/github.com/RoboCup-SSL/ssl-go-tools
     steps:
     - checkout
