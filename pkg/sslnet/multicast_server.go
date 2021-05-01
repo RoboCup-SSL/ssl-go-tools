@@ -106,6 +106,7 @@ func (r *MulticastServer) receiveOnInterface(multicastAddress string, ifi net.In
 
 	if r.Verbose {
 		log.Printf("Listening on %s (%s)", multicastAddress, ifi.Name)
+		defer log.Printf("Stop listening on %s (%s)", multicastAddress, ifi.Name)
 	}
 
 	first := true
@@ -119,7 +120,7 @@ func (r *MulticastServer) receiveOnInterface(multicastAddress string, ifi net.In
 			if r.Verbose {
 				log.Println("ReadFromUDP failed:", err)
 			}
-			break
+			return
 		}
 
 		if first {
@@ -129,13 +130,4 @@ func (r *MulticastServer) receiveOnInterface(multicastAddress string, ifi net.In
 
 		r.Consumer(data[:n], remoteAddr)
 	}
-
-	if r.Verbose {
-		log.Printf("Stop listening on %s (%s)", multicastAddress, ifi.Name)
-	}
-
-	if err := r.connection.Close(); err != nil {
-		log.Println("Could not close listener: ", err)
-	}
-	return
 }
