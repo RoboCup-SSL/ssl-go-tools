@@ -4,6 +4,7 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
+	"strconv"
 )
 
 type MessageId int
@@ -46,4 +47,23 @@ func ParseMessage(data []byte, message proto.Message) error {
 		return errors.Wrap(err, "unable to unmarshal data")
 	}
 	return nil
+}
+
+func (m MessageId) String() string {
+	switch m {
+	case MessageBlank:
+		return "MessageBlank"
+	case MessageUnknown:
+		return "MessageUnknown"
+	case MessageSslVision2010:
+		return "MessageSslVision2010"
+	case MessageSslRefbox2013:
+		return "MessageSslRefbox2013"
+	case MessageSslVision2014:
+		return "MessageSslVision2014"
+	case MessageSslVisionTracker2020:
+		return "MessageSslVisionTracker2020"
+	default:
+		return strconv.Itoa(int(m))
+	}
 }

@@ -59,7 +59,9 @@ func (p Processor) ProcessFile(logFile string) {
 		}
 	}
 
+	numFrames := map[persistence.MessageId]int{}
 	for r := range channel {
+		numFrames[r.MessageType.Id]++
 		if r.MessageType.Id == persistence.MessageSslVision2014 {
 			visionMsg, err := r.ParseVisionWrapper()
 			if err != nil {
@@ -82,6 +84,8 @@ func (p Processor) ProcessFile(logFile string) {
 			}
 		}
 	}
+
+	log.Printf("Frames processed: %v", numFrames)
 
 	for _, p := range processors {
 		fmt.Println(p)
