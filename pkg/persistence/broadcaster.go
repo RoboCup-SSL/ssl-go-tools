@@ -2,45 +2,30 @@ package persistence
 
 import (
 	"fmt"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"log"
-	"net"
 	"time"
 )
 
 type Broadcaster struct {
-	Slots                []*Slot
-	conns                map[MessageId]*net.UDPConn
+	Slots                map[MessageId]*BroadcasterSlot
 	reader               *Reader
 	SkipNonRunningStages bool
 }
 
-func NewBroadcaster() Broadcaster {
-	return Broadcaster{Slots: make([]*Slot, 0), conns: make(map[MessageId]*net.UDPConn)}
+type BroadcasterSlot struct {
+	ReceivedMessages int
+	MessageType      MessageType
+	client           *sslnet.UdpClient
 }
 
-// NewBroadcaster creates a new UDP multicast connection on which to broadcast
-func connectForPublishing(address string) *net.UDPConn {
-	addr, err := net.ResolveUDPAddr("udp", address)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	conn, err := net.DialUDP("udp", nil, addr)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	err = conn.SetReadBuffer(maxDatagramSize)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("Connected to", address)
-
-	return conn
+func NewBroadcaster() Broadcaster {
+	return Broadcaster{Slots: make(map[MessageId]*BroadcasterSlot, 0)}
 }
 
 func (b *Broadcaster) AddSlot(messageType MessageType, address string) {
-	b.Slots = append(b.Slots, &Slot{address: address, MessageType: messageType})
+	b.Slots[messageType.Id] = &BroadcasterSlot{client: sslnet.NewUdpClient(address), MessageType: messageType}
 }
 
 func (b *Broadcaster) Start(filename string, startTimestamp int64) error {
@@ -51,8 +36,7 @@ func (b *Broadcaster) Start(filename string, startTimestamp int64) error {
 	b.reader = reader
 
 	for _, slot := range b.Slots {
-		conn := connectForPublishing(slot.address)
-		b.conns[slot.MessageType.Id] = conn
+		slot.client.Start()
 	}
 
 	b.publish(startTimestamp)
@@ -60,12 +44,10 @@ func (b *Broadcaster) Start(filename string, startTimestamp int64) error {
 }
 
 func (b *Broadcaster) Stop() {
-	for _, conn := range b.conns {
-		err := conn.Close()
-		if err != nil {
-			fmt.Println("Could not close connection: ", err)
-		}
+	for _, slot := range b.Slots {
+		slot.client.Stop()
 	}
+
 	if b.reader != nil {
 		err := b.reader.Close()
 		if err != nil {
@@ -98,11 +80,8 @@ func (b *Broadcaster) publish(startTimestamp int64) {
 				refTimestamp = msg.Timestamp
 			}
 
-			if conn := b.conns[msg.MessageType.Id]; conn != nil {
-				_, err := conn.Write(msg.Message)
-				if err != nil {
-					log.Println("Could not write message: ", err)
-				}
+			if slot, ok := b.Slots[msg.MessageType.Id]; ok {
+				slot.client.Send(msg.Message)
 			}
 		} else {
 			refTimestamp = 0

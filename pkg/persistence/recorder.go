@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
 	"github.com/pkg/errors"
 	"log"
 	"net"
@@ -8,27 +9,28 @@ import (
 	"time"
 )
 
-const maxDatagramSize = 8192 * 2
-
 type Recorder struct {
-	Slots   []*Slot
+	Slots   []*RecorderSlot
 	writer  Writer
 	running bool
 	mutex   sync.Mutex
 }
 
-type Slot struct {
+type RecorderSlot struct {
 	ReceivedMessages int
 	MessageType      MessageType
-	address          string
+	server           *sslnet.MulticastServer
 }
 
 func NewRecorder() Recorder {
-	return Recorder{Slots: make([]*Slot, 0)}
+	return Recorder{Slots: make([]*RecorderSlot, 0)}
 }
 
 func (r *Recorder) AddSlot(messageType MessageType, address string) {
-	r.Slots = append(r.Slots, &Slot{address: address, MessageType: messageType})
+	r.Slots = append(r.Slots, &RecorderSlot{
+		MessageType: messageType,
+		server:      sslnet.NewMulticastServer(address),
+	})
 }
 
 func (r *Recorder) Start() error {
@@ -38,21 +40,26 @@ func (r *Recorder) Start() error {
 	if err := r.openLogWriter(); err != nil {
 		return err
 	}
-	for name, slot := range r.Slots {
-		listener, err := openConnection(slot.address)
-		if err != nil {
-			log.Printf("Could not open connection for %v on %v", name, slot.address)
-		} else {
-			go r.acceptMessages(listener, slot)
-		}
+	for _, slot := range r.Slots {
+		slot.server.Consumer = r.slotConsumer(slot)
+		slot.server.Start()
 	}
 	r.running = true
 	return nil
 }
 
+func (r *Recorder) slotConsumer(slot *RecorderSlot) func(bytes []byte, addr *net.UDPAddr) {
+	return func(bytes []byte, addr *net.UDPAddr) {
+		r.processSlotMessage(slot, bytes)
+	}
+}
+
 func (r *Recorder) Stop() error {
 	if !r.running {
 		return nil
+	}
+	for _, slot := range r.Slots {
+		slot.server.Stop()
 	}
 	r.running = false
 	return r.writer.Close()
@@ -73,40 +80,13 @@ func (r *Recorder) openLogWriter() error {
 	return nil
 }
 
-func openConnection(address string) (listener *net.UDPConn, err error) {
-	addr, err := net.ResolveUDPAddr("udp", address)
-	if err != nil {
-		return
+func (r *Recorder) processSlotMessage(slot *RecorderSlot, data []byte) {
+	timestamp := time.Now().UnixNano()
+	logMessage := Message{Timestamp: timestamp, MessageType: slot.MessageType, Message: data}
+	r.mutex.Lock()
+	if err := r.writer.Write(&logMessage); err != nil {
+		log.Println("Could not write log message: ", err)
 	}
-	listener, err = net.ListenMulticastUDP("udp", nil, addr)
-	if err != nil {
-		return
-	}
-	err = listener.SetReadBuffer(maxDatagramSize)
-	if err != nil {
-		return
-	}
-	log.Printf("Listening on %s", address)
-	return
-}
-
-func (r *Recorder) acceptMessages(listener *net.UDPConn, slot *Slot) {
-	data := make([]byte, maxDatagramSize)
-	for r.running {
-		n, _, err := listener.ReadFromUDP(data)
-		if err != nil {
-			log.Print("ReadFromUDP failed:", err)
-			return
-		}
-
-		timestamp := time.Now().UnixNano()
-		logMessage := Message{Timestamp: timestamp, MessageType: slot.MessageType, Message: data[:n]}
-		r.mutex.Lock()
-		err = r.writer.Write(&logMessage)
-		if err != nil {
-			log.Println("Could not write log message: ", err)
-		}
-		r.mutex.Unlock()
-		slot.ReceivedMessages++
-	}
+	r.mutex.Unlock()
+	slot.ReceivedMessages++
 }
