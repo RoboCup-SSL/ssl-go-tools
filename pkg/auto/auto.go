@@ -2,6 +2,7 @@ package auto
 
 import (
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"github.com/golang/protobuf/proto"
 	"log"
@@ -9,11 +10,11 @@ import (
 )
 
 type Recorder struct {
-	server   *MulticastServer
+	server   *sslnet.MulticastServer
 	Recorder *persistence.Recorder
 }
 
-func NewRecorder(server *MulticastServer) (r *Recorder) {
+func NewRecorder(server *sslnet.MulticastServer) (r *Recorder) {
 	r = new(Recorder)
 	r.server = server
 	r.Recorder = new(persistence.Recorder)
@@ -22,7 +23,7 @@ func NewRecorder(server *MulticastServer) (r *Recorder) {
 }
 
 func (r *Recorder) Start() {
-	r.server.consumer = r.receiveRefereeMessage
+	r.server.Consumer = r.receiveRefereeMessage
 	r.server.Start()
 }
 

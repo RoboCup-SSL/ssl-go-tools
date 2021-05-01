@@ -1,4 +1,4 @@
-package auto
+package sslnet
 
 import (
 	"log"
@@ -13,7 +13,7 @@ type MulticastServer struct {
 	multicastAddress string
 	connection       *net.UDPConn
 	running          bool
-	consumer         func([]byte, *net.UDPAddr)
+	Consumer         func([]byte, *net.UDPAddr)
 	mutex            sync.Mutex
 	SkipInterfaces   []string
 	Verbose          bool
@@ -22,7 +22,7 @@ type MulticastServer struct {
 func NewMulticastServer(multicastAddress string) (r *MulticastServer) {
 	r = new(MulticastServer)
 	r.multicastAddress = multicastAddress
-	r.consumer = func([]byte, *net.UDPAddr) {}
+	r.Consumer = func([]byte, *net.UDPAddr) {}
 	return
 }
 
@@ -127,7 +127,7 @@ func (r *MulticastServer) receiveOnInterface(multicastAddress string, ifi net.In
 			first = false
 		}
 
-		r.consumer(data[:n], remoteAddr)
+		r.Consumer(data[:n], remoteAddr)
 	}
 
 	if r.Verbose {
