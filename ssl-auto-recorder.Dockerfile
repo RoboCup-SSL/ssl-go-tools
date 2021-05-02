@@ -10,5 +10,7 @@ RUN go install ./cmd/ssl-auto-recorder
 FROM alpine:3.9
 COPY --from=build /go/bin/ssl-auto-recorder /app/ssl-auto-recorder
 WORKDIR /data
+RUN chown 1000: /data
+USER 1000
 ENTRYPOINT ["/app/ssl-auto-recorder"]
 CMD []
