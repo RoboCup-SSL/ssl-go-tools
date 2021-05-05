@@ -1,10 +1,6 @@
 package persistence
 
 import (
-	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
-	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
-	"github.com/pkg/errors"
-	"google.golang.org/protobuf/proto"
 	"strconv"
 )
 
@@ -30,26 +26,6 @@ const (
 	MessageSslVisionTracker2020 MessageId = 5
 	MessageIndex2021            MessageId = 6
 )
-
-func (m *Message) ParseVisionWrapper() (*vision.SSL_WrapperPacket, error) {
-	packet := new(vision.SSL_WrapperPacket)
-	err := ParseMessage(m.Message, packet)
-	return packet, err
-}
-
-func (m *Message) ParseReferee() (*referee.Referee, error) {
-	packet := new(referee.Referee)
-	err := ParseMessage(m.Message, packet)
-	return packet, err
-}
-
-func ParseMessage(data []byte, message proto.Message) error {
-
-	if err := proto.Unmarshal(data, message); err != nil {
-		return errors.Wrap(err, "unable to unmarshal data")
-	}
-	return nil
-}
 
 func (m MessageId) String() string {
 	switch m {

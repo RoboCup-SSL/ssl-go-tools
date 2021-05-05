@@ -6,6 +6,7 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 	"log"
 	"os"
 	"strings"
@@ -149,8 +150,8 @@ func getRefereeMsg(logMessage *persistence.Message) (refereeMsg *referee.Referee
 	if logMessage.MessageType.Id != persistence.MessageSslRefbox2013 {
 		return
 	}
-	refereeMsg, err = logMessage.ParseReferee()
-	if err != nil {
+
+	if err := proto.Unmarshal(logMessage.Message, refereeMsg); err != nil {
 		err = errors.Wrap(err, "Could not parse referee message")
 	}
 	return

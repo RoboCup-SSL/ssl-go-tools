@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"google.golang.org/protobuf/proto"
 	"log"
 	"os"
 )
@@ -41,8 +43,8 @@ func main() {
 
 		for r := range channel {
 			if r.MessageType.Id == persistence.MessageSslVision2014 {
-				visionMsg, err := r.ParseVisionWrapper()
-				if err != nil {
+				var visionMsg vision.SSL_WrapperPacket
+				if err := proto.Unmarshal(r.Message, &visionMsg); err != nil {
 					log.Println("Could not parse vision wrapper message:", err)
 					continue
 				}

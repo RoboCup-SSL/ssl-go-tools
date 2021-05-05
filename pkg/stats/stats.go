@@ -5,6 +5,7 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"google.golang.org/protobuf/proto"
 	"io"
 	"log"
 )
@@ -64,8 +65,9 @@ func (p Processor) ProcessFile(logFile string) {
 	for r := range channel {
 		numFrames[r.MessageType.Id]++
 		if r.MessageType.Id == persistence.MessageSslVision2014 {
-			visionMsg, err := r.ParseVisionWrapper()
-			if err != nil {
+
+			var visionMsg vision.SSL_WrapperPacket
+			if err := proto.Unmarshal(r.Message, &visionMsg); err != nil {
 				log.Println("Could not parse vision wrapper message:", err)
 				continue
 			}
@@ -75,13 +77,13 @@ func (p Processor) ProcessFile(logFile string) {
 				}
 			}
 		} else if r.MessageType.Id == persistence.MessageSslRefbox2013 {
-			refereeMsg, err := r.ParseReferee()
-			if err != nil {
+			var refereeMsg referee.Referee
+			if err := proto.Unmarshal(r.Message, &refereeMsg); err != nil {
 				log.Println("Could not parse referee massage: ", err)
 				continue
 			}
 			for _, p := range processors {
-				p.ProcessReferee(r, refereeMsg)
+				p.ProcessReferee(r, &refereeMsg)
 			}
 		}
 	}

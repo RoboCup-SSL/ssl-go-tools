@@ -1,35 +1,38 @@
-package persistence
+package player
 
 import (
 	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
+	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 	"log"
 	"time"
 )
 
 type Broadcaster struct {
-	Slots                map[MessageId]*BroadcasterSlot
-	reader               *Reader
+	Slots                map[persistence.MessageId]*BroadcasterSlot
+	reader               *persistence.Reader
 	SkipNonRunningStages bool
 }
 
 type BroadcasterSlot struct {
 	ReceivedMessages int
-	MessageType      MessageType
+	MessageType      persistence.MessageType
 	client           *sslnet.UdpClient
 }
 
 func NewBroadcaster() Broadcaster {
-	return Broadcaster{Slots: make(map[MessageId]*BroadcasterSlot, 0)}
+	return Broadcaster{Slots: make(map[persistence.MessageId]*BroadcasterSlot, 0)}
 }
 
-func (b *Broadcaster) AddSlot(messageType MessageType, address string) {
+func (b *Broadcaster) AddSlot(messageType persistence.MessageType, address string) {
 	b.Slots[messageType.Id] = &BroadcasterSlot{client: sslnet.NewUdpClient(address), MessageType: messageType}
 }
 
 func (b *Broadcaster) Start(filename string, startTimestamp int64) error {
-	reader, err := NewReader(filename)
+	reader, err := persistence.NewReader(filename)
 	if err != nil {
 		return err
 	}
@@ -87,10 +90,10 @@ func (b *Broadcaster) publish(startTimestamp int64) {
 			refTimestamp = 0
 		}
 
-		if b.SkipNonRunningStages && msg.MessageType.Id == MessageSslRefbox2013 {
-			refMsg, err := msg.ParseReferee()
-			if err != nil {
-				log.Println("Could not parse referee message:", err)
+		if b.SkipNonRunningStages && msg.MessageType.Id == persistence.MessageSslRefbox2013 {
+			var refMsg referee.Referee
+			if err := proto.Unmarshal(msg.Message, &refMsg); err != nil {
+				err = errors.Wrap(err, "Could not parse referee message")
 			} else {
 				curStage = *refMsg.Stage
 			}

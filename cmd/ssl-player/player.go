@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/player"
 	"log"
 )
 
@@ -33,7 +34,7 @@ func main() {
 		log.Fatal("Missing logfile")
 	}
 
-	broadcaster := persistence.NewBroadcaster()
+	broadcaster := player.NewBroadcaster()
 	broadcaster.SkipNonRunningStages = *skipNonRunningStages
 	addSlots(&broadcaster)
 
@@ -43,7 +44,7 @@ func main() {
 	}
 }
 
-func addSlots(logger *persistence.Broadcaster) {
+func addSlots(logger *player.Broadcaster) {
 	if *visionLegacyEnabled {
 		logger.AddSlot(VisionLegacyType, *addressVisionLegacy)
 	}
