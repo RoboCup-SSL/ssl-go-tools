@@ -28,6 +28,7 @@ const (
 	MessageSslRefbox2013        MessageId = 3
 	MessageSslVision2014        MessageId = 4
 	MessageSslVisionTracker2020 MessageId = 5
+	MessageIndex2021            MessageId = 6
 )
 
 func (m *Message) ParseVisionWrapper() (*vision.SSL_WrapperPacket, error) {
@@ -64,6 +65,8 @@ func (m MessageId) String() string {
 		return "MessageSslVision2014"
 	case MessageSslVisionTracker2020:
 		return "MessageSslVisionTracker2020"
+	case MessageIndex2021:
+		return "MessageIndex2021"
 	default:
 		return strconv.Itoa(int(m))
 	}
