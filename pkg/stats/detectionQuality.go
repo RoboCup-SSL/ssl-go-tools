@@ -2,8 +2,9 @@ package stats
 
 import (
 	"fmt"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"log"
 	"os"
 	"sort"
@@ -116,7 +117,7 @@ func (p *DetectionQualityProcessor) Close() error {
 	return nil
 }
 
-func (p *DetectionQualityProcessor) ProcessDetection(_ *persistence.Message, frame *sslproto.SSL_DetectionFrame) {
+func (p *DetectionQualityProcessor) ProcessDetection(_ *persistence.Message, frame *vision.SSL_DetectionFrame) {
 	if !p.active {
 		return
 	}
@@ -142,7 +143,7 @@ func (p *DetectionQualityProcessor) ProcessDetection(_ *persistence.Message, fra
 	}
 }
 
-func (p *Camera) processRobots(frame *sslproto.SSL_DetectionFrame, robots []*sslproto.SSL_DetectionRobot, teamColor TeamColor) (dataLoss *DataLoss) {
+func (p *Camera) processRobots(frame *vision.SSL_DetectionFrame, robots []*vision.SSL_DetectionRobot, teamColor TeamColor) (dataLoss *DataLoss) {
 	dataLoss = nil
 	for _, detectionRobot := range robots {
 		robot := p.robots[teamColor][*detectionRobot.RobotId]
@@ -172,7 +173,7 @@ func (p *Camera) processRobots(frame *sslproto.SSL_DetectionFrame, robots []*ssl
 	return
 }
 
-func (p *Camera) processBalls(frame *sslproto.SSL_DetectionFrame) (dataLoss *DataLoss) {
+func (p *Camera) processBalls(frame *vision.SSL_DetectionFrame) (dataLoss *DataLoss) {
 	dataLoss = nil
 	if len(frame.Balls) == 0 {
 		return
@@ -204,21 +205,21 @@ func toTime(t float64) time.Time {
 	return time.Unix(sentSec, sentNs)
 }
 
-func (p *DetectionQualityProcessor) ProcessReferee(_ *persistence.Message, frame *sslproto.Referee) {
+func (p *DetectionQualityProcessor) ProcessReferee(_ *persistence.Message, frame *referee.Referee) {
 	switch *frame.Stage {
-	case sslproto.Referee_NORMAL_FIRST_HALF,
-		sslproto.Referee_NORMAL_SECOND_HALF,
-		sslproto.Referee_EXTRA_FIRST_HALF,
-		sslproto.Referee_EXTRA_SECOND_HALF:
+	case referee.Referee_NORMAL_FIRST_HALF,
+		referee.Referee_NORMAL_SECOND_HALF,
+		referee.Referee_EXTRA_FIRST_HALF,
+		referee.Referee_EXTRA_SECOND_HALF:
 	default:
 		p.active = false
 		return
 	}
 
 	switch *frame.Command {
-	case sslproto.Referee_HALT,
-		sslproto.Referee_TIMEOUT_BLUE,
-		sslproto.Referee_TIMEOUT_YELLOW:
+	case referee.Referee_HALT,
+		referee.Referee_TIMEOUT_BLUE,
+		referee.Referee_TIMEOUT_YELLOW:
 		p.active = false
 	default:
 		p.active = true

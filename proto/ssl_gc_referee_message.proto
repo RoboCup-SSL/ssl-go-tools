@@ -1,7 +1,8 @@
 syntax = "proto2";
 
-import "ssl_game_event.proto";
-import "ssl_game_event_2019.proto";
+option go_package = "github.com/RoboCup-SSL/ssl-go-tools/internal/referee";
+
+import "ssl_gc_game_event.proto";
 
 // Each UDP packet contains one of these messages.
 message Referee {
@@ -149,6 +150,8 @@ message Referee {
         optional uint32 max_allowed_bots = 13;
         // The team has submitted an intent to substitute one or more robots at the next chance
         optional bool bot_substitution_intent = 14;
+        // Indicate if the team reached the maximum allowed ball placement failures and is thus not allowed to place the ball anymore
+        optional bool ball_placement_failures_reached = 15;
     }
 
     // Information about the two teams.
@@ -172,17 +175,20 @@ message Referee {
 
     // The game event that caused the referee command.
     // deprecated in favor of game_events.
-    optional Game_Event game_event = 11 [deprecated = true];
+//    optional Game_Event game_event = 11 [deprecated = true];
+    reserved 11;
 
     // The command that will be issued after the current stoppage and ball placement to continue the game.
     optional Command next_command = 12;
 
     // All game events that were detected since the last RUNNING state.
     // Will be cleared as soon as the game is continued.
-    repeated GameEvent game_events = 13;
+    reserved 13;
+    repeated GameEvent game_events = 16;
 
     // All non-finished proposed game events that may be processed next.
-    repeated ProposedGameEvent proposed_game_events = 14;
+    reserved 14;
+    repeated GameEventProposalGroup game_event_proposals = 17;
 
     // The time in microseconds that is remaining until the current action times out
     // The time will not be reset. It can get negative.
@@ -194,11 +200,10 @@ message Referee {
     optional int32 current_action_time_remaining = 15;
 }
 
-message ProposedGameEvent {
-    // The UNIX timestamp when the game event proposal will time out, in microseconds.
-    required uint64 valid_until = 1;
-    // The identifier of the proposer.
-    required string proposer_id = 2;
+// List of matching proposals
+message GameEventProposalGroup {
     // The proposed game event.
-    required GameEvent game_event = 3;
+    repeated GameEvent game_event = 1;
+    // Whether the proposal group was accepted
+    optional bool accepted = 2;
 }

@@ -2,8 +2,9 @@ package stats
 
 import (
 	"fmt"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 )
 
 const maxDt = 0.080
@@ -21,7 +22,7 @@ type DetectionTimingProcessor struct {
 }
 
 type CameraTiming struct {
-	lastDetection *sslproto.SSL_DetectionFrame
+	lastDetection *vision.SSL_DetectionFrame
 
 	NumDetection uint64
 
@@ -41,7 +42,7 @@ func (p *DetectionTimingProcessor) Close() error {
 	return nil
 }
 
-func (p *DetectionTimingProcessor) ProcessDetection(logMessage *persistence.Message, frame *sslproto.SSL_DetectionFrame) {
+func (p *DetectionTimingProcessor) ProcessDetection(logMessage *persistence.Message, frame *vision.SSL_DetectionFrame) {
 	if p.lastLogMessage != nil {
 		tReceiveDiff := float64(logMessage.Timestamp-p.lastLogMessage.Timestamp) / 1e9
 		p.TReceiveDiffSum += tReceiveDiff
@@ -62,7 +63,7 @@ func (p *DetectionTimingProcessor) ProcessDetection(logMessage *persistence.Mess
 	p.lastLogMessage = logMessage
 }
 
-func (p *CameraTiming) Process(frame *sslproto.SSL_DetectionFrame) {
+func (p *CameraTiming) Process(frame *vision.SSL_DetectionFrame) {
 	if p.lastDetection != nil {
 		tCaptureDiff := *frame.TCapture - *p.lastDetection.TCapture
 		tSentDiff := *frame.TSent - *p.lastDetection.TSent
@@ -80,7 +81,7 @@ func (p *CameraTiming) Process(frame *sslproto.SSL_DetectionFrame) {
 	p.lastDetection = frame
 }
 
-func (p *DetectionTimingProcessor) ProcessReferee(*persistence.Message, *sslproto.Referee) {
+func (p *DetectionTimingProcessor) ProcessReferee(*persistence.Message, *referee.Referee) {
 }
 
 func (p *DetectionTimingProcessor) String() (res string) {

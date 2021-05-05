@@ -1,9 +1,10 @@
 package persistence
 
 import (
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
-	"github.com/golang/protobuf/proto"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 	"strconv"
 )
 
@@ -29,14 +30,14 @@ const (
 	MessageSslVisionTracker2020 MessageId = 5
 )
 
-func (m *Message) ParseVisionWrapper() (*sslproto.SSL_WrapperPacket, error) {
-	packet := new(sslproto.SSL_WrapperPacket)
+func (m *Message) ParseVisionWrapper() (*vision.SSL_WrapperPacket, error) {
+	packet := new(vision.SSL_WrapperPacket)
 	err := ParseMessage(m.Message, packet)
 	return packet, err
 }
 
-func (m *Message) ParseReferee() (*sslproto.Referee, error) {
-	packet := new(sslproto.Referee)
+func (m *Message) ParseReferee() (*referee.Referee, error) {
+	packet := new(referee.Referee)
 	err := ParseMessage(m.Message, packet)
 	return packet, err
 }

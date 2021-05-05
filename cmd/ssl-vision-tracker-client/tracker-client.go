@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
-	"github.com/golang/protobuf/proto"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/tracked"
+	"google.golang.org/protobuf/encoding/prototext"
+	"google.golang.org/protobuf/proto"
 	"log"
 	"net"
 	"time"
@@ -47,7 +48,7 @@ func main() {
 		if n >= maxDatagramSize {
 			log.Fatal("Buffer size too small")
 		}
-		frame := sslproto.TrackerWrapperPacket{}
+		frame := tracked.TrackerWrapperPacket{}
 		if err := proto.Unmarshal(b[0:n], &frame); err != nil {
 			log.Println("Could not unmarshal frame")
 			continue
@@ -55,11 +56,11 @@ func main() {
 
 		if frame.TrackedFrame != nil {
 			if *noBalls {
-				frame.TrackedFrame.Balls = []*sslproto.TrackedBall{}
+				frame.TrackedFrame.Balls = []*tracked.TrackedBall{}
 				frame.TrackedFrame.KickedBall = nil
 			}
 			if *noRobots {
-				frame.TrackedFrame.Robots = []*sslproto.TrackedRobot{}
+				frame.TrackedFrame.Robots = []*tracked.TrackedRobot{}
 			}
 		}
 
@@ -68,12 +69,12 @@ func main() {
 			fmt.Print("\033[H\033[2J")
 
 			// print frame formatted with line breaks
-			fmt.Print(proto.MarshalTextString(&frame))
+			fmt.Print(prototext.MarshalOptions{Multiline: true}.Format(&frame))
 			if *oneFrame {
 				return
 			}
 		} else {
-			b, err := json.Marshal(frame)
+			b, err := json.Marshal(&frame)
 			if err != nil {
 				log.Fatal(err)
 			}

@@ -1,35 +1,11 @@
 syntax = "proto2";
 
-// A vector with two dimensions
-message Vector2 {
-    required float x = 1;
-    required float y = 2;
-}
+option go_package = "github.com/RoboCup-SSL/ssl-go-tools/internal/tracked";
 
-// A vector with three dimensions
-message Vector3 {
-    required float x = 1;
-    required float y = 2;
-    required float z = 3;
-}
+import "ssl_gc_common.proto";
+import "ssl_gc_geometry.proto";
 
-// The team color of the robot
-enum TeamColor {
-    // team not set
-    TEAM_COLOR_UNKNOWN = 0;
-    // yellow team
-    TEAM_COLOR_YELLOW = 1;
-    // blue team
-    TEAM_COLOR_BLUE = 2;
-}
-
-// A unique robot id with team information
-message RobotId {
-    // The robot number
-    required uint32 id = 1;
-    // The team color
-    required TeamColor team_color = 2;
-}
+// Default network address: 224.5.23.2:10010
 
 // Capabilities that a source implementation can have
 enum Capability {

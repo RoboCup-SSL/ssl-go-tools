@@ -2,8 +2,8 @@ package persistence
 
 import (
 	"fmt"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"log"
 	"time"
 )
@@ -59,7 +59,7 @@ func (b *Broadcaster) Stop() {
 func (b *Broadcaster) publish(startTimestamp int64) {
 	startTime := time.Now()
 	refTimestamp := int64(0)
-	curStage := sslproto.Referee_Stage(-1)
+	curStage := referee.Referee_Stage(-1)
 	for b.reader.HasMessage() {
 		msg, err := b.reader.ReadMessage()
 		if err != nil {
@@ -97,17 +97,17 @@ func (b *Broadcaster) publish(startTimestamp int64) {
 		}
 	}
 }
-func isRunningStage(stage sslproto.Referee_Stage) bool {
+func isRunningStage(stage referee.Referee_Stage) bool {
 	switch stage {
 	case -1:
 		return true
-	case sslproto.Referee_NORMAL_FIRST_HALF:
+	case referee.Referee_NORMAL_FIRST_HALF:
 		return true
-	case sslproto.Referee_NORMAL_SECOND_HALF:
+	case referee.Referee_NORMAL_SECOND_HALF:
 		return true
-	case sslproto.Referee_EXTRA_FIRST_HALF:
+	case referee.Referee_EXTRA_FIRST_HALF:
 		return true
-	case sslproto.Referee_EXTRA_SECOND_HALF:
+	case referee.Referee_EXTRA_SECOND_HALF:
 		return true
 	}
 	return false

@@ -1,10 +1,10 @@
 package auto
 
 import (
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 	"log"
 	"net"
 )
@@ -35,7 +35,7 @@ func (r *Recorder) Stop() {
 }
 
 func (r *Recorder) receiveRefereeMessage(data []byte, _ *net.UDPAddr) {
-	var message sslproto.Referee
+	var message referee.Referee
 	if err := proto.Unmarshal(data, &message); err != nil {
 		log.Println("Could not unmarshal referee message: ", err)
 		return
@@ -54,44 +54,44 @@ func (r *Recorder) receiveRefereeMessage(data []byte, _ *net.UDPAddr) {
 	}
 }
 
-func isGameStage(message *sslproto.Referee) bool {
+func isGameStage(message *referee.Referee) bool {
 	switch *message.Stage {
-	case sslproto.Referee_NORMAL_FIRST_HALF,
-		sslproto.Referee_NORMAL_SECOND_HALF,
-		sslproto.Referee_EXTRA_FIRST_HALF,
-		sslproto.Referee_EXTRA_SECOND_HALF,
-		sslproto.Referee_PENALTY_SHOOTOUT:
+	case referee.Referee_NORMAL_FIRST_HALF,
+		referee.Referee_NORMAL_SECOND_HALF,
+		referee.Referee_EXTRA_FIRST_HALF,
+		referee.Referee_EXTRA_SECOND_HALF,
+		referee.Referee_PENALTY_SHOOTOUT:
 		return true
 	default:
 		return false
 	}
 }
 
-func isNoGameStage(message *sslproto.Referee) bool {
+func isNoGameStage(message *referee.Referee) bool {
 	switch *message.Stage {
-	case sslproto.Referee_EXTRA_HALF_TIME,
-		sslproto.Referee_NORMAL_HALF_TIME,
-		sslproto.Referee_PENALTY_SHOOTOUT_BREAK,
-		sslproto.Referee_POST_GAME,
-		sslproto.Referee_EXTRA_TIME_BREAK:
+	case referee.Referee_EXTRA_HALF_TIME,
+		referee.Referee_NORMAL_HALF_TIME,
+		referee.Referee_PENALTY_SHOOTOUT_BREAK,
+		referee.Referee_POST_GAME,
+		referee.Referee_EXTRA_TIME_BREAK:
 		return true
 	default:
 		return false
 	}
 }
 
-func isPreStage(message *sslproto.Referee) bool {
+func isPreStage(message *referee.Referee) bool {
 	switch *message.Stage {
-	case sslproto.Referee_NORMAL_FIRST_HALF_PRE,
-		sslproto.Referee_NORMAL_SECOND_HALF_PRE,
-		sslproto.Referee_EXTRA_FIRST_HALF_PRE,
-		sslproto.Referee_EXTRA_SECOND_HALF_PRE:
+	case referee.Referee_NORMAL_FIRST_HALF_PRE,
+		referee.Referee_NORMAL_SECOND_HALF_PRE,
+		referee.Referee_EXTRA_FIRST_HALF_PRE,
+		referee.Referee_EXTRA_SECOND_HALF_PRE:
 		return true
 	default:
 		return false
 	}
 }
 
-func isPreGameStage(message *sslproto.Referee) bool {
-	return isPreStage(message) && *message.Command != sslproto.Referee_HALT
+func isPreGameStage(message *referee.Referee) bool {
+	return isPreStage(message) && *message.Command != referee.Referee_HALT
 }

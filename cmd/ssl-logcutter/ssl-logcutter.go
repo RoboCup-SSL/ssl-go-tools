@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslproto"
 	"github.com/pkg/errors"
 	"log"
 	"os"
@@ -52,8 +52,8 @@ func process(filename string) {
 
 	var logWriter *persistence.Writer = nil
 
-	var lastRefereeMsg *sslproto.Referee = nil
-	var lastStage *sslproto.Referee_Stage = nil
+	var lastRefereeMsg *referee.Referee = nil
+	var lastStage *referee.Referee_Stage = nil
 	numSkippedRefereeMessages := 0
 	numRefereeMessages := 0
 	unreasonableTeamNames := map[string]int{}
@@ -82,12 +82,12 @@ func process(filename string) {
 			}
 
 			if lastStage == nil || *refereeMsg.Stage != *lastStage {
-				log.Printf("Found stage '%v'", sslproto.Referee_Stage_name[int32(*refereeMsg.Stage)])
+				log.Printf("Found stage '%v'", referee.Referee_Stage_name[int32(*refereeMsg.Stage)])
 			}
 
 			if logWriter == nil &&
-				*refereeMsg.Stage != sslproto.Referee_POST_GAME &&
-				*refereeMsg.Command != sslproto.Referee_HALT {
+				*refereeMsg.Stage != referee.Referee_POST_GAME &&
+				*refereeMsg.Command != referee.Referee_HALT {
 				log.Print("Start log writer")
 				logWriter, err = persistence.NewWriter(tmpLogFilename)
 				if err != nil {
@@ -96,16 +96,16 @@ func process(filename string) {
 			}
 
 			if logWriter != nil && lastRefereeMsg != nil &&
-				*refereeMsg.Command == sslproto.Referee_HALT &&
-				(*refereeMsg.Stage == sslproto.Referee_POST_GAME ||
-					*refereeMsg.Stage == sslproto.Referee_NORMAL_FIRST_HALF_PRE) {
+				*refereeMsg.Command == referee.Referee_HALT &&
+				(*refereeMsg.Stage == referee.Referee_POST_GAME ||
+					*refereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE) {
 				log.Print("Stop log writer")
 				closeLogWriter(logWriter, lastRefereeMsg)
 				logWriter = nil
 			}
 
 			if lastStage == nil {
-				lastStage = new(sslproto.Referee_Stage)
+				lastStage = new(referee.Referee_Stage)
 			}
 			*lastStage = *refereeMsg.Stage
 
@@ -127,7 +127,7 @@ func process(filename string) {
 		numRefereeMessages, numSkippedRefereeMessages, unreasonableTeamNames)
 }
 
-func closeLogWriter(logWriter *persistence.Writer, lastRefereeMsg *sslproto.Referee) {
+func closeLogWriter(logWriter *persistence.Writer, lastRefereeMsg *referee.Referee) {
 	if err := logWriter.Close(); err != nil {
 		log.Fatal("Could not close log writer: ", err)
 	}
@@ -145,7 +145,7 @@ func closeLogWriter(logWriter *persistence.Writer, lastRefereeMsg *sslproto.Refe
 	}
 }
 
-func getRefereeMsg(logMessage *persistence.Message) (refereeMsg *sslproto.Referee, err error) {
+func getRefereeMsg(logMessage *persistence.Message) (refereeMsg *referee.Referee, err error) {
 	if logMessage.MessageType.Id != persistence.MessageSslRefbox2013 {
 		return
 	}
@@ -156,7 +156,7 @@ func getRefereeMsg(logMessage *persistence.Message) (refereeMsg *sslproto.Refere
 	return
 }
 
-func logFileName(refereeMsg *sslproto.Referee) string {
+func logFileName(refereeMsg *referee.Referee) string {
 	teamNameYellow := strings.Replace(*refereeMsg.Yellow.Name, " ", "_", -1)
 	teamNameBlue := strings.Replace(*refereeMsg.Blue.Name, " ", "_", -1)
 	date := time.Unix(0, int64(*refereeMsg.PacketTimestamp*1000)).Format("2006-01-02_15-04")
