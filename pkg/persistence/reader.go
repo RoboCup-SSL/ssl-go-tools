@@ -80,6 +80,20 @@ func (l *Reader) ReadMessage() (msg *Message, err error) {
 	return
 }
 
+func (l *Reader) ReadMessageAt(offset int64) (msg *Message, err error) {
+	if l.gzipReader != nil {
+		err = errors.New("No random access support for compressed log files")
+		return
+	}
+	_, err = l.file.Seek(offset, 0)
+	if err != nil {
+		return
+	}
+	l.reader.Reset(l.file)
+	msg, err = l.ReadMessage()
+	return
+}
+
 func (l *Reader) SkipMessage() (bytesRead int, err error) {
 	headerBytes := 12
 	if n, err := l.reader.Discard(headerBytes); err != nil {
