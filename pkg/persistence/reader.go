@@ -137,6 +137,40 @@ func (l *Reader) verifyLogFile() error {
 	return err
 }
 
+func (l *Reader) ReadIndex() (offsets []int64, err error) {
+	if l.gzipReader != nil {
+		err = errors.New("Can not read index of a compressed file")
+		return
+	}
+
+	fileInfo, err := l.file.Stat()
+	if err != nil {
+		return
+	}
+
+	offsetToSeekBackValue := fileInfo.Size() - int64(len(indexedMarker)) - 8
+	data := make([]byte, 8)
+	_, err = l.file.ReadAt(data, offsetToSeekBackValue)
+	if err != nil {
+		return
+	}
+	seekBack := int64(binary.BigEndian.Uint64(data))
+	offsetsStart := fileInfo.Size() - seekBack + 16
+	length := offsetToSeekBackValue - offsetsStart
+
+	data = make([]byte, length)
+	_, err = l.file.ReadAt(data, offsetsStart)
+	if err != nil {
+		return
+	}
+	offsets = make([]int64, length/8)
+	for i := range offsets {
+		offsets[i] = int64(binary.BigEndian.Uint64(data[8*i:]))
+	}
+
+	return
+}
+
 func (l *Reader) readBytes(length int) ([]byte, error) {
 	byteSlice := make([]byte, length)
 	_, err := io.ReadAtLeast(l.reader, byteSlice, length)
