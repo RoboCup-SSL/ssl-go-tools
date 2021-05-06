@@ -96,7 +96,7 @@ func (l *Writer) Write(msg *Message) (err error) {
 
 func (l *Writer) WriteIndex(offsets []int64) (err error) {
 	payloadLen := len(offsets) * 8
-	trailingSize := 4 + len(indexedMarker)
+	trailingSize := 8 + len(indexedMarker)
 	msgLen := payloadLen + 16 + trailingSize
 	timestamp := int64(0)
 
@@ -117,7 +117,7 @@ func (l *Writer) WriteIndex(offsets []int64) (err error) {
 		return
 	}
 	// write backwards offset to last (this) message
-	err = l.writeInt32(int32(msgLen))
+	err = l.writeInt64(int64(msgLen))
 	if err != nil {
 		return
 	}
