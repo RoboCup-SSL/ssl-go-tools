@@ -49,6 +49,28 @@ func (l *Reader) Close() error {
 	return l.file.Close()
 }
 
+func (l *Reader) IsCompressed() bool {
+	return l.gzipReader != nil
+}
+
+func (l *Reader) IsIndexed() bool {
+	fileInfo, err := l.file.Stat()
+	if err != nil {
+		log.Println("Can not state file:", err)
+		return false
+	}
+
+	offset := fileInfo.Size() - int64(len(indexedMarker))
+	data := make([]byte, len(indexedMarker))
+	_, err = l.file.ReadAt(data, offset)
+	if err != nil {
+		log.Println("Can not read from file:", err)
+		return false
+	}
+
+	return string(data) == indexedMarker
+}
+
 func (l *Reader) HasMessage() bool {
 	_, err := l.reader.Peek(1)
 	return err != io.EOF
