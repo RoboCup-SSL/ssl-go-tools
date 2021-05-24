@@ -11,6 +11,11 @@ func WriteIndex(filename string) error {
 	if err != nil {
 		return errors.Wrap(err, "Could not create logfile reader")
 	}
+
+	if logReader.IsIndexed() {
+		return errors.New("File is already indexed")
+	}
+
 	channel := logReader.CreateChannel()
 
 	var offsets []int64
