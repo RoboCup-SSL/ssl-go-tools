@@ -14,6 +14,7 @@ import (
 var extractGeometry = flag.Bool("extractGeometry", false, "Extract geometry messages into a new file")
 var extractDetection = flag.Bool("extractDetection", false, "Extract detection messages into a new file")
 var indentOutput = flag.Bool("indentOutput", false, "Indent the json-formatted output")
+var addLogFileTimestamp = flag.Bool("addLogFileTimestamp", false, "Add the timestamp of the log file to the json output")
 
 func main() {
 	flag.Usage = func() {
@@ -49,10 +50,10 @@ func main() {
 					continue
 				}
 				if *extractGeometry && visionMsg.Geometry != nil {
-					writeMessage(f, visionMsg.Geometry)
+					check(writeMessage(f, r.Timestamp, visionMsg.Geometry))
 				}
 				if *extractDetection && visionMsg.Detection != nil {
-					writeMessage(f, visionMsg.Detection)
+					check(writeMessage(f, r.Timestamp, visionMsg.Detection))
 				}
 			}
 		}
@@ -63,22 +64,42 @@ func main() {
 	}
 }
 
-func writeMessage(f *os.File, v interface{}) {
-	var b []byte
-	var err error
+func writeMessage(f *os.File, timestamp int64, v interface{}) error {
+	var result map[string]interface{}
+
+	if b, err := json.Marshal(v); err != nil {
+		return err
+	} else {
+		if err := json.Unmarshal(b, &result); err != nil {
+			return err
+		}
+		if *addLogFileTimestamp {
+			result["timestamp"] = timestamp
+		}
+	}
+
+	var data []byte
 	if *indentOutput {
-		b, err = json.MarshalIndent(v, "", "  ")
+		if b, err := json.MarshalIndent(result, "", "  "); err != nil {
+			return err
+		} else {
+			data = b
+		}
 	} else {
-		b, err = json.Marshal(v)
+		if b, err := json.Marshal(result); err != nil {
+			return err
+		} else {
+			data = b
+		}
 	}
-	if err != nil {
-		log.Println("Could not marshall detection:", err)
-	} else {
-		_, err = f.Write(b)
-		check(err)
-		_, err = f.WriteString("\n")
-		check(err)
+
+	if _, err := f.Write(data); err != nil {
+		return err
 	}
+	if _, err := f.WriteString("\n"); err != nil {
+		return err
+	}
+	return nil
 }
 
 func check(err error) {
