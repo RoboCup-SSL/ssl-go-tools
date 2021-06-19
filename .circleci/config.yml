@@ -38,7 +38,7 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - docker:
+      - docker-auto-recorder:
           context: docker hub
           filters:
             branches:
