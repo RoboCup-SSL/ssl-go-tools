@@ -2,24 +2,46 @@ version: 2
 jobs:
   tools:
     docker:
-    - image: circleci/golang:1.16
+      - image: circleci/golang:1.16
     working_directory: /go/src/github.com/RoboCup-SSL/ssl-go-tools
     steps:
-    - checkout
-    - attach_workspace:
-        at: .
-    - run: go get -v -t -d ./...
-    - run: go test -v -covermode=count -coverprofile=count.out ./...
-    - run: go tool cover -html=count.out -o coverage.html
-    - store_artifacts:
-        path: coverage.html
-        destination: coverage
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: go get -v -t -d ./...
+      - run: go test -v -covermode=count -coverprofile=count.out ./...
+      - run: go tool cover -html=count.out -o coverage.html
+      - store_artifacts:
+          path: coverage.html
+          destination: coverage
+
+  docker-auto-recorder:
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.6
+      - run: |
+          # remove 'ssl-auto-recorder/v'
+          TAG=${CIRCLE_TAG:19}
+          TAG=${TAG:-latest}
+          docker build -t robocupssl/ssl-auto-recorder:$TAG .
+          docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
+          docker push robocupssl/ssl-auto-recorder:$TAG
 
 workflows:
   version: 2
   main:
     jobs:
-    - tools:
-        filters:
-          tags:
-            only: /.*/
+      - tools:
+          filters:
+            tags:
+              only: /.*/
+      - docker:
+          context: docker hub
+          filters:
+            branches:
+              only: master
+            tags:
+              only: /^ssl-auto-recorder\/v.*/
