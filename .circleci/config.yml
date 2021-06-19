@@ -26,7 +26,7 @@ jobs:
           # remove 'ssl-auto-recorder/v'
           TAG=${CIRCLE_TAG:19}
           TAG=${TAG:-latest}
-          docker build -t robocupssl/ssl-auto-recorder:$TAG .
+          docker build -f ssl-auto-recorder.Dockerfile -t robocupssl/ssl-auto-recorder:$TAG .
           docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
           docker push robocupssl/ssl-auto-recorder:$TAG
 
