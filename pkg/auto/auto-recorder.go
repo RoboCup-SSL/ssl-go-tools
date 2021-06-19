@@ -41,12 +41,12 @@ func (r *Recorder) receiveRefereeMessage(data []byte, _ *net.UDPAddr) {
 		return
 	}
 
-	if !r.Recorder.IsRunning() && (isGameStage(&message) || isPreGameStage(&message)) {
+	if !r.Recorder.IsRunning() && isTeamSet(&message) && (isGameStage(&message) || isPreGameStage(&message)) {
 		log.Println("Start recording")
 		if err := r.Recorder.Start(); err != nil {
 			log.Println("Failed to start recorder: ", err)
 		}
-	} else if r.Recorder.IsRunning() && isNoGameStage(&message) {
+	} else if r.Recorder.IsRunning() && (isNoGameStage(&message) || !isTeamSet(&message)) {
 		log.Println("Stop recording")
 		if err := r.Recorder.Stop(); err != nil {
 			log.Println("Failed to stop recorder: ", err)
@@ -65,6 +65,11 @@ func isGameStage(message *referee.Referee) bool {
 	default:
 		return false
 	}
+}
+
+func isTeamSet(message *referee.Referee) bool {
+	return *message.Blue.Name != "Unknown" && *message.Yellow.Name != "Unknown" &&
+		*message.Blue.Name != "" && *message.Yellow.Name != ""
 }
 
 func isNoGameStage(message *referee.Referee) bool {
