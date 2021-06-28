@@ -151,6 +151,7 @@ func getRefereeMsg(logMessage *persistence.Message) (refereeMsg *referee.Referee
 		return
 	}
 
+	refereeMsg = new(referee.Referee)
 	if err := proto.Unmarshal(logMessage.Message, refereeMsg); err != nil {
 		err = errors.Wrap(err, "Could not parse referee message")
 	}
