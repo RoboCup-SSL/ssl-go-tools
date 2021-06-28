@@ -14,6 +14,8 @@ import (
 )
 
 var tmpLogFilename = "tmp.log.gz"
+var logWriter *persistence.Writer = nil
+var lastRefereeMsg *referee.Referee = nil
 
 func main() {
 	flag.Usage = usage
@@ -31,6 +33,10 @@ func main() {
 		process(arg)
 		log.Println("Processing done")
 		log.Println("")
+	}
+
+	if logWriter != nil {
+		closeLogWriter(logWriter, lastRefereeMsg)
 	}
 }
 
@@ -51,9 +57,6 @@ func process(filename string) {
 
 	channel := logReader.CreateChannel()
 
-	var logWriter *persistence.Writer = nil
-
-	var lastRefereeMsg *referee.Referee = nil
 	var lastStage *referee.Referee_Stage = nil
 	numSkippedRefereeMessages := 0
 	numRefereeMessages := 0
@@ -118,10 +121,6 @@ func process(filename string) {
 				log.Println("Could not write log message:", err)
 			}
 		}
-	}
-
-	if logWriter != nil {
-		closeLogWriter(logWriter, lastRefereeMsg)
 	}
 
 	log.Printf("Found %d valid referee messages, skipped %d unreasonable referee messages with these team names: %v",
