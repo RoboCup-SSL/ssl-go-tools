@@ -15,6 +15,7 @@ import (
 
 var tmpLogFilename = "tmp.log.gz"
 var logWriter *persistence.Writer = nil
+var firstRefereeMsg *referee.Referee = nil
 var lastRefereeMsg *referee.Referee = nil
 
 func main() {
@@ -36,7 +37,7 @@ func main() {
 	}
 
 	if logWriter != nil {
-		closeLogWriter(logWriter, lastRefereeMsg)
+		closeLogWriter(logWriter)
 	}
 }
 
@@ -93,6 +94,7 @@ func process(filename string) {
 				*refereeMsg.Stage != referee.Referee_POST_GAME &&
 				*refereeMsg.Command != referee.Referee_HALT {
 				log.Print("Start log writer")
+				firstRefereeMsg = refereeMsg
 				logWriter, err = persistence.NewWriter(tmpLogFilename)
 				if err != nil {
 					log.Fatal("Could not open temporary writer:", err)
@@ -104,7 +106,7 @@ func process(filename string) {
 				(*refereeMsg.Stage == referee.Referee_POST_GAME ||
 					*refereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE) {
 				log.Print("Stop log writer")
-				closeLogWriter(logWriter, lastRefereeMsg)
+				closeLogWriter(logWriter)
 				logWriter = nil
 			}
 
@@ -127,17 +129,18 @@ func process(filename string) {
 		numRefereeMessages, numSkippedRefereeMessages, unreasonableTeamNames)
 }
 
-func closeLogWriter(logWriter *persistence.Writer, lastRefereeMsg *referee.Referee) {
+func closeLogWriter(logWriter *persistence.Writer) {
 	if err := logWriter.Close(); err != nil {
 		log.Fatal("Could not close log writer: ", err)
 	}
-	if lastRefereeMsg == nil {
+	if lastRefereeMsg == nil || firstRefereeMsg == nil {
+		log.Println("No valid referee data found. Deleting temporary log file.")
 		if err := os.Remove(tmpLogFilename); err != nil {
 			log.Fatal("Could not remove tmp log file:", err)
 		}
 		return
 	}
-	newLogFilename := logFileName(lastRefereeMsg)
+	newLogFilename := logFileName()
 	if err := os.Rename(tmpLogFilename, newLogFilename); err != nil {
 		log.Fatalf("Could not rename file from '%v' to '%v'.", tmpLogFilename, newLogFilename)
 	} else {
@@ -157,10 +160,9 @@ func getRefereeMsg(logMessage *persistence.Message) (refereeMsg *referee.Referee
 	return
 }
 
-func logFileName(refereeMsg *referee.Referee) string {
-	teamNameYellow := strings.Replace(*refereeMsg.Yellow.Name, " ", "_", -1)
-	teamNameBlue := strings.Replace(*refereeMsg.Blue.Name, " ", "_", -1)
-	date := time.Unix(0, int64(*refereeMsg.PacketTimestamp*1000)).Format("2006-01-02_15-04")
-	logFileName := fmt.Sprintf("%s_%s-vs-%s.log.gz", date, teamNameYellow, teamNameBlue)
-	return logFileName
+func logFileName() string {
+	teamNameYellow := strings.Replace(*lastRefereeMsg.Yellow.Name, " ", "_", -1)
+	teamNameBlue := strings.Replace(*lastRefereeMsg.Blue.Name, " ", "_", -1)
+	date := time.Unix(0, int64(*firstRefereeMsg.PacketTimestamp*1000)).Format("2006-01-02_15-04")
+	return fmt.Sprintf("%s_%s-vs-%s.log.gz", date, teamNameYellow, teamNameBlue)
 }
