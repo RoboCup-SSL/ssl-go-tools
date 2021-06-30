@@ -10,6 +10,7 @@ import (
 var useDetectionTimingExport = flag.Bool("detectionTimingExport", false, "Use this processor")
 var useDetectionTiming = flag.Bool("detectionTiming", false, "Use this processor")
 var useDetectionQuality = flag.Bool("detectionQuality", false, "Use this processor")
+var useReferee = flag.Bool("referee", false, "Use this processor")
 var printQualityDataLosses = flag.Bool("printQualityDataLosses", false, "Print data losses over threshold from quality detector")
 var useAll = flag.Bool("all", false, "Use all processors")
 
@@ -31,6 +32,7 @@ func main() {
 	p.UseDetectionTiming = *useDetectionTiming
 	p.UseDetectionTimingExport = *useDetectionTimingExport
 	p.UseDetectionQuality = *useDetectionQuality
+	p.UseReferee = *useReferee
 	p.PrintQualityDataLosses = *printQualityDataLosses
 
 	for _, arg := range args {

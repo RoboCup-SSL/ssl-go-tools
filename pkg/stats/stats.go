@@ -22,6 +22,7 @@ type Processor struct {
 	UseDetectionTimingExport bool
 	UseDetectionTiming       bool
 	UseDetectionQuality      bool
+	UseReferee               bool
 	PrintQualityDataLosses   bool
 }
 
@@ -51,6 +52,9 @@ func (p Processor) ProcessFile(logFile string) {
 		proc := new(DetectionQualityProcessor)
 		processors = append(processors, proc)
 		proc.PrintDataLosses = p.PrintQualityDataLosses
+	}
+	if allProcessors || p.UseReferee {
+		processors = append(processors, new(RefereeProcessor))
 	}
 
 	for _, p := range processors {
