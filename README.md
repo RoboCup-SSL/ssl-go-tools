@@ -29,8 +29,8 @@ Have a look at the individual packages and their containing READMEs:
 
  * [ssl-auto-recorder](cmd/ssl-auto-recorder/README.md)
 * [ssl-log-converter](cmd/ssl-log-converter/README.md)
-* [ssl-logcutter](cmd/ssl-logcutter/README.md)
-* [ssl-logstats](cmd/ssl-logstats/README.md)
+* [ssl-log-cutter](cmd/ssl-log-cutter/README.md)
+* [ssl-log-stats](cmd/ssl-log-stats/README.md)
 * [ssl-player](cmd/ssl-player/README.md)
 * [ssl-recorder](cmd/ssl-recorder/README.md)
 * [ssl-vision-tracker-client](cmd/ssl-vision-tracker-client/README.md)

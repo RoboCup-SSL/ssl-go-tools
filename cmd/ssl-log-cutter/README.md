@@ -1,4 +1,4 @@
-# ssl-logcutter
+# ssl-log-cutter
 
 Cut and rename official log files as described on the [SSL website](https://ssl.robocup.org/game-logs/).
 
@@ -11,10 +11,10 @@ Team names and the timestamp of the first used frame will be used for the log fi
 Use go-get to install this executable:
 
 ```
-go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-logcutter
+go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-log-cutter
 ```
 
 ## Usage
 
-The binary is called `ssl-logcutter`.
+The binary is called `ssl-log-cutter`.
 Run it with `-h` to print usage information.
