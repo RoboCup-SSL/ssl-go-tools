@@ -13,7 +13,8 @@ import (
 	"time"
 )
 
-var tmpLogFilename = "tmp.log.gz"
+const tmpLogFilename = "tmp.log.gz"
+
 var logWriter *persistence.Writer = nil
 var firstRefereeMsg *referee.Referee = nil
 var lastRefereeMsg *referee.Referee = nil
@@ -62,6 +63,7 @@ func process(filename string) {
 	numSkippedRefereeMessages := 0
 	numRefereeMessages := 0
 	unreasonableTeamNames := map[string]int{}
+	stop := false
 	for logMessage := range channel {
 		refereeMsg, err := getRefereeMsg(logMessage)
 		if err != nil {
@@ -105,16 +107,7 @@ func process(filename string) {
 				*refereeMsg.Command == referee.Referee_HALT &&
 				(*refereeMsg.Stage == referee.Referee_POST_GAME ||
 					*refereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE) {
-
-				if *refereeMsg.Stage == referee.Referee_POST_GAME {
-					if err := logWriter.Write(logMessage); err != nil {
-						log.Println("Could not write log message:", err)
-					}
-				}
-
-				log.Print("Stop log writer")
-				closeLogWriter(logWriter)
-				logWriter = nil
+				stop = true
 			}
 
 			if lastStage == nil {
@@ -125,10 +118,17 @@ func process(filename string) {
 			lastRefereeMsg = refereeMsg
 		}
 
-		if logWriter != nil {
+		if logWriter != nil && (!stop || *refereeMsg.Stage != referee.Referee_NORMAL_FIRST_HALF_PRE) {
 			if err := logWriter.Write(logMessage); err != nil {
 				log.Println("Could not write log message:", err)
 			}
+		}
+
+		if stop {
+			log.Print("Stop log writer")
+			closeLogWriter(logWriter)
+			logWriter = nil
+			stop = false
 		}
 	}
 
@@ -171,6 +171,11 @@ func shorten(newLogFilename string) error {
 
 	channel := logReader.CreateChannel()
 
+	var lastRefereeMsgWithoutTimestamp referee.Referee
+
+	proto.Merge(&lastRefereeMsgWithoutTimestamp, lastRefereeMsg)
+	*lastRefereeMsgWithoutTimestamp.PacketTimestamp = 0
+
 	for logMessage := range channel {
 		refereeMsg, err := getRefereeMsg(logMessage)
 		if err != nil {
@@ -180,8 +185,12 @@ func shorten(newLogFilename string) error {
 		if err := logWriter.Write(logMessage); err != nil {
 			log.Println("Could not write log message:", err)
 		}
-		if refereeMsg != nil && *refereeMsg.CommandCounter == *lastRefereeMsg.CommandCounter {
-			break
+
+		if refereeMsg != nil {
+			*refereeMsg.PacketTimestamp = 0
+			if proto.Equal(refereeMsg, &lastRefereeMsgWithoutTimestamp) {
+				break
+			}
 		}
 	}
 
