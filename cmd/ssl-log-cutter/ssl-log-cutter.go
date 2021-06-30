@@ -105,6 +105,13 @@ func process(filename string) {
 				*refereeMsg.Command == referee.Referee_HALT &&
 				(*refereeMsg.Stage == referee.Referee_POST_GAME ||
 					*refereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE) {
+
+				if *refereeMsg.Stage == referee.Referee_POST_GAME {
+					if err := logWriter.Write(logMessage); err != nil {
+						log.Println("Could not write log message:", err)
+					}
+				}
+
 				log.Print("Stop log writer")
 				closeLogWriter(logWriter)
 				logWriter = nil
