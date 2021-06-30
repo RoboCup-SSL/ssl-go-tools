@@ -135,17 +135,53 @@ func closeLogWriter(logWriter *persistence.Writer) {
 	}
 	if lastRefereeMsg == nil || firstRefereeMsg == nil {
 		log.Println("No valid referee data found. Deleting temporary log file.")
-		if err := os.Remove(tmpLogFilename); err != nil {
-			log.Fatal("Could not remove tmp log file:", err)
-		}
 		return
 	}
 	newLogFilename := logFileName()
-	if err := os.Rename(tmpLogFilename, newLogFilename); err != nil {
-		log.Fatalf("Could not rename file from '%v' to '%v'.", tmpLogFilename, newLogFilename)
+	if err := shorten(newLogFilename); err != nil {
+		log.Fatalf("Could not shorten file from '%v' to '%v'.", tmpLogFilename, newLogFilename)
 	} else {
 		log.Println("Saved to", newLogFilename)
 	}
+	firstRefereeMsg = nil
+	lastRefereeMsg = nil
+
+	if err := os.Remove(tmpLogFilename); err != nil {
+		log.Fatal("Could not remove tmp log file:", err)
+	}
+}
+
+func shorten(newLogFilename string) error {
+	logReader, err := persistence.NewReader(tmpLogFilename)
+	if err != nil {
+		return err
+	}
+
+	logWriter, err = persistence.NewWriter(newLogFilename)
+	if err != nil {
+		return err
+	}
+
+	channel := logReader.CreateChannel()
+
+	for logMessage := range channel {
+		refereeMsg, err := getRefereeMsg(logMessage)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err := logWriter.Write(logMessage); err != nil {
+			log.Println("Could not write log message:", err)
+		}
+		if refereeMsg != nil && *refereeMsg.CommandCounter == *lastRefereeMsg.CommandCounter {
+			break
+		}
+	}
+
+	if err := logWriter.Close(); err != nil {
+		log.Fatal("Could not close log writer: ", err)
+	}
+	return nil
 }
 
 func getRefereeMsg(logMessage *persistence.Message) (refereeMsg *referee.Referee, err error) {
