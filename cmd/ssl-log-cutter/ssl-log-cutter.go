@@ -60,9 +60,8 @@ func process(filename string) {
 	channel := logReader.CreateChannel()
 
 	var lastStage *referee.Referee_Stage = nil
-	numSkippedRefereeMessages := 0
 	numRefereeMessages := 0
-	unreasonableTeamNames := map[string]int{}
+	teamNames := map[string]int{}
 	stop := false
 	for logMessage := range channel {
 		refereeMsg, err := getRefereeMsg(logMessage)
@@ -73,20 +72,8 @@ func process(filename string) {
 		if refereeMsg != nil {
 			numRefereeMessages++
 
-			if *refereeMsg.Yellow.Name == "" ||
-				*refereeMsg.Blue.Name == "" ||
-				*refereeMsg.Yellow.Name == *refereeMsg.Blue.Name {
-				numSkippedRefereeMessages++
-				if *refereeMsg.Yellow.Name != "" && *refereeMsg.Yellow.Name == *refereeMsg.Blue.Name {
-					i, ok := unreasonableTeamNames[*refereeMsg.Yellow.Name]
-					if ok {
-						unreasonableTeamNames[*refereeMsg.Yellow.Name] = i + 1
-					} else {
-						unreasonableTeamNames[*refereeMsg.Yellow.Name] = 1
-					}
-				}
-				continue
-			}
+			teamNames[*refereeMsg.Yellow.Name]++
+			teamNames[*refereeMsg.Blue.Name]++
 
 			if lastStage == nil || *refereeMsg.Stage != *lastStage {
 				log.Printf("Found stage '%v'", referee.Referee_Stage_name[int32(*refereeMsg.Stage)])
@@ -132,8 +119,8 @@ func process(filename string) {
 		}
 	}
 
-	log.Printf("Found %d valid referee messages, skipped %d unreasonable referee messages with these team names: %v",
-		numRefereeMessages, numSkippedRefereeMessages, unreasonableTeamNames)
+	log.Printf("Referee messages: %d", numRefereeMessages)
+	log.Printf("Teams: %v", teamNames)
 }
 
 func closeLogWriter(logWriter *persistence.Writer) {
