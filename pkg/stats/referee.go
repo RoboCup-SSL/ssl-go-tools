@@ -1,6 +1,7 @@
 package stats
 
 import (
+	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
@@ -48,7 +49,7 @@ func (p *RefereeProcessor) Close() error {
 	return nil
 }
 
-func (p *RefereeProcessor) ProcessDetection(_ *persistence.Message, frame *vision.SSL_DetectionFrame) {
+func (p *RefereeProcessor) ProcessDetection(_ *persistence.Message, _ *vision.SSL_DetectionFrame) {
 
 }
 
@@ -67,11 +68,11 @@ func (p *RefereeProcessor) ProcessReferee(_ *persistence.Message, frame *referee
 }
 
 func (p *RefereeProcessor) String() (res string) {
-	if p.firstRefereeMsg != nil {
-		res += "First: " + p.firstRefereeMsg.Stage.String() + " " + strconv.Itoa(int(*p.firstRefereeMsg.StageTimeLeft)) + "\n"
+	if p.firstRefereeMsg == nil || p.lastRefereeMsg == nil {
+		return
 	}
-	if p.lastRefereeMsg != nil {
-		res += "Last: " + p.lastRefereeMsg.Stage.String() + " " + strconv.Itoa(int(*p.lastRefereeMsg.StageTimeLeft)) + "\n"
-	}
+	res += "First: " + p.firstRefereeMsg.Stage.String() + " " + strconv.Itoa(int(*p.firstRefereeMsg.StageTimeLeft)) + "\n"
+	res += "Last: " + p.lastRefereeMsg.Stage.String() + " " + strconv.Itoa(int(*p.lastRefereeMsg.StageTimeLeft)) + "\n"
+	res += "Duration: " + fmt.Sprintf("%.2f min", float64(*p.lastRefereeMsg.PacketTimestamp-*p.firstRefereeMsg.PacketTimestamp)/1e6/60)
 	return
 }
