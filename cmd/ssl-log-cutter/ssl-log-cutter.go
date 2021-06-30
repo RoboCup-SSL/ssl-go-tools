@@ -140,15 +140,15 @@ func closeLogWriter(logWriter *persistence.Writer) {
 	if err := logWriter.Close(); err != nil {
 		log.Fatal("Could not close log writer: ", err)
 	}
-	if lastRefereeMsg == nil || firstRefereeMsg == nil {
-		log.Println("No valid referee data found. Deleting temporary log file.")
-		return
-	}
-	newLogFilename := logFileName()
-	if err := shorten(newLogFilename); err != nil {
-		log.Fatalf("Could not shorten file from '%v' to '%v'.", tmpLogFilename, newLogFilename)
+	if lastRefereeMsg == nil || firstRefereeMsg == nil || *lastRefereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE {
+		log.Println("No reasonable referee data found.")
 	} else {
-		log.Println("Saved to", newLogFilename)
+		newLogFilename := logFileName()
+		if err := shorten(newLogFilename); err != nil {
+			log.Fatalf("Could not shorten file from '%v' to '%v'.", tmpLogFilename, newLogFilename)
+		} else {
+			log.Println("Saved to", newLogFilename)
+		}
 	}
 	firstRefereeMsg = nil
 	lastRefereeMsg = nil
