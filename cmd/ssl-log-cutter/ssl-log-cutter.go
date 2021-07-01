@@ -15,9 +15,13 @@ import (
 
 const tmpLogFilename = "tmp.log.gz"
 
-var logWriter *persistence.Writer = nil
-var firstRefereeMsg *referee.Referee = nil
-var lastRefereeMsg *referee.Referee = nil
+var logCutter LogCutter
+
+type LogCutter struct {
+	logWriter       *persistence.Writer
+	firstRefereeMsg *referee.Referee
+	lastRefereeMsg  *referee.Referee
+}
 
 func main() {
 	flag.Usage = usage
@@ -37,8 +41,45 @@ func main() {
 		log.Println("")
 	}
 
-	if logWriter != nil {
-		closeLogWriter(logWriter)
+	logCutter.Stop()
+}
+
+func (l *LogCutter) Running() bool {
+	return l.logWriter != nil
+}
+
+func (l *LogCutter) Stopped() bool {
+	return l.logWriter == nil
+}
+
+func (l *LogCutter) Start() {
+	if l.Running() {
+		return
+	}
+	log.Print("Start log writer")
+	if logWriter, err := persistence.NewWriter(tmpLogFilename); err != nil {
+		log.Fatal("Could not open temporary writer:", err)
+	} else {
+		l.logWriter = logWriter
+	}
+}
+
+func (l *LogCutter) Update(refereeMsg *referee.Referee) {
+	if l.Stopped() {
+		return
+	}
+	if l.firstRefereeMsg == nil {
+		l.firstRefereeMsg = refereeMsg
+	}
+	l.lastRefereeMsg = refereeMsg
+}
+
+func (l *LogCutter) Write(logMessage *persistence.Message) {
+	if l.Stopped() {
+		return
+	}
+	if err := l.logWriter.Write(logMessage); err != nil {
+		log.Println("Could not write log message:", err)
 	}
 }
 
@@ -60,9 +101,7 @@ func process(filename string) {
 	channel := logReader.CreateChannel()
 
 	var lastStage *referee.Referee_Stage = nil
-	numRefereeMessages := 0
 	teamNames := map[string]int{}
-	stop := false
 	for logMessage := range channel {
 		refereeMsg, err := getRefereeMsg(logMessage)
 		if err != nil {
@@ -70,8 +109,6 @@ func process(filename string) {
 		}
 
 		if refereeMsg != nil {
-			numRefereeMessages++
-
 			teamNames[*refereeMsg.Yellow.Name]++
 			teamNames[*refereeMsg.Blue.Name]++
 
@@ -79,79 +116,82 @@ func process(filename string) {
 				log.Printf("Found stage '%v'", referee.Referee_Stage_name[int32(*refereeMsg.Stage)])
 			}
 
-			if logWriter == nil &&
-				*refereeMsg.Stage != referee.Referee_POST_GAME &&
-				*refereeMsg.Command != referee.Referee_HALT {
-				log.Print("Start log writer")
-				firstRefereeMsg = refereeMsg
-				logWriter, err = persistence.NewWriter(tmpLogFilename)
-				if err != nil {
-					log.Fatal("Could not open temporary writer:", err)
-				}
-			}
-
-			if logWriter != nil && lastRefereeMsg != nil &&
-				*refereeMsg.Command == referee.Referee_HALT &&
-				(*refereeMsg.Stage == referee.Referee_POST_GAME ||
-					*refereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE) {
-				stop = true
-			}
-
 			if lastStage == nil {
 				lastStage = new(referee.Referee_Stage)
 			}
 			*lastStage = *refereeMsg.Stage
 
-			lastRefereeMsg = refereeMsg
-		}
-
-		if logWriter != nil && (!stop || *refereeMsg.Stage != referee.Referee_NORMAL_FIRST_HALF_PRE) {
-			if err := logWriter.Write(logMessage); err != nil {
-				log.Println("Could not write log message:", err)
+			if logCutter.Stopped() &&
+				*refereeMsg.Command != referee.Referee_HALT &&
+				*refereeMsg.Stage != referee.Referee_POST_GAME {
+				log.Println("Found non POST_GAME stage. Starting log file.")
+				logCutter.Start()
 			}
-		}
 
-		if stop {
-			log.Print("Stop log writer")
-			closeLogWriter(logWriter)
-			logWriter = nil
-			stop = false
+			if logCutter.Running() &&
+				*refereeMsg.Command == referee.Referee_HALT &&
+				*refereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE {
+				log.Println("Found NORMAL_FIRST_HALF_PRE stage. Stopping log file.")
+				logCutter.Stop()
+			}
+
+			logCutter.Update(refereeMsg)
+			logCutter.Write(logMessage)
+
+			if logCutter.Running() &&
+				*refereeMsg.Command == referee.Referee_HALT &&
+				*refereeMsg.Stage == referee.Referee_POST_GAME {
+				log.Println("Found POST_GAME stage. Closing log file.")
+				logCutter.Stop()
+			}
+		} else {
+			logCutter.Write(logMessage)
 		}
 	}
 
-	log.Printf("Referee messages: %d", numRefereeMessages)
 	log.Printf("Teams: %v", teamNames)
 }
 
-func closeLogWriter(logWriter *persistence.Writer) {
-	if err := logWriter.Close(); err != nil {
+func (l *LogCutter) Stop() {
+	if l.logWriter == nil {
+		return
+	}
+
+	log.Print("Stop log writer")
+
+	if err := l.logWriter.Close(); err != nil {
 		log.Fatal("Could not close log writer: ", err)
 	}
-	if lastRefereeMsg == nil || firstRefereeMsg == nil || *lastRefereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE {
-		log.Println("No reasonable referee data found.")
+	l.logWriter = nil
+
+	if l.lastRefereeMsg == nil || l.firstRefereeMsg == nil {
+		log.Println("No referee data found.")
+	} else if *l.lastRefereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE {
+		log.Println("Log ends with NORMAL_FIRST_HALF_PRE stage. Skipping.")
 	} else {
-		newLogFilename := logFileName()
-		if err := shorten(newLogFilename); err != nil {
+		newLogFilename := logFileName(l.firstRefereeMsg, l.lastRefereeMsg)
+		if err := shorten(newLogFilename, l.lastRefereeMsg); err != nil {
 			log.Fatalf("Could not shorten file from '%v' to '%v'.", tmpLogFilename, newLogFilename)
 		} else {
 			log.Println("Saved to", newLogFilename)
 		}
 	}
-	firstRefereeMsg = nil
-	lastRefereeMsg = nil
+	l.firstRefereeMsg = nil
+	l.lastRefereeMsg = nil
 
 	if err := os.Remove(tmpLogFilename); err != nil {
 		log.Fatal("Could not remove tmp log file:", err)
 	}
 }
 
-func shorten(newLogFilename string) error {
+func shorten(newLogFilename string, lastRefereeMsg *referee.Referee) error {
+	log.Printf("Shortening %v to %v", tmpLogFilename, newLogFilename)
 	logReader, err := persistence.NewReader(tmpLogFilename)
 	if err != nil {
 		return err
 	}
 
-	logWriter, err = persistence.NewWriter(newLogFilename)
+	logWriter, err := persistence.NewWriter(newLogFilename)
 	if err != nil {
 		return err
 	}
@@ -199,7 +239,7 @@ func getRefereeMsg(logMessage *persistence.Message) (refereeMsg *referee.Referee
 	return
 }
 
-func logFileName() string {
+func logFileName(firstRefereeMsg, lastRefereeMsg *referee.Referee) string {
 	teamNameYellow := strings.Replace(*lastRefereeMsg.Yellow.Name, " ", "_", -1)
 	teamNameBlue := strings.Replace(*lastRefereeMsg.Blue.Name, " ", "_", -1)
 	date := time.Unix(0, int64(*firstRefereeMsg.PacketTimestamp*1000)).Format("2006-01-02_15-04")
