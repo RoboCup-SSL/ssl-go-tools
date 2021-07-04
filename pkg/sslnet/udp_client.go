@@ -11,6 +11,7 @@ type UdpClient struct {
 	Name      string
 	Consumer  func([]byte)
 	address   string
+	nif       string
 	conns     []*net.UDPConn
 	running   bool
 	mutex     sync.Mutex
@@ -18,10 +19,11 @@ type UdpClient struct {
 }
 
 // NewUdpClient creates a new UDP client
-func NewUdpClient(address string) (t *UdpClient) {
+func NewUdpClient(address string, nif string) (t *UdpClient) {
 	t = new(UdpClient)
 	t.Name = "UdpClient"
 	t.address = address
+	t.nif = nif
 	t.Consumer = func([]byte) {}
 	return
 }
@@ -85,6 +87,9 @@ func (c *UdpClient) connect() {
 		ip := iaddr.(*net.IPNet).IP
 		if ip.To4() == nil {
 			// Ignore IPv6 for now
+			continue
+		}
+		if c.nif != "" && ip.String() != c.nif {
 			continue
 		}
 		laddr := &net.UDPAddr{IP: ip}

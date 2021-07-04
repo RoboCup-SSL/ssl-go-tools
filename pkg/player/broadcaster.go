@@ -27,8 +27,8 @@ func NewBroadcaster() Broadcaster {
 	return Broadcaster{Slots: make(map[persistence.MessageId]*BroadcasterSlot, 0)}
 }
 
-func (b *Broadcaster) AddSlot(messageType persistence.MessageType, address string) {
-	b.Slots[messageType.Id] = &BroadcasterSlot{client: sslnet.NewUdpClient(address), MessageType: messageType}
+func (b *Broadcaster) AddSlot(messageType persistence.MessageType, address, nif string) {
+	b.Slots[messageType.Id] = &BroadcasterSlot{client: sslnet.NewUdpClient(address, nif), MessageType: messageType}
 }
 
 func (b *Broadcaster) Start(filename string, startTimestamp int64) error {

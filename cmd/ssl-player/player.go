@@ -24,6 +24,7 @@ var RefereeType = persistence.MessageType{Id: persistence.MessageSslRefbox2013, 
 
 var logFile = flag.String("file", "", "The log file to play")
 var skipNonRunningStages = flag.Bool("skip", false, "Skip frames while not in a running stage")
+var nif = flag.String("nif", "", "Network interface (host IP address) to publish all multicast traffic to. If empty, publish to all interfaces.")
 
 var startTimestamp = flag.Int64("startTimestamp", 0, "The unix timestamp [ns] at which the log file should be started")
 
@@ -46,15 +47,15 @@ func main() {
 
 func addSlots(logger *player.Broadcaster) {
 	if *visionLegacyEnabled {
-		logger.AddSlot(VisionLegacyType, *addressVisionLegacy)
+		logger.AddSlot(VisionLegacyType, *addressVisionLegacy, *nif)
 	}
 	if *visionEnabled {
-		logger.AddSlot(VisionType, *addressVision)
+		logger.AddSlot(VisionType, *addressVision, *nif)
 	}
 	if *visionTrackerEnabled {
-		logger.AddSlot(VisionTrackerType, *addressVisionTracker)
+		logger.AddSlot(VisionTrackerType, *addressVisionTracker, *nif)
 	}
 	if *refereeEnabled {
-		logger.AddSlot(RefereeType, *addressReferee)
+		logger.AddSlot(RefereeType, *addressReferee, *nif)
 	}
 }
