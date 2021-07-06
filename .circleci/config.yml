@@ -30,6 +30,21 @@ jobs:
           docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
           docker push robocupssl/ssl-auto-recorder:$TAG
 
+  docker-log-player:
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.6
+      - run: |
+          # remove 'ssl-log-player/v'
+          TAG=${CIRCLE_TAG:19}
+          TAG=${TAG:-latest}
+          docker build -f ssl-log-player.Dockerfile -t robocupssl/ssl-log-player:$TAG .
+          docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
+          docker push robocupssl/ssl-log-player:$TAG
+
 workflows:
   version: 2
   main:
@@ -42,6 +57,13 @@ workflows:
           context: docker hub
           filters:
             branches:
-              only: master
+              ignore: /.*/
             tags:
               only: /^ssl-auto-recorder\/v.*/
+      - docker-log-player:
+          context: docker hub
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^ssl-log-player\/v.*/
