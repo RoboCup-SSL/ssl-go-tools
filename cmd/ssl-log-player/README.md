@@ -1,4 +1,4 @@
-# ssl-player
+# ssl-log-player
 
 Play back official log files as described on the [SSL website](https://ssl.robocup.org/game-logs/) in real time. Both, uncompressed and compressed log files are supported. Compressed log files should end with `.gz`. 
 
@@ -11,10 +11,10 @@ There is currently no support for seeking through the log file or change the pla
 Use go-get to install this executable:
 
 ```
-go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-player
+go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-log-player
 ```
 
 ## Usage
 
-The binary is called `ssl-player`.
+The binary is called `ssl-log-player`.
 Run it with `-h` to print usage information.
