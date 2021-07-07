@@ -39,7 +39,7 @@ jobs:
           version: 20.10.6
       - run: |
           # remove 'ssl-log-player/v'
-          TAG=${CIRCLE_TAG:19}
+          TAG=${CIRCLE_TAG:16}
           TAG=${TAG:-latest}
           docker build -f ssl-log-player.Dockerfile -t robocupssl/ssl-log-player:$TAG .
           docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
