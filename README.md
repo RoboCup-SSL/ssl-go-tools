@@ -12,7 +12,7 @@ parsing messages.
 
 You need to install following dependencies first:
 
-* Go >= 1.16
+* Go >= 1.17
 
 ## Installation
 

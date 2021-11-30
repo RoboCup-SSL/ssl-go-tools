@@ -5,7 +5,7 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/encoding/prototext"
 	"log"
 	"os"
 	"strconv"
@@ -35,8 +35,10 @@ func (p *RefereeProcessor) Close() error {
 		if _, err := p.outFile.WriteString("\n\nLast message:\n"); err != nil {
 			log.Println("Could not write to output file", err)
 		}
-		if err := proto.MarshalText(p.outFile, p.lastRefereeMsg); err != nil {
-			log.Println("Could not write referee message to output file", err)
+		if b, err := prototext.Marshal(p.lastRefereeMsg); err != nil {
+			log.Println("Could not marshal referee message: ", err)
+		} else if _, err := p.outFile.WriteString(string(b)); err != nil {
+			log.Println("Could not write referee message to output file: ", err)
 		}
 	}
 
@@ -59,8 +61,10 @@ func (p *RefereeProcessor) ProcessReferee(_ *persistence.Message, frame *referee
 		if _, err := p.outFile.WriteString("First message:\n"); err != nil {
 			log.Println("Could not write to output file", err)
 		}
-		if err := proto.MarshalText(p.outFile, frame); err != nil {
-			log.Println("Could not write referee message to output file", err)
+		if b, err := prototext.Marshal(frame); err != nil {
+			log.Println("Could not marshal referee message: ", err)
+		} else if _, err := p.outFile.WriteString(string(b)); err != nil {
+			log.Println("Could not write referee message to output file: ", err)
 		}
 	}
 
