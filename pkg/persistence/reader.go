@@ -116,6 +116,29 @@ func (l *Reader) ReadMessageAt(offset int64) (msg *Message, err error) {
 	return
 }
 
+func (l *Reader) ReadMessageTimeAndType(offset int64) (*int64, *MessageId, error) {
+	var resultTime int64
+	var resultType MessageId
+	if l.gzipReader != nil {
+		return nil, nil, errors.New("No random access support for compressed log files")
+	}
+	if _, err := l.file.Seek(offset, 0); err != nil {
+		return nil, nil, err
+	}
+	l.reader.Reset(l.file)
+	if timestamp, err := l.readInt64(); err != nil {
+		return nil, nil, err
+	} else {
+		resultTime = timestamp
+	}
+	if messageId, err := l.readInt32(); err != nil {
+		return nil, nil, err
+	} else {
+		resultType = MessageId(messageId)
+	}
+	return &resultTime, &resultType, nil
+}
+
 func (l *Reader) SkipMessage() (bytesRead int, err error) {
 	headerBytes := 12
 	if n, err := l.reader.Discard(headerBytes); err != nil {
