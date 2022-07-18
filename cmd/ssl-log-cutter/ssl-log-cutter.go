@@ -9,11 +9,16 @@ import (
 	"google.golang.org/protobuf/proto"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
 
-const tmpLogFilename = "tmp.log.gz"
+var compress = flag.Bool("compress", true, "Compress log files")
+var outputFolder = flag.String("out", "", "Output folder")
+var timezone = flag.String("timezone", "UTC", "Timezone for log file names")
+
+const tmpLogFilename = "tmp.log"
 
 var logCutter LogCutter
 
@@ -34,10 +39,14 @@ func main() {
 		return
 	}
 
-	for _, arg := range args {
-		log.Println("Processing", arg)
-		process(arg)
-		log.Println("Processing done")
+	if err := os.MkdirAll(*outputFolder, 0750); err != nil {
+		log.Fatal("Could not create output folder: ", err)
+	}
+
+	for _, inputFile := range args {
+		log.Println("Processing", inputFile)
+		process(inputFile)
+		log.Println("Processed", inputFile)
 		log.Println("")
 	}
 
@@ -135,6 +144,15 @@ func process(filename string) {
 				logCutter.Stop()
 			}
 
+			if logCutter.Running() &&
+				logCutter.lastRefereeMsg != nil &&
+				*logCutter.lastRefereeMsg.Stage-*refereeMsg.Stage > 1 {
+				previousStage := logCutter.lastRefereeMsg.Stage.String()
+				nextStage := refereeMsg.Stage.String()
+				log.Printf("Found jump in game stage from %v to %v. Stopping log file.", previousStage, nextStage)
+				logCutter.Stop()
+			}
+
 			logCutter.Update(refereeMsg)
 			logCutter.Write(logMessage)
 
@@ -169,9 +187,9 @@ func (l *LogCutter) Stop() {
 	} else if *l.lastRefereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE {
 		log.Println("Log ends with NORMAL_FIRST_HALF_PRE stage. Skipping.")
 	} else {
-		newLogFilename := logFileName(l.firstRefereeMsg, l.lastRefereeMsg)
+		newLogFilename := logFileName(l.firstRefereeMsg)
 		if err := shorten(newLogFilename, l.lastRefereeMsg); err != nil {
-			log.Fatalf("Could not shorten file from '%v' to '%v'.", tmpLogFilename, newLogFilename)
+			log.Fatalf("Could not shorten file from '%v' to '%v': %v", tmpLogFilename, newLogFilename, err)
 		} else {
 			log.Println("Saved to", newLogFilename)
 		}
@@ -224,6 +242,9 @@ func shorten(newLogFilename string, lastRefereeMsg *referee.Referee) error {
 	if err := logWriter.Close(); err != nil {
 		log.Fatal("Could not close log writer: ", err)
 	}
+	if err := logReader.Close(); err != nil {
+		log.Fatal("Could not close log reader: ", err)
+	}
 	return nil
 }
 
@@ -239,9 +260,26 @@ func getRefereeMsg(logMessage *persistence.Message) (refereeMsg *referee.Referee
 	return
 }
 
-func logFileName(firstRefereeMsg, lastRefereeMsg *referee.Referee) string {
-	teamNameYellow := strings.Replace(*lastRefereeMsg.Yellow.Name, " ", "_", -1)
-	teamNameBlue := strings.Replace(*lastRefereeMsg.Blue.Name, " ", "_", -1)
-	date := time.Unix(0, int64(*firstRefereeMsg.PacketTimestamp*1000)).Format("2006-01-02_15-04")
-	return fmt.Sprintf("%s_%s-vs-%s.log.gz", date, teamNameYellow, teamNameBlue)
+func logFileName(firstRefereeMsg *referee.Referee) string {
+	teamNameYellow := strings.Replace(*firstRefereeMsg.Yellow.Name, " ", "_", -1)
+	teamNameBlue := strings.Replace(*firstRefereeMsg.Blue.Name, " ", "_", -1)
+	date := time.Unix(0, int64(*firstRefereeMsg.PacketTimestamp*1000)).In(loadLocation()).Format("2006-01-02_15-04")
+	name := fmt.Sprintf("%s_%s-vs-%s%s", date, teamNameYellow, teamNameBlue, logFileExtension())
+	return filepath.Join(*outputFolder, name)
+}
+
+func logFileExtension() string {
+	if *compress {
+		return ".log.gz"
+	}
+	return ".log"
+}
+
+func loadLocation() *time.Location {
+	if location, err := time.LoadLocation(*timezone); err != nil {
+		log.Fatal("Invalid location:", err)
+		return nil
+	} else {
+		return location
+	}
 }
