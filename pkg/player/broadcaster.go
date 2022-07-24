@@ -5,7 +5,6 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 	"log"
 	"time"
@@ -93,7 +92,7 @@ func (b *Broadcaster) publish(startTimestamp int64) {
 		if b.SkipNonRunningStages && msg.MessageType.Id == persistence.MessageSslRefbox2013 {
 			var refMsg referee.Referee
 			if err := proto.Unmarshal(msg.Message, &refMsg); err != nil {
-				err = errors.Wrap(err, "Could not parse referee message")
+				log.Println("Could not parse referee message", err)
 			} else {
 				curStage = *refMsg.Stage
 			}

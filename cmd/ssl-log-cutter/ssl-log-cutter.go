@@ -248,16 +248,16 @@ func shorten(newLogFilename string, lastRefereeMsg *referee.Referee) error {
 	return nil
 }
 
-func getRefereeMsg(logMessage *persistence.Message) (refereeMsg *referee.Referee, err error) {
+func getRefereeMsg(logMessage *persistence.Message) (*referee.Referee, error) {
 	if logMessage.MessageType.Id != persistence.MessageSslRefbox2013 {
-		return
+		return nil, nil
 	}
 
-	refereeMsg = new(referee.Referee)
+	refereeMsg := new(referee.Referee)
 	if err := proto.Unmarshal(logMessage.Message, refereeMsg); err != nil {
-		err = errors.Wrap(err, "Could not parse referee message")
+		return nil, errors.Wrap(err, "Could not parse referee message")
 	}
-	return
+	return refereeMsg, nil
 }
 
 func logFileName(firstRefereeMsg *referee.Referee) string {
