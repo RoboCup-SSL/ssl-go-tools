@@ -58,6 +58,7 @@ workflows:
             tags:
               only: /.*/
       - release:
+          context: github
           # Only run this job on git tag pushes
           filters:
             branches:
