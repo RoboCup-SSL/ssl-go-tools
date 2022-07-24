@@ -16,9 +16,64 @@ builds:
       - amd64
       - arm
       - arm64
+  - main: "./cmd/ssl-log-converter"
+    id: "ssl-log-converter"
+    binary: "ssl-log-converter"
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
+  - main: "./cmd/ssl-log-cutter"
+    id: "ssl-log-cutter"
+    binary: "ssl-log-cutter"
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
+  - main: "./cmd/ssl-log-indexer"
+    id: "ssl-log-indexer"
+    binary: "ssl-log-indexer"
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
   - main: "./cmd/ssl-log-player"
     id: "ssl-log-player"
     binary: "ssl-log-player"
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
+  - main: "./cmd/ssl-log-recorder"
+    id: "ssl-log-recorder"
+    binary: "ssl-log-recorder"
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
+  - main: "./cmd/ssl-log-stats"
+    id: "ssl-log-stats"
+    binary: "ssl-log-stats"
     goos:
       - linux
       - windows
@@ -40,7 +95,3 @@ snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
