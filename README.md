@@ -8,24 +8,19 @@
 Collection of packages to do common stuff for the RoboCup SSL league like reading, writing, sending, receiving and
 parsing messages.
 
-## Requirements
+## Installation from GitHub releases
 
-You need to install following dependencies first:
+The GitHub release page contains the latest stable binaries: https://github.com/RoboCup-SSL/ssl-go-tools/releases
 
-* Go >= 1.17
+Simply download the archive for your platform and extract to a folder of your choosing and run it from there.
 
-## Installation
+## Installation with Go
 
-Use go get to install all packages / executables:
+If you have Go installed, you can install the tools with:
 
+```shell
+go install github.com/RoboCup-SSL/ssl-go-tools/...@latest
 ```
-go get -u github.com/RoboCup-SSL/ssl-go-tools/...
-```
-
-## Run
-
-The executables are installed to your $GOPATH/bin folder. If you have it on your $PATH, you can directly run them. Else,
-switch to this folder first.
 
 ## Usage and further details
 

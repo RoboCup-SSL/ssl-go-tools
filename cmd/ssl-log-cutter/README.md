@@ -6,14 +6,6 @@ The given log files will be shortened from the start of the first half to the st
 
 Team names and the timestamp of the first used frame will be used for the log file name.
 
-## Installation
-
-Use go-get to install this executable:
-
-```
-go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-log-cutter
-```
-
 ## Usage
 
 The binary is called `ssl-log-cutter`.

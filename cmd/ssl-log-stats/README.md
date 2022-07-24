@@ -6,14 +6,6 @@ Following statistics are currently supported:
 
  * Vision detection frame timings, like average dt and dts > 80ms.
  * Export vision detection frame timings to a CSV file for further analysis. A Matlab script is provided to plot this data
- 
-## Installation
-
-Use go-get to install this executable:
-
-```
-go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-log-stats
-```
 
 ## Usage
 

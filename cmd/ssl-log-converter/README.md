@@ -2,14 +2,6 @@
 
 Convert log files to a human-readable format - a JSON stream.
 
-## Installation
-
-Use go-get to install this executable:
-
-```
-go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-log-converter
-```
-
 ## Usage
 
 The binary is called `ssl-log-converter`.

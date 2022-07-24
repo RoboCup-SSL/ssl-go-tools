@@ -2,14 +2,6 @@
 
 Record official log files as described on the [SSL website](https://ssl.robocup.org/game-logs/).
 
-## Installation
-
-Use go-get to install this executable:
-
-```
-go get -u github.com/RoboCup-SSL/ssl-go-tools/cmd/ssl-log-recorder
-```
-
 ## Usage
 
 The binary is called `ssl-log-recorder`.
