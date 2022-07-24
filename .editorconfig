@@ -12,5 +12,5 @@ indent_size = 4
 [*.go]
 indent_style = tab
 
-[*.{vue,yml,json}]
+[*.{vue,yml,yaml,json}]
 indent_size = 2

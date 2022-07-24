@@ -2,12 +2,9 @@ version: 2
 jobs:
   tools:
     docker:
-      - image: circleci/golang:1.17
-    working_directory: /go/src/github.com/RoboCup-SSL/ssl-go-tools
+      - image: cimg/go:1.18
     steps:
       - checkout
-      - attach_workspace:
-          at: .
       - run: go get -v -t -d ./...
       - run: go test -v -covermode=count -coverprofile=count.out ./...
       - run: go tool cover -html=count.out -o coverage.html
@@ -45,6 +42,13 @@ jobs:
           docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
           docker push robocupssl/ssl-log-player:$TAG
 
+  release:
+    docker:
+      - image: cimg/go:1.18
+    steps:
+      - checkout
+      - run: curl -sfL https://goreleaser.com/static/run | bash
+
 workflows:
   version: 2
   main:
@@ -53,6 +57,13 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - release:
+          # Only run this job on git tag pushes
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
       - docker-auto-recorder:
           context: docker hub
           filters:
