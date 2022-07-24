@@ -14,8 +14,6 @@ builds:
       - darwin
     goarch:
       - amd64
-      - arm
-      - arm64
   - main: "./cmd/ssl-log-converter"
     id: "ssl-log-converter"
     binary: "ssl-log-converter"
@@ -25,8 +23,6 @@ builds:
       - darwin
     goarch:
       - amd64
-      - arm
-      - arm64
   - main: "./cmd/ssl-log-player"
     id: "ssl-log-player"
     binary: "ssl-log-player"
@@ -36,19 +32,6 @@ builds:
       - darwin
     goarch:
       - amd64
-      - arm
-      - arm64
-  - main: "./cmd/ssl-log-recorder"
-    id: "ssl-log-recorder"
-    binary: "ssl-log-recorder"
-    goos:
-      - linux
-      - windows
-      - darwin
-    goarch:
-      - amd64
-      - arm
-      - arm64
 archives:
   - replacements:
       darwin: Darwin
