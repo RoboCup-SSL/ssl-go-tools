@@ -1,12 +1,15 @@
 package auto
 
 import (
+	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
 	"google.golang.org/protobuf/proto"
 	"log"
 	"net"
+	"strings"
+	"time"
 )
 
 type Recorder struct {
@@ -42,8 +45,9 @@ func (r *Recorder) receiveRefereeMessage(data []byte, _ *net.UDPAddr) {
 	}
 
 	if !r.Recorder.IsRunning() && isTeamSet(&message) && (isGameStage(&message) || isPreGameStage(&message)) {
-		log.Println("Start recording")
-		if err := r.Recorder.Start(); err != nil {
+		name := logFileName(&message)
+		log.Println("Start recording ", name)
+		if err := r.Recorder.StartWithName(name); err != nil {
 			log.Println("Failed to start recorder: ", err)
 		}
 	} else if r.Recorder.IsRunning() && (isNoGameStage(&message) || !isTeamSet(&message)) {
@@ -52,6 +56,13 @@ func (r *Recorder) receiveRefereeMessage(data []byte, _ *net.UDPAddr) {
 			log.Println("Failed to stop recorder: ", err)
 		}
 	}
+}
+
+func logFileName(refMsg *referee.Referee) string {
+	teamNameYellow := strings.Replace(*refMsg.Yellow.Name, " ", "_", -1)
+	teamNameBlue := strings.Replace(*refMsg.Blue.Name, " ", "_", -1)
+	date := time.Unix(0, int64(*refMsg.PacketTimestamp*1000)).Format("2006-01-02_15-04")
+	return fmt.Sprintf("%s_%s-vs-%s", date, teamNameYellow, teamNameBlue)
 }
 
 func isGameStage(message *referee.Referee) bool {

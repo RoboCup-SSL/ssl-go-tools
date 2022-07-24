@@ -34,10 +34,16 @@ func (r *Recorder) AddSlot(messageType MessageType, address string) {
 }
 
 func (r *Recorder) Start() error {
+	nowStr := time.Now().Format("2006-01-02_15-04-05")
+	return r.StartWithName(nowStr)
+}
+
+func (r *Recorder) StartWithName(name string) error {
 	if r.running {
 		return errors.New("Recorder already started")
 	}
-	if err := r.openLogWriter(); err != nil {
+	logFileName := name + ".log.gz"
+	if err := r.openLogWriter(logFileName); err != nil {
 		return err
 	}
 	for _, slot := range r.Slots {
@@ -69,9 +75,7 @@ func (r *Recorder) IsRunning() bool {
 	return r.running
 }
 
-func (r *Recorder) openLogWriter() error {
-	nowStr := time.Now().Format("2006-01-02_15-04-05")
-	logFileName := nowStr + ".log.gz"
+func (r *Recorder) openLogWriter(logFileName string) error {
 	writer, err := NewWriter(logFileName)
 	if err != nil {
 		return errors.Errorf("could not open log file for write: %v", err)
