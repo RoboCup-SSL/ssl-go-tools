@@ -50,10 +50,18 @@ func (r *Recorder) receiveRefereeMessage(data []byte, _ *net.UDPAddr) {
 		if err := r.Recorder.StartWithName(name); err != nil {
 			log.Println("Failed to start recorder: ", err)
 		}
-	} else if r.Recorder.IsRunning() && (isNoGameStage(&message) || !isTeamSet(&message)) {
-		log.Println("Stop recording")
-		if err := r.Recorder.Stop(); err != nil {
-			log.Println("Failed to stop recorder: ", err)
+	} else if r.Recorder.IsRunning() {
+		if isPostGame(&message) || !isTeamSet(&message) {
+			log.Println("Stop recording")
+			if err := r.Recorder.Stop(); err != nil {
+				log.Println("Failed to stop recorder: ", err)
+			}
+		} else if !r.Recorder.Paused && isBreakStage(&message) {
+			log.Println("Pause recording")
+			r.Recorder.Paused = true
+		} else if r.Recorder.Paused && !isBreakStage(&message) {
+			log.Println("Resume recording")
+			r.Recorder.Paused = false
 		}
 	}
 }
@@ -83,17 +91,20 @@ func isTeamSet(message *referee.Referee) bool {
 		*message.Blue.Name != "" && *message.Yellow.Name != ""
 }
 
-func isNoGameStage(message *referee.Referee) bool {
+func isBreakStage(message *referee.Referee) bool {
 	switch *message.Stage {
 	case referee.Referee_EXTRA_HALF_TIME,
 		referee.Referee_NORMAL_HALF_TIME,
 		referee.Referee_PENALTY_SHOOTOUT_BREAK,
-		referee.Referee_POST_GAME,
 		referee.Referee_EXTRA_TIME_BREAK:
 		return true
 	default:
 		return false
 	}
+}
+
+func isPostGame(message *referee.Referee) bool {
+	return *message.Stage == referee.Referee_POST_GAME
 }
 
 func isPreStage(message *referee.Referee) bool {

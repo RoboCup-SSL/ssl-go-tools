@@ -13,6 +13,7 @@ type Recorder struct {
 	Slots   []*RecorderSlot
 	writer  Writer
 	running bool
+	Paused  bool
 	mutex   sync.Mutex
 }
 
@@ -50,6 +51,7 @@ func (r *Recorder) StartWithName(name string) error {
 		slot.server.Consumer = r.slotConsumer(slot)
 		slot.server.Start()
 	}
+	r.Paused = false
 	r.running = true
 	return nil
 }
@@ -85,6 +87,9 @@ func (r *Recorder) openLogWriter(logFileName string) error {
 }
 
 func (r *Recorder) processSlotMessage(slot *RecorderSlot, data []byte) {
+	if r.Paused {
+		return
+	}
 	timestamp := time.Now().UnixNano()
 	logMessage := Message{Timestamp: timestamp, MessageType: slot.MessageType, Message: data}
 	r.mutex.Lock()
