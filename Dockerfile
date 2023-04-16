@@ -1,13 +1,16 @@
 FROM golang:1.20-alpine AS build_go
+ARG cmd
 WORKDIR work
 COPY . .
-RUN go install ./cmd/ssl-log-player
+RUN go install ./cmd/${cmd}
 
 # Start fresh from a smaller image
 FROM alpine:3
-COPY --from=build_go /go/bin/ssl-log-player /app/ssl-log-player
+ARG cmd
+COPY --from=build_go /go/bin/${cmd} /app/${cmd}
 WORKDIR /data
 RUN chown 1000: /data
 USER 1000
-ENTRYPOINT ["/app/ssl-log-player"]
+ENV COMMAND="/app/${cmd}"
+ENTRYPOINT "${COMMAND}"
 CMD []

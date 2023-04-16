@@ -1,14 +1,13 @@
-.PHONY: all docker docker-ssl-auto-recorder docker-ssl-log-player test install proto
+CMDS = ssl-auto-recorder ssl-log-converter ssl-log-cutter ssl-log-indexer ssl-log-player ssl-log-recorder ssl-log-stats ssl-vision-tracker-client
+DOCKER_TARGETS = $(addprefix docker-, $(CMDS))
+.PHONY: all docker test install proto $(DOCKER_TARGETS)
 
 all: install docker
 
-docker: docker-ssl-auto-recorder docker-ssl-log-player
+docker: $(DOCKER_TARGETS)
 
-docker-ssl-auto-recorder:
-	docker build -f ./cmd/ssl-auto-recorder/Dockerfile -t ssl-auto-recorder:latest .
-
-docker-ssl-log-player:
-	docker build -f ./cmd/ssl-log-player/Dockerfile -t ssl-log-player:latest .
+$(DOCKER_TARGETS): docker-%:
+	docker build --build-arg cmd=$* -t $*:latest .
 
 test:
 	go test ./...
