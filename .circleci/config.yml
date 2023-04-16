@@ -20,6 +20,43 @@ jobs:
           path: coverage.html
           destination: coverage
 
+  build_go:
+    resource_class: large
+    docker:
+      - image: cimg/go:1.20.2
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: go get -v -t -d ./...
+      - run: |
+          set -u
+          version=${CIRCLE_TAG:-}
+          for cmd in << pipeline.parameters.cmds >>; do
+            GOOS=linux GOARCH=amd64 go build -o ./release/${cmd}_${version}_linux_amd64 ./cmd/${cmd}
+            GOOS=linux GOARCH=arm64 go build -o ./release/${cmd}_${version}_linux_arm64 ./cmd/${cmd}
+            GOOS=linux GOARCH=arm go build -o ./release/${cmd}_${version}_linux_arm ./cmd/${cmd}
+            GOOS=darwin GOARCH=amd64 go build -o ./release/${cmd}_${version}_darwin_amd64 ./cmd/${cmd}
+            GOOS=darwin GOARCH=arm64 go build -o ./release/${cmd}_${version}_darwin_arm64 ./cmd/${cmd}
+            GOOS=windows GOARCH=amd64 go build -o ./release/${cmd}_${version}_windows_amd64.exe ./cmd/${cmd}
+          done
+      - persist_to_workspace:
+          root: .
+          paths:
+            - release/*
+
+  publish_gh:
+    resource_class: small
+    docker:
+      - image: cimg/go:1.20.2
+    steps:
+      - attach_workspace:
+          at: .
+      - run: |
+          set -u
+          go install github.com/tcnksm/ghr@v0.16.0
+          ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete -generatenotes ${CIRCLE_TAG} ./release
+
   build_docker:
     resource_class: small
     docker:
@@ -51,13 +88,6 @@ jobs:
             docker push robocupssl/${cmd}:${TAG}
           done
 
-  release:
-    docker:
-      - image: cimg/go:1.18
-    steps:
-      - checkout
-      - run: curl -sfL https://goreleaser.com/static/run | bash
-
 workflows:
   version: 2
   build:
@@ -65,8 +95,11 @@ workflows:
       - test_go
   release:
     jobs:
-      - release:
+      - build_go:
+          filters: { branches: { ignore: /.*/ }, tags: { only: /^v.*/ } }
+      - publish_gh:
           context: github
+          requires: [ build_go ]
           filters: { branches: { ignore: /.*/ }, tags: { only: /^v.*/ } }
   docker:
     jobs:
