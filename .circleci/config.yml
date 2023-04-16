@@ -1,10 +1,18 @@
-version: 2
+version: 2.1
+parameters:
+  cmds:
+    type: string
+    default: "ssl-auto-recorder ssl-log-player"
+
 jobs:
-  tools:
+  test_go:
+    resource_class: medium
     docker:
-      - image: cimg/go:1.18
+      - image: cimg/go:1.20.2
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run: go get -v -t -d ./...
       - run: go test -v -covermode=count -coverprofile=count.out ./...
       - run: go tool cover -html=count.out -o coverage.html
@@ -12,35 +20,36 @@ jobs:
           path: coverage.html
           destination: coverage
 
-  docker-auto-recorder:
+  build_docker:
+    resource_class: small
     docker:
-      - image: cimg/base:2021.04
+      - image: cimg/base:2023.04
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.18
       - run: |
-          # remove 'ssl-auto-recorder/v'
-          TAG=${CIRCLE_TAG:19}
-          TAG=${TAG:-latest}
-          docker build -f ssl-auto-recorder.Dockerfile -t robocupssl/ssl-auto-recorder:$TAG .
-          docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
-          docker push robocupssl/ssl-auto-recorder:$TAG
+          for cmd in << pipeline.parameters.cmds >>; do
+            docker build -f ./cmd/${cmd}/Dockerfile -t robocupssl/${cmd}:latest .
+          done
 
-  docker-log-player:
+  publish_docker:
+    resource_class: small
     docker:
-      - image: cimg/base:2021.04
+      - image: cimg/base:2023.04
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.18
       - run: |
-          # remove 'ssl-log-player/v'
-          TAG=${CIRCLE_TAG:16}
+          # Parse version from tag (removing 'v' prefix)
+          TAG=${CIRCLE_TAG:1}
           TAG=${TAG:-latest}
-          docker build -f ssl-log-player.Dockerfile -t robocupssl/ssl-log-player:$TAG .
-          docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
-          docker push robocupssl/ssl-log-player:$TAG
+          for cmd in << pipeline.parameters.cmds >>; do
+            docker build -f ./cmd/${cmd}/Dockerfile -t robocupssl/${cmd}:${TAG} .
+            docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
+            docker push robocupssl/${cmd}:${TAG}
+          done
 
   release:
     docker:
@@ -51,31 +60,17 @@ jobs:
 
 workflows:
   version: 2
-  main:
+  build:
     jobs:
-      - tools:
-          filters:
-            tags:
-              only: /.*/
+      - test_go
+  release:
+    jobs:
       - release:
           context: github
-          # Only run this job on git tag pushes
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
-      - docker-auto-recorder:
+          filters: { branches: { ignore: /.*/ }, tags: { only: /^v.*/ } }
+  docker:
+    jobs:
+      - build_docker
+      - publish_docker:
           context: docker hub
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^ssl-auto-recorder\/v.*/
-      - docker-log-player:
-          context: docker hub
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^ssl-log-player\/v.*/
+          filters: { branches: { only: master }, tags: { only: /^v.*/ } }

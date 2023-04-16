@@ -1,9 +1,20 @@
-.PHONY=all ssl-auto-recorder-docker ssl-log-player-docker
+.PHONY: all docker docker-ssl-auto-recorder docker-ssl-log-player test install proto
 
-all: ssl-auto-recorder-docker ssl-log-player-docker
+all: install docker
 
-ssl-auto-recorder-docker:
-	docker build -f ssl-auto-recorder.Dockerfile -t ssl-auto-recorder:latest .
+docker: docker-ssl-auto-recorder docker-ssl-log-player
 
-ssl-log-player-docker:
-	docker build -f ssl-log-player.Dockerfile -t ssl-log-player:latest .
+docker-ssl-auto-recorder:
+	docker build -f ./cmd/ssl-auto-recorder/Dockerfile -t ssl-auto-recorder:latest .
+
+docker-ssl-log-player:
+	docker build -f ./cmd/ssl-log-player/Dockerfile -t ssl-log-player:latest .
+
+test:
+	go test ./...
+
+install:
+	go install -v ./...
+
+proto:
+	tools/generateProto.sh

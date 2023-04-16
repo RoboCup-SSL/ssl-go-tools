@@ -1,4 +1,6 @@
-/.git
-/*.Dockerfile
-/.idea
-/.vscode
+*
+!cmd
+!internal
+!pkg
+!go.mod
+!go.sum
