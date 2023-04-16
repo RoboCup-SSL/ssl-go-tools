@@ -103,7 +103,8 @@ workflows:
           filters: { branches: { ignore: /.*/ }, tags: { only: /^v.*/ } }
   docker:
     jobs:
-      - build_docker
+      - build_docker:
+          filters: { branches: { ignore: master } }
       - publish_docker:
           context: docker hub
           filters: { branches: { only: master }, tags: { only: /^v.*/ } }
