@@ -1,4 +1,4 @@
-CMDS = ssl-auto-recorder ssl-log-converter ssl-log-cutter ssl-log-indexer ssl-log-player ssl-log-recorder ssl-log-stats ssl-vision-tracker-client
+CMDS = ssl-auto-recorder ssl-log-converter ssl-log-cutter ssl-log-indexer ssl-log-player ssl-log-recorder ssl-log-stats ssl-vision-tracker-client ssl-multicast-sources
 DOCKER_TARGETS = $(addprefix docker-, $(CMDS))
 .PHONY: all docker test install proto $(DOCKER_TARGETS)
 
