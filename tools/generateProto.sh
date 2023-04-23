@@ -6,22 +6,22 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 PROJECT_DIR="${SCRIPT_DIR}/.."
 cd "${PROJECT_DIR}"
 
-PB_VERSION=3.15.8
+PB_VERSION=22.3
 PB_GO_VERSION=$(go list -m all | grep google.golang.org/protobuf | awk '{print $2}')
 
 # Create a local bin folder
-LOCAL_DIR=".local"
+LOCAL_DIR=".local/protoc"
 mkdir -p "${LOCAL_DIR}"
 
 # install a specific version of protoc
-PB_REL="https://github.com/protocolbuffers/protobuf/releases"
+export PATH="${LOCAL_DIR}/bin:$PATH"
 if ! protoc --version | grep "${PB_VERSION}" >/dev/null; then
-  if [[ ! -f "${LOCAL_DIR}/bin/protoc" ]]; then
-    curl -sLO "$PB_REL/download/v${PB_VERSION}/protoc-${PB_VERSION}-linux-x86_64.zip"
-    unzip "protoc-${PB_VERSION}-linux-x86_64.zip" -d "${LOCAL_DIR}"
-    rm "protoc-${PB_VERSION}-linux-x86_64.zip"
+  if [[ -d "${LOCAL_DIR}" ]]; then
+    rm -rf "${LOCAL_DIR}"
   fi
-  export PATH="${LOCAL_DIR}/bin:$PATH"
+  curl -sLO "https://github.com/protocolbuffers/protobuf/releases/download/v${PB_VERSION}/protoc-${PB_VERSION}-linux-x86_64.zip"
+  unzip "protoc-${PB_VERSION}-linux-x86_64.zip" -d "${LOCAL_DIR}"
+  rm "protoc-${PB_VERSION}-linux-x86_64.zip"
 fi
 
 # install a specific version of protoc-gen-go
@@ -44,5 +44,6 @@ fi
 # Print commands
 set -x
 
-# Generate all protobuf code
-protoc -I"./proto" -I"$GOPATH/src" --go_out="$GOPATH/src" proto/*.proto
+# Generate Go code
+protoc -I"./proto" -I"$GOPATH/src" --go_out=. --go_opt=module=github.com/RoboCup-SSL/ssl-go-tools proto/*.proto
+
