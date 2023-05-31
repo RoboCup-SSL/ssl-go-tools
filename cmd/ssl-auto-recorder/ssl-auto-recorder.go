@@ -5,6 +5,8 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/auto"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
+	"log"
+	"net/http"
 	"os"
 	"os/signal"
 )
@@ -19,6 +21,9 @@ var visionEnabled = flag.Bool("vision-enabled", true, "Record vision packages")
 var visionTrackerEnabled = flag.Bool("vision-tracker-enabled", true, "Record vision tracker packages")
 var refereeEnabled = flag.Bool("referee-enabled", true, "Record referee packages")
 
+var httpServe = flag.Bool("http-serve", true, "Serve log files via HTTP")
+var httpPort = flag.String("http-port", "8084", "HTTP port for serving log files")
+
 var VisionLegacyType = persistence.MessageType{Id: persistence.MessageSslVision2010, Name: "vision-legacy"}
 var VisionType = persistence.MessageType{Id: persistence.MessageSslVision2014, Name: "vision"}
 var VisionTrackerType = persistence.MessageType{Id: persistence.MessageSslVisionTracker2020, Name: "vision-tracker"}
@@ -32,6 +37,12 @@ func main() {
 
 	addSlots(autoRecorder.Recorder)
 	autoRecorder.Start()
+
+	if *httpServe {
+		http.Handle("/", http.FileServer(http.Dir(".")))
+		log.Printf("Serving log files on HTTP port: %s\n", *httpPort)
+		go log.Fatal(http.ListenAndServe(":"+*httpPort, nil))
+	}
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
