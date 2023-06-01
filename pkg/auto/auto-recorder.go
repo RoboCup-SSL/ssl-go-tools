@@ -15,7 +15,7 @@ import (
 
 type Recorder struct {
 	Recorder    *persistence.Recorder
-	logFileName string
+	logFilePath string
 	logFileDir  string
 }
 
@@ -45,11 +45,11 @@ func (r *Recorder) StopRecording() {
 	if err := r.Recorder.StopRecording(); err != nil {
 		log.Println("Failed to stop recorder: ", err)
 	}
-	if err := index.WriteIndex(r.logFileName); err != nil {
-		log.Println("Could not index log file:", r.logFileName, err)
+	if err := index.WriteIndex(r.logFilePath); err != nil {
+		log.Println("Could not index log file:", r.logFilePath, err)
 	}
-	if err := os.Rename(r.logFileName, filepath.Join(r.logFileDir, r.logFileName)); err != nil {
-		log.Println("Could not move log file", err)
+	if err := persistence.Compress(r.logFilePath, r.logFilePath+".gz"); err != nil {
+		log.Println("Could not compress log file:", r.logFilePath, err)
 	}
 }
 
@@ -65,9 +65,10 @@ func (r *Recorder) consumeMessage(message *persistence.Message) {
 	}
 
 	if !r.Recorder.IsRecording() && isTeamSet(&refMsg) && (isGameStage(&refMsg) || isPreGameStage(&refMsg)) {
-		r.logFileName = logFileName(&refMsg)
-		log.Println("Start recording ", r.logFileName)
-		if err := r.Recorder.StartRecording(r.logFileName); err != nil {
+		logFileName := logFileName(&refMsg)
+		r.logFilePath = filepath.Join(r.logFileDir, logFileName)
+		log.Println("Start recording ", r.logFilePath)
+		if err := r.Recorder.StartRecording(r.logFilePath); err != nil {
 			log.Println("Failed to start recorder: ", err)
 		}
 	} else if r.Recorder.IsRecording() {
@@ -87,7 +88,7 @@ func logFileName(refMsg *referee.Referee) string {
 	teamNameYellow := strings.Replace(*refMsg.Yellow.Name, " ", "_", -1)
 	teamNameBlue := strings.Replace(*refMsg.Blue.Name, " ", "_", -1)
 	date := time.Unix(0, int64(*refMsg.PacketTimestamp*1000)).Format("2006-01-02_15-04")
-	return fmt.Sprintf("%s_%s-vs-%s.log.gz", date, teamNameYellow, teamNameBlue)
+	return fmt.Sprintf("%s_%s-vs-%s.log", date, teamNameYellow, teamNameBlue)
 }
 
 func isGameStage(message *referee.Referee) bool {
