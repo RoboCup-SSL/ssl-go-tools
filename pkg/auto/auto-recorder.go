@@ -3,6 +3,7 @@ package auto
 import (
 	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/index"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"google.golang.org/protobuf/proto"
 	"log"
@@ -36,8 +37,19 @@ func (r *Recorder) Start() {
 
 func (r *Recorder) Stop() {
 	r.Recorder.StopReceiving()
+	r.StopRecording()
+}
+
+func (r *Recorder) StopRecording() {
+	log.Println("Stop recording")
 	if err := r.Recorder.StopRecording(); err != nil {
 		log.Println("Failed to stop recorder: ", err)
+	}
+	if err := index.WriteIndex(r.logFileName); err != nil {
+		log.Println("Could not index log file:", r.logFileName, err)
+	}
+	if err := os.Rename(r.logFileName, filepath.Join(r.logFileDir, r.logFileName)); err != nil {
+		log.Println("Could not move log file", err)
 	}
 }
 
@@ -60,13 +72,7 @@ func (r *Recorder) consumeMessage(message *persistence.Message) {
 		}
 	} else if r.Recorder.IsRecording() {
 		if isPostGame(&refMsg) || !isTeamSet(&refMsg) {
-			log.Println("Stop recording")
-			if err := r.Recorder.StopRecording(); err != nil {
-				log.Println("Failed to stop recorder: ", err)
-			}
-			if err := os.Rename(r.logFileName, filepath.Join(r.logFileDir, r.logFileName)); err != nil {
-				log.Println("Could not move log file", err)
-			}
+			r.StopRecording()
 		} else if !r.Recorder.IsPaused() && isBreakStage(&refMsg) {
 			log.Println("Pause recording")
 			r.Recorder.SetPaused(true)
