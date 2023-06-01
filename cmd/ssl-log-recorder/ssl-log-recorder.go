@@ -30,7 +30,8 @@ func main() {
 
 	logger := persistence.NewRecorder()
 	addSlots(&logger)
-	err := logger.Start()
+	fileName := time.Now().Format("2006-01-02_15-04-05") + ".log.gz"
+	err := logger.StartRecording(fileName)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -68,7 +69,7 @@ func registerToInterrupt(recorder *persistence.Recorder) {
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		for range c {
-			err := recorder.Stop()
+			err := recorder.StopRecording()
 			if err != nil {
 				log.Println("Could not stop recorder: ", err)
 			}

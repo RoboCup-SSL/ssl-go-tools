@@ -10,11 +10,13 @@ import (
 )
 
 type Recorder struct {
-	Slots   []*RecorderSlot
-	writer  Writer
-	running bool
-	Paused  bool
-	mutex   sync.Mutex
+	Slots            []*RecorderSlot
+	writer           Writer
+	recording        bool
+	paused           bool
+	receiving        bool
+	mutex            sync.Mutex
+	messageConsumers []func(*Message)
 }
 
 type RecorderSlot struct {
@@ -27,6 +29,18 @@ func NewRecorder() Recorder {
 	return Recorder{Slots: make([]*RecorderSlot, 0)}
 }
 
+func (r *Recorder) IsRecording() bool {
+	return r.recording
+}
+
+func (r *Recorder) IsPaused() bool {
+	return r.paused
+}
+
+func (r *Recorder) SetPaused(paused bool) {
+	r.paused = paused
+}
+
 func (r *Recorder) AddSlot(messageType MessageType, address string) {
 	r.Slots = append(r.Slots, &RecorderSlot{
 		MessageType: messageType,
@@ -34,47 +48,55 @@ func (r *Recorder) AddSlot(messageType MessageType, address string) {
 	})
 }
 
-func (r *Recorder) Start() error {
-	nowStr := time.Now().Format("2006-01-02_15-04-05")
-	return r.StartWithName(nowStr)
+func (r *Recorder) AddMessageConsumer(consumer func(*Message)) {
+	r.messageConsumers = append(r.messageConsumers, consumer)
 }
 
-func (r *Recorder) StartWithName(name string) error {
-	if r.running {
-		return errors.New("Recorder already started")
-	}
-	logFileName := name + ".log.gz"
-	if err := r.openLogWriter(logFileName); err != nil {
-		return err
+func (r *Recorder) StartReceiving() {
+	if r.receiving {
+		return
 	}
 	for _, slot := range r.Slots {
 		slot.server.Consumer = r.slotConsumer(slot)
 		slot.server.Start()
 	}
-	r.Paused = false
-	r.running = true
+	r.receiving = true
+}
+
+func (r *Recorder) StopReceiving() {
+	if !r.receiving {
+		return
+	}
+	for _, slot := range r.Slots {
+		slot.server.Stop()
+	}
+	r.receiving = false
+}
+
+func (r *Recorder) StartRecording(logFileName string) error {
+	if r.recording {
+		return errors.New("Recorder already started")
+	}
+	if err := r.openLogWriter(logFileName); err != nil {
+		return err
+	}
+	r.paused = false
+	r.recording = true
 	return nil
+}
+
+func (r *Recorder) StopRecording() error {
+	if !r.recording {
+		return nil
+	}
+	r.recording = false
+	return r.writer.Close()
 }
 
 func (r *Recorder) slotConsumer(slot *RecorderSlot) func(bytes []byte, addr *net.UDPAddr) {
 	return func(bytes []byte, addr *net.UDPAddr) {
 		r.processSlotMessage(slot, bytes)
 	}
-}
-
-func (r *Recorder) Stop() error {
-	if !r.running {
-		return nil
-	}
-	for _, slot := range r.Slots {
-		slot.server.Stop()
-	}
-	r.running = false
-	return r.writer.Close()
-}
-
-func (r *Recorder) IsRunning() bool {
-	return r.running
 }
 
 func (r *Recorder) openLogWriter(logFileName string) error {
@@ -87,15 +109,19 @@ func (r *Recorder) openLogWriter(logFileName string) error {
 }
 
 func (r *Recorder) processSlotMessage(slot *RecorderSlot, data []byte) {
-	if r.Paused {
-		return
-	}
 	timestamp := time.Now().UnixNano()
 	logMessage := Message{Timestamp: timestamp, MessageType: slot.MessageType, Message: data}
 	r.mutex.Lock()
-	if err := r.writer.Write(&logMessage); err != nil {
-		log.Println("Could not write log message: ", err)
+
+	if r.recording && !r.paused {
+		if err := r.writer.Write(&logMessage); err != nil {
+			log.Println("Could not write log message: ", err)
+		}
+		slot.ReceivedMessages++
+	}
+
+	for _, consumer := range r.messageConsumers {
+		consumer(&logMessage)
 	}
 	r.mutex.Unlock()
-	slot.ReceivedMessages++
 }

@@ -4,7 +4,6 @@ import (
 	"flag"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/auto"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
 	"log"
 	"net/http"
 	"os"
@@ -32,8 +31,7 @@ var RefereeType = persistence.MessageType{Id: persistence.MessageSslRefbox2013, 
 func main() {
 	flag.Parse()
 
-	refereeServer := sslnet.NewMulticastServer(*addressReferee)
-	autoRecorder := auto.NewRecorder(refereeServer)
+	autoRecorder := auto.NewRecorder()
 
 	addSlots(autoRecorder.Recorder)
 	autoRecorder.Start()

@@ -4,64 +4,64 @@ import (
 	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
 	"google.golang.org/protobuf/proto"
 	"log"
-	"net"
 	"strings"
 	"time"
 )
 
 type Recorder struct {
-	server   *sslnet.MulticastServer
 	Recorder *persistence.Recorder
 }
 
-func NewRecorder(server *sslnet.MulticastServer) (r *Recorder) {
+func NewRecorder() (r *Recorder) {
 	r = new(Recorder)
-	r.server = server
 	r.Recorder = new(persistence.Recorder)
 	*r.Recorder = persistence.NewRecorder()
+	r.Recorder.AddMessageConsumer(r.consumeMessage)
 	return
 }
 
 func (r *Recorder) Start() {
-	r.server.Consumer = r.receiveRefereeMessage
-	r.server.Start()
+	r.Recorder.StartReceiving()
 }
 
 func (r *Recorder) Stop() {
-	r.server.Stop()
-	if err := r.Recorder.Stop(); err != nil {
+	r.Recorder.StopReceiving()
+	if err := r.Recorder.StopRecording(); err != nil {
 		log.Println("Failed to stop recorder: ", err)
 	}
 }
 
-func (r *Recorder) receiveRefereeMessage(data []byte, _ *net.UDPAddr) {
-	var message referee.Referee
-	if err := proto.Unmarshal(data, &message); err != nil {
+func (r *Recorder) consumeMessage(message *persistence.Message) {
+	if message.MessageType.Id != persistence.MessageSslRefbox2013 {
+		return
+	}
+	var refMsg referee.Referee
+
+	if err := proto.Unmarshal(message.Message, &refMsg); err != nil {
 		log.Println("Could not unmarshal referee message: ", err)
 		return
 	}
 
-	if !r.Recorder.IsRunning() && isTeamSet(&message) && (isGameStage(&message) || isPreGameStage(&message)) {
-		name := logFileName(&message)
+	if !r.Recorder.IsRecording() && isTeamSet(&refMsg) && (isGameStage(&refMsg) || isPreGameStage(&refMsg)) {
+		name := logFileName(&refMsg)
 		log.Println("Start recording ", name)
-		if err := r.Recorder.StartWithName(name); err != nil {
+		if err := r.Recorder.StartRecording(name); err != nil {
 			log.Println("Failed to start recorder: ", err)
 		}
-	} else if r.Recorder.IsRunning() {
-		if isPostGame(&message) || !isTeamSet(&message) {
+	} else if r.Recorder.IsRecording() {
+		if isPostGame(&refMsg) || !isTeamSet(&refMsg) {
 			log.Println("Stop recording")
-			if err := r.Recorder.Stop(); err != nil {
+			if err := r.Recorder.StopRecording(); err != nil {
 				log.Println("Failed to stop recorder: ", err)
 			}
-		} else if !r.Recorder.Paused && isBreakStage(&message) {
+		} else if !r.Recorder.IsPaused() && isBreakStage(&refMsg) {
 			log.Println("Pause recording")
-			r.Recorder.Paused = true
-		} else if r.Recorder.Paused && !isBreakStage(&message) {
+			r.Recorder.SetPaused(true)
+		} else if r.Recorder.IsPaused() && !isBreakStage(&refMsg) {
 			log.Println("Resume recording")
-			r.Recorder.Paused = false
+			r.Recorder.SetPaused(false)
 		}
 	}
 }
@@ -70,7 +70,7 @@ func logFileName(refMsg *referee.Referee) string {
 	teamNameYellow := strings.Replace(*refMsg.Yellow.Name, " ", "_", -1)
 	teamNameBlue := strings.Replace(*refMsg.Blue.Name, " ", "_", -1)
 	date := time.Unix(0, int64(*refMsg.PacketTimestamp*1000)).Format("2006-01-02_15-04")
-	return fmt.Sprintf("%s_%s-vs-%s", date, teamNameYellow, teamNameBlue)
+	return fmt.Sprintf("%s_%s-vs-%s.log.gz", date, teamNameYellow, teamNameBlue)
 }
 
 func isGameStage(message *referee.Referee) bool {
