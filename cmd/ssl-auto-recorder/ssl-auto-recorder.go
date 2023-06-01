@@ -23,6 +23,8 @@ var refereeEnabled = flag.Bool("referee-enabled", true, "Record referee packages
 var httpServe = flag.Bool("http-serve", true, "Serve log files via HTTP")
 var httpPort = flag.String("http-port", "8084", "HTTP port for serving log files")
 
+var outputFolder = flag.String("output-folder", "logs", "Output folder where completed logs are copied to")
+
 var VisionLegacyType = persistence.MessageType{Id: persistence.MessageSslVision2010, Name: "vision-legacy"}
 var VisionType = persistence.MessageType{Id: persistence.MessageSslVision2014, Name: "vision"}
 var VisionTrackerType = persistence.MessageType{Id: persistence.MessageSslVisionTracker2020, Name: "vision-tracker"}
@@ -31,13 +33,13 @@ var RefereeType = persistence.MessageType{Id: persistence.MessageSslRefbox2013, 
 func main() {
 	flag.Parse()
 
-	autoRecorder := auto.NewRecorder()
+	autoRecorder := auto.NewRecorder(*outputFolder)
 
 	addSlots(autoRecorder.Recorder)
 	autoRecorder.Start()
 
 	if *httpServe {
-		http.Handle("/", http.FileServer(http.Dir(".")))
+		http.Handle("/", http.FileServer(http.Dir(*outputFolder)))
 		log.Printf("Serving log files on HTTP port: %s\n", *httpPort)
 		go log.Fatal(http.ListenAndServe(":"+*httpPort, nil))
 	}

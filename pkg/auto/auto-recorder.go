@@ -6,19 +6,27 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"google.golang.org/protobuf/proto"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
 
 type Recorder struct {
-	Recorder *persistence.Recorder
+	Recorder    *persistence.Recorder
+	logFileName string
+	logFileDir  string
 }
 
-func NewRecorder() (r *Recorder) {
+func NewRecorder(logFileDir string) (r *Recorder) {
 	r = new(Recorder)
 	r.Recorder = new(persistence.Recorder)
 	*r.Recorder = persistence.NewRecorder()
 	r.Recorder.AddMessageConsumer(r.consumeMessage)
+	r.logFileDir = logFileDir
+	if err := os.MkdirAll(r.logFileDir, os.ModePerm); err != nil {
+		log.Println("Could not create log file dir", err)
+	}
 	return
 }
 
@@ -45,9 +53,9 @@ func (r *Recorder) consumeMessage(message *persistence.Message) {
 	}
 
 	if !r.Recorder.IsRecording() && isTeamSet(&refMsg) && (isGameStage(&refMsg) || isPreGameStage(&refMsg)) {
-		name := logFileName(&refMsg)
-		log.Println("Start recording ", name)
-		if err := r.Recorder.StartRecording(name); err != nil {
+		r.logFileName = logFileName(&refMsg)
+		log.Println("Start recording ", r.logFileName)
+		if err := r.Recorder.StartRecording(r.logFileName); err != nil {
 			log.Println("Failed to start recorder: ", err)
 		}
 	} else if r.Recorder.IsRecording() {
@@ -55,6 +63,9 @@ func (r *Recorder) consumeMessage(message *persistence.Message) {
 			log.Println("Stop recording")
 			if err := r.Recorder.StopRecording(); err != nil {
 				log.Println("Failed to stop recorder: ", err)
+			}
+			if err := os.Rename(r.logFileName, filepath.Join(r.logFileDir, r.logFileName)); err != nil {
+				log.Println("Could not move log file", err)
 			}
 		} else if !r.Recorder.IsPaused() && isBreakStage(&refMsg) {
 			log.Println("Pause recording")
