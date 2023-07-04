@@ -36,6 +36,8 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	logger.StartReceiving()
+
 	registerToInterrupt(&logger)
 
 	for {
