@@ -21,6 +21,9 @@ message GameEvent {
     // Ignored if sent by autoRef to game controller.
     repeated string origin = 41;
 
+    // Unix timestamp in microseconds when the event was created.
+    optional uint64 created_timestamp = 49;
+
     // the event that occurred
     oneof event {
 
@@ -74,6 +77,7 @@ message GameEvent {
         BotSubstitution bot_substitution = 37;
         TooManyRobots too_many_robots = 38;
         ChallengeFlag challenge_flag = 46;
+        ChallengeFlagHandled challenge_flag_handled = 48;
         EmergencyStop emergency_stop = 47;
 
         UnsportingBehaviorMinor unsporting_behavior_minor = 35;
@@ -371,6 +375,8 @@ message GameEvent {
     message MultipleFouls {
         // the team that collected multiple fouls
         required Team by_team = 1;
+        // the list of game events that caused the multiple fouls
+        repeated GameEvent caused_game_events = 2;
     }
     // a team failed to place the ball multiple times in a row
     message MultiplePlacementFailures {
@@ -446,8 +452,15 @@ message GameEvent {
     }
     // A challenge flag, requested by a team previously, is flagged
     message ChallengeFlag {
-        // the team that substitutes robots
+        // the team that requested the challenge flag
         required Team by_team = 1;
+    }
+    // A challenge, flagged recently, has been handled by the referee
+    message ChallengeFlagHandled {
+        // the team that requested the challenge flag
+        required Team by_team = 1;
+        // the challenge was accepted by the referee
+        required bool accepted = 2;
     }
     // An emergency stop, requested by team previously, occurred
     message EmergencyStop {
@@ -478,6 +491,8 @@ message GameEvent {
         required Team by_team = 1;
         // the location of the ball at the moment of this event [m]
         optional Vector2 location = 2;
+        // an explanation of the failure
+        optional string reason = 3;
     }
 
     enum Type {
@@ -533,6 +548,7 @@ message GameEvent {
         BOT_SUBSTITUTION = 37; // triggered by GC
         TOO_MANY_ROBOTS = 38; // triggered by GC
         CHALLENGE_FLAG = 44; // triggered by GC
+        CHALLENGE_FLAG_HANDLED = 46; // triggered by GC
         EMERGENCY_STOP = 45; // triggered by GC
 
         UNSPORTING_BEHAVIOR_MINOR = 35; // triggered by human ref
