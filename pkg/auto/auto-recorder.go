@@ -88,7 +88,8 @@ func logFileName(refMsg *referee.Referee) string {
 	teamNameYellow := strings.Replace(*refMsg.Yellow.Name, " ", "_", -1)
 	teamNameBlue := strings.Replace(*refMsg.Blue.Name, " ", "_", -1)
 	date := time.Unix(0, int64(*refMsg.PacketTimestamp*1000)).Format("2006-01-02_15-04")
-	return fmt.Sprintf("%s_%s-vs-%s.log", date, teamNameYellow, teamNameBlue)
+	matchType := refMsg.GetMatchType().String()
+	return fmt.Sprintf("%s_%s_%s-vs-%s.log", date, matchType, teamNameYellow, teamNameBlue)
 }
 
 func isGameStage(message *referee.Referee) bool {

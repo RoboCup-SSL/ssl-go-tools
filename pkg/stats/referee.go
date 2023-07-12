@@ -77,6 +77,7 @@ func (p *RefereeProcessor) String() (res string) {
 	}
 	res += "First: " + p.firstRefereeMsg.Stage.String() + " " + strconv.Itoa(int(*p.firstRefereeMsg.StageTimeLeft/1000000)) + "s left\n"
 	res += "Last: " + p.lastRefereeMsg.Stage.String() + " " + strconv.Itoa(int(*p.lastRefereeMsg.StageTimeLeft/1000000)) + "s left\n"
-	res += "Duration: " + fmt.Sprintf("%.2f min", float64(*p.lastRefereeMsg.PacketTimestamp-*p.firstRefereeMsg.PacketTimestamp)/1e6/60)
+	res += "Duration: " + fmt.Sprintf("%.2f min\n", float64(*p.lastRefereeMsg.PacketTimestamp-*p.firstRefereeMsg.PacketTimestamp)/1e6/60)
+	res += "Match type: " + p.lastRefereeMsg.GetMatchType().String()
 	return
 }

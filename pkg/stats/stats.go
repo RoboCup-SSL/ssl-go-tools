@@ -96,6 +96,7 @@ func (p Processor) ProcessFile(logFile string) {
 
 	for _, p := range processors {
 		fmt.Println(p)
+		fmt.Println()
 		if err := p.Close(); err != nil {
 			log.Println("Could not close processor: ", err)
 		}
