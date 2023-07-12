@@ -83,7 +83,7 @@ func (p Processor) ProcessFile(logFile string) {
 		} else if r.MessageType.Id == persistence.MessageSslRefbox2013 {
 			var refereeMsg referee.Referee
 			if err := proto.Unmarshal(r.Message, &refereeMsg); err != nil {
-				log.Println("Could not parse referee massage: ", err)
+				log.Println("Could not parse referee message: ", err)
 				continue
 			}
 			for _, p := range processors {
