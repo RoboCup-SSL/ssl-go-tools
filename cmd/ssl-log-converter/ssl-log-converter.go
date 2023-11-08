@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"google.golang.org/protobuf/proto"
@@ -13,6 +14,7 @@ import (
 
 var extractGeometry = flag.Bool("extractGeometry", false, "Extract geometry messages into a new file")
 var extractDetection = flag.Bool("extractDetection", false, "Extract detection messages into a new file")
+var extractReferee = flag.Bool("extractReferee", false, "Extract referee messages into a new file")
 var indentOutput = flag.Bool("indentOutput", false, "Indent the json-formatted output")
 var addLogFileTimestamp = flag.Bool("addLogFileTimestamp", false, "Add the timestamp of the log file to the json output")
 
@@ -54,6 +56,15 @@ func main() {
 				}
 				if *extractDetection && visionMsg.Detection != nil {
 					check(writeMessage(f, r.Timestamp, visionMsg.Detection))
+				}
+			} else if r.MessageType.Id == persistence.MessageSslRefbox2013 {
+				var refereeMsg referee.Referee
+				if err := proto.Unmarshal(r.Message, &refereeMsg); err != nil {
+					log.Println("Could not parse referee message:", err)
+					continue
+				}
+				if *extractReferee {
+					check(writeMessage(f, r.Timestamp, &refereeMsg))
 				}
 			}
 		}
