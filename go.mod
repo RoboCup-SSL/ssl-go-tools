@@ -1,8 +1,8 @@
 module github.com/RoboCup-SSL/ssl-go-tools
 
-go 1.18
+go 1.21
 
 require (
 	github.com/pkg/errors v0.9.1
-	google.golang.org/protobuf v1.28.0
+	google.golang.org/protobuf v1.31.0
 )
