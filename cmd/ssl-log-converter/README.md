@@ -17,5 +17,5 @@ Afterwards, you can use common Unix CLI tools and `jq`:
 # Extract detection frames
 ssl-log-converter -extractDetection my-logfile.log
 # Select two fields, convert them to CSV and write them to a file
-jq -r '[.camera_id, .t_capture] | @csv' my-logfile.log > data.csv
+jq -r '[.camera_id, .t_capture] | @csv' my-logfile.log.txt > data.csv
 ```

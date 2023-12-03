@@ -5,6 +5,7 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/encoding/prototext"
 	"log"
 	"os"
@@ -65,6 +66,13 @@ func (p *RefereeProcessor) ProcessReferee(_ *persistence.Message, frame *referee
 			log.Println("Could not marshal referee message: ", err)
 		} else if _, err := p.outFile.WriteString(string(b)); err != nil {
 			log.Println("Could not write referee message to output file: ", err)
+		}
+	} else {
+		if *frame.PacketTimestamp < *p.lastRefereeMsg.PacketTimestamp {
+			log.Printf("Found smaller packet timestamp than last packet timestamp: \n%v\n%v",
+				protojson.Format(p.lastRefereeMsg),
+				protojson.Format(frame),
+			)
 		}
 	}
 
