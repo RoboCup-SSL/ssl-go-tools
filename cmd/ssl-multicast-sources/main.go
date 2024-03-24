@@ -2,10 +2,12 @@ package main
 
 import (
 	"flag"
+	"golang.org/x/net/ipv4"
 	"log"
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 )
@@ -13,9 +15,8 @@ import (
 const maxDatagramSize = 8192
 
 type Source struct {
-	nif  string
-	ip   string
-	port int
+	cm  string
+	src string
 }
 
 var detectedRemotes map[string][]Source
@@ -30,11 +31,8 @@ func main() {
 		mcAddresses = []string{"224.5.23.1:10003", "224.5.23.2:10006", "224.5.23.2:10010", "224.5.23.2:10012"}
 	}
 
-	ifiList := interfaces()
 	for _, address := range mcAddresses {
-		for _, ifi := range ifiList {
-			go receiveOnInterface(address, ifi)
-		}
+		go receiveOnInterfaceIpv4(address)
 	}
 
 	signals := make(chan os.Signal, 1)
@@ -54,38 +52,54 @@ func interfaces() (interfaces []net.Interface) {
 	return
 }
 
-func receiveOnInterface(address string, ifi net.Interface) {
-	addr, err := net.ResolveUDPAddr("udp", address)
+func receiveOnInterfaceIpv4(address string) {
+	group := net.ParseIP(strings.Split(address, ":")[0])
+	c, err := net.ListenPacket("udp4", address)
 	if err != nil {
-		log.Printf("Could resolve multicast address %v: %v", address, err)
+		log.Printf("Could not start listening on %v: %v", address, err)
 		return
 	}
+	defer func(c net.PacketConn) {
+		if err := c.Close(); err != nil {
+			log.Println("Failed to close connection:", err)
+		}
+	}(c)
 
-	conn, err := net.ListenMulticastUDP("udp", &ifi, addr)
-	if err != nil {
-		log.Printf("Could not listen at %v: %v", address, err)
-		return
+	log.Printf("Listening on %s", address)
+
+	p := ipv4.NewPacketConn(c)
+
+	if err := p.SetControlMessage(ipv4.FlagDst, true); err != nil {
+		log.Println("Failed to set control message flag 'FlagDst':", err)
 	}
 
-	if err := conn.SetReadBuffer(maxDatagramSize); err != nil {
-		log.Println("Could not set read buffer: ", err)
+	ifiList := interfaces()
+	for _, ifi := range ifiList {
+		if err := p.JoinGroup(&ifi, &net.UDPAddr{IP: group}); err != nil {
+			log.Printf("Failed to join multicast group %v: %v", group, err)
+		} else {
+			log.Printf("Joined multicast group %v on interface %+v", group, ifi)
+		}
 	}
-
-	log.Printf("Listening on %s (%s)", address, ifi.Name)
 
 	data := make([]byte, maxDatagramSize)
 	for {
-		_, remoteAddr, err := conn.ReadFromUDP(data)
+		_, cm, src, err := p.ReadFrom(data)
 		if err != nil {
-			log.Println("ReadFromUDP failed:", err)
-			return
+			log.Printf("Could not read from %v: %v", address, err)
+			continue
 		}
-
-		addRemote(address, Source{
-			nif:  ifi.Name,
-			ip:   remoteAddr.IP.String(),
-			port: remoteAddr.Port,
-		})
+		if cm.Dst.IsMulticast() {
+			if cm.Dst.Equal(group) {
+				addRemote(address, Source{
+					cm:  cm.String(),
+					src: src.String(),
+				})
+			} else {
+				// unknown group, discard
+				continue
+			}
+		}
 	}
 }
 
@@ -104,5 +118,5 @@ func addRemote(address string, source Source) {
 	}
 
 	detectedRemotes[address] = append(detectedRemotes[address], source)
-	log.Printf("New source on %v: %+v\n", address, source)
+	log.Printf("New source on %v: %+v", address, source)
 }
