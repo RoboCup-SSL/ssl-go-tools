@@ -4,13 +4,13 @@ import (
 	"flag"
 	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/auto"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -263,18 +263,11 @@ func getRefereeMsg(logMessage *persistence.Message) (*referee.Referee, error) {
 }
 
 func logFileName(firstRefereeMsg *referee.Referee) string {
-	teamNameYellow := strings.Replace(*firstRefereeMsg.Yellow.Name, " ", "_", -1)
-	teamNameBlue := strings.Replace(*firstRefereeMsg.Blue.Name, " ", "_", -1)
-	date := time.Unix(0, int64(*firstRefereeMsg.PacketTimestamp*1000)).In(loadLocation()).Format("2006-01-02_15-04")
-	name := fmt.Sprintf("%s_%s-vs-%s%s", date, teamNameYellow, teamNameBlue, logFileExtension())
-	return filepath.Join(*outputFolder, name)
-}
-
-func logFileExtension() string {
+	name := auto.LogFileName(firstRefereeMsg, loadLocation())
 	if *compress {
-		return ".log.gz"
+		name = name + ".gz"
 	}
-	return ".log"
+	return filepath.Join(*outputFolder, name)
 }
 
 func loadLocation() *time.Location {

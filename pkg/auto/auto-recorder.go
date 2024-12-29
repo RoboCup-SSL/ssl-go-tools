@@ -1,7 +1,6 @@
 package auto
 
 import (
-	"fmt"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/index"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
@@ -9,7 +8,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -65,7 +63,7 @@ func (r *Recorder) consumeMessage(message *persistence.Message) {
 	}
 
 	if !r.Recorder.IsRecording() && isTeamSet(&refMsg) && (isGameStage(&refMsg) || isPreGameStage(&refMsg)) {
-		logFileName := logFileName(&refMsg)
+		logFileName := LogFileName(&refMsg, time.UTC)
 		r.logFilePath = filepath.Join(r.logFileDir, logFileName)
 		log.Println("Start recording ", r.logFilePath)
 		if err := r.Recorder.StartRecording(r.logFilePath); err != nil {
@@ -82,14 +80,6 @@ func (r *Recorder) consumeMessage(message *persistence.Message) {
 			r.Recorder.SetPaused(false)
 		}
 	}
-}
-
-func logFileName(refMsg *referee.Referee) string {
-	teamNameYellow := strings.Replace(*refMsg.Yellow.Name, " ", "_", -1)
-	teamNameBlue := strings.Replace(*refMsg.Blue.Name, " ", "_", -1)
-	date := time.Unix(0, int64(*refMsg.PacketTimestamp*1000)).Format("2006-01-02_15-04")
-	matchType := refMsg.GetMatchType().String()
-	return fmt.Sprintf("%s_%s_%s-vs-%s.log", date, matchType, teamNameYellow, teamNameBlue)
 }
 
 func isGameStage(message *referee.Referee) bool {
