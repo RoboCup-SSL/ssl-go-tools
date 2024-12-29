@@ -39,8 +39,10 @@ func main() {
 		return
 	}
 
-	if err := os.MkdirAll(*outputFolder, 0750); err != nil {
-		log.Fatal("Could not create output folder: ", err)
+	if *outputFolder != "" {
+		if err := os.MkdirAll(*outputFolder, 0750); err != nil {
+			log.Fatal("Could not create output folder: ", err)
+		}
 	}
 
 	for _, inputFile := range args {
