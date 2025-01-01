@@ -60,7 +60,7 @@ jobs:
   build_docker:
     resource_class: small
     docker:
-      - image: cimg/base:2024.01
+      - image: cimg/base:2025.01
     steps:
       - checkout
       - setup_remote_docker
@@ -72,7 +72,7 @@ jobs:
   publish_docker:
     resource_class: small
     docker:
-      - image: cimg/base:2024.01
+      - image: cimg/base:2025.01
     steps:
       - checkout
       - setup_remote_docker
