@@ -113,6 +113,7 @@ func process(filename string) {
 
 	var lastStage *referee.Referee_Stage = nil
 	teamNames := map[string]int{}
+	var sourceIdentifier *string
 	for logMessage := range channel {
 		refereeMsg, err := getRefereeMsg(logMessage)
 		if err != nil {
@@ -120,6 +121,18 @@ func process(filename string) {
 		}
 
 		if refereeMsg != nil {
+			if refereeMsg.SourceIdentifier == nil {
+				log.Println("Referee message does not contain source identifier. Skipping.")
+				continue
+			}
+			if sourceIdentifier == nil {
+				sourceIdentifier = refereeMsg.SourceIdentifier
+			}
+			if *sourceIdentifier != *refereeMsg.SourceIdentifier {
+				log.Println("Found different source identifier. Skipping referee message.")
+				continue
+			}
+
 			teamNames[*refereeMsg.Yellow.Name]++
 			teamNames[*refereeMsg.Blue.Name]++
 
