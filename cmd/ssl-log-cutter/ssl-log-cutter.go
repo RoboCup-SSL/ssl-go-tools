@@ -201,6 +201,8 @@ func (l *LogCutter) Stop() {
 		log.Println("No referee data found.")
 	} else if *l.lastRefereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE {
 		log.Println("Log ends with NORMAL_FIRST_HALF_PRE stage. Skipping.")
+	} else if l.duration() < time.Minute*15 {
+		log.Println("Log duration is less than 15 minutes. Skipping.")
 	} else {
 		newLogFilename := logFileName(l.firstRefereeMsg)
 		if err := shorten(newLogFilename, l.lastRefereeMsg); err != nil {
@@ -290,4 +292,12 @@ func loadLocation() *time.Location {
 	} else {
 		return location
 	}
+}
+
+func (l *LogCutter) duration() time.Duration {
+	if l.firstRefereeMsg == nil || l.lastRefereeMsg == nil {
+		return 0
+	}
+	duration := int64(*l.lastRefereeMsg.PacketTimestamp - *l.firstRefereeMsg.PacketTimestamp)
+	return time.Duration(duration * 1000)
 }
