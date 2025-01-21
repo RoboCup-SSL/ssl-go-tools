@@ -8,6 +8,10 @@
 Collection of packages to do common stuff for the RoboCup SSL league like reading, writing, sending, receiving and
 parsing messages.
 
+## Docker
+
+Docker images of all RoboCup Small Size League tools and applications can be found at https://hub.docker.com/u/robocupssl
+
 ## Installation from GitHub releases
 
 The GitHub release page contains the latest stable binaries: https://github.com/RoboCup-SSL/ssl-go-tools/releases
