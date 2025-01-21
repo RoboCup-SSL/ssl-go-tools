@@ -23,6 +23,10 @@ var noRobots = flag.Bool("noRobots", false, "Do not print robots")
 func main() {
 	flag.Parse()
 
+	if flag.NArg() > 0 {
+		log.Fatal("Unexpected arguments: ", flag.Args())
+	}
+
 	addr, err := net.ResolveUDPAddr("udp", *address)
 	if err != nil {
 		log.Fatal(err)

@@ -28,6 +28,10 @@ var RefereeType = persistence.MessageType{Id: persistence.MessageSslRefbox2013, 
 func main() {
 	flag.Parse()
 
+	if flag.NArg() > 0 {
+		log.Fatal("Unexpected arguments: ", flag.Args())
+	}
+
 	logger := persistence.NewRecorder()
 	addSlots(&logger)
 	fileName := time.Now().Format("2006-01-02_15-04-05") + ".log.gz"

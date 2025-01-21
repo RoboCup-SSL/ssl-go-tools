@@ -33,6 +33,10 @@ var RefereeType = persistence.MessageType{Id: persistence.MessageSslRefbox2013, 
 func main() {
 	flag.Parse()
 
+	if flag.NArg() > 0 {
+		log.Fatal("Unexpected arguments: ", flag.Args())
+	}
+
 	autoRecorder := auto.NewRecorder(*outputFolder)
 
 	addSlots(autoRecorder.Recorder)

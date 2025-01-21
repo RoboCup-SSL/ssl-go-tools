@@ -35,6 +35,10 @@ func main() {
 		log.Fatal("Missing logfile")
 	}
 
+	if flag.NArg() > 0 {
+		log.Fatal("Unexpected arguments: ", flag.Args())
+	}
+
 	broadcaster := player.NewBroadcaster()
 	broadcaster.SkipNonRunningStages = *skipNonRunningStages
 	addSlots(&broadcaster)

@@ -25,6 +25,10 @@ var detectedRemotesMutex sync.Mutex
 func main() {
 	flag.Parse()
 
+	if flag.NArg() > 0 {
+		log.Fatal("Unexpected arguments: ", flag.Args())
+	}
+
 	detectedRemotes = map[string][]Source{}
 	mcAddresses := flag.Args()
 	if len(mcAddresses) == 0 {
