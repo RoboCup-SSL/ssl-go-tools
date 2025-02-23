@@ -1,6 +1,7 @@
 package sslnet
 
 import (
+	"errors"
 	"log"
 	"net"
 	"sync"
@@ -24,7 +25,9 @@ func NewUdpClient(address string, nif string) (t *UdpClient) {
 	t.Name = "UdpClient"
 	t.address = address
 	t.nif = nif
-	t.Consumer = func([]byte) {}
+	t.Consumer = func([]byte) {
+		// noop by default
+	}
 	return
 }
 
@@ -69,6 +72,28 @@ func (c *UdpClient) Send(data []byte) {
 	}
 }
 
+func (c *UdpClient) interfaceAddresses() (addrs []*net.UDPAddr) {
+	ifis := interfaces([]string{})
+
+	for _, ifi := range ifis {
+		iaddrs, err := ifi.Addrs()
+		if err != nil {
+			log.Printf("%v - Could not retrieve interface addresses: %v", c.Name, err)
+			return
+		}
+
+		for _, iaddr := range iaddrs {
+			ip := iaddr.(*net.IPNet).IP
+			if c.nif != "" && ip.String() != c.nif {
+				continue
+			}
+			laddr := &net.UDPAddr{IP: ip}
+			addrs = append(addrs, laddr)
+		}
+	}
+	return
+}
+
 func (c *UdpClient) connect() {
 	log.Printf("%v - Connecting to %v", c.Name, c.address)
 	addr, err := net.ResolveUDPAddr("udp", c.address)
@@ -77,22 +102,9 @@ func (c *UdpClient) connect() {
 		return
 	}
 
-	iaddrs, err := net.InterfaceAddrs()
-	if err != nil {
-		log.Printf("%v - Could not retrieve interface addresses: %v", c.Name, err)
-		return
-	}
+	addrs := c.interfaceAddresses()
 
-	for _, iaddr := range iaddrs {
-		ip := iaddr.(*net.IPNet).IP
-		if ip.To4() == nil {
-			// Ignore IPv6 for now
-			continue
-		}
-		if c.nif != "" && ip.String() != c.nif {
-			continue
-		}
-		laddr := &net.UDPAddr{IP: ip}
+	for _, laddr := range addrs {
 		conn, err := net.DialUDP("udp", laddr, addr)
 		if err != nil {
 			log.Printf("%v - Could not connect to %v at %v: %v", c.Name, addr, laddr, err)
@@ -119,7 +131,8 @@ func (c *UdpClient) receive(conn *net.UDPConn) {
 	for {
 		n, _, err := conn.ReadFrom(data)
 		if err != nil {
-			if opErr, ok := err.(*net.OpError); !ok || opErr.Err.Error() != "use of closed network connection" {
+			var opErr *net.OpError
+			if !errors.As(err, &opErr) || opErr.Err.Error() != "use of closed network connection" {
 				log.Printf("%v - Could not receive data from %s at %s: %s", c.Name, conn.RemoteAddr(), conn.LocalAddr(), err)
 			}
 			return
