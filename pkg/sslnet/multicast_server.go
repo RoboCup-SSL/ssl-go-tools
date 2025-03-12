@@ -54,10 +54,14 @@ func (r *MulticastServer) receive() {
 	var currentIfiIdx = 0
 	for r.isRunning() {
 		ifis := interfaces(r.SkipInterfaces)
-		currentIfiIdx = currentIfiIdx % len(ifis)
-		ifi := ifis[currentIfiIdx]
-		r.receiveOnInterface(ifi)
-		currentIfiIdx++
+		if len(ifis) > 0 {
+			currentIfiIdx = currentIfiIdx % len(ifis)
+			ifi := ifis[currentIfiIdx]
+			r.receiveOnInterface(ifi)
+			currentIfiIdx++
+		} else {
+			currentIfiIdx = 0
+		}
 		if currentIfiIdx >= len(ifis) {
 			// cycled though all interfaces once, make a short break to avoid producing endless log messages
 			time.Sleep(1 * time.Second)
