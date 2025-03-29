@@ -2,7 +2,7 @@ package player
 
 import (
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
 	"google.golang.org/protobuf/proto"
@@ -61,7 +61,7 @@ func (b *Broadcaster) Stop() {
 func (b *Broadcaster) publish(startTimestamp int64) {
 	startTime := time.Now()
 	refTimestamp := int64(0)
-	curStage := referee.Referee_Stage(-1)
+	curStage := gc.Referee_Stage(-1)
 	for b.reader.HasMessage() {
 		msg, err := b.reader.ReadMessage()
 		if err != nil {
@@ -90,7 +90,7 @@ func (b *Broadcaster) publish(startTimestamp int64) {
 		}
 
 		if b.SkipNonRunningStages && msg.MessageType.Id == persistence.MessageSslRefbox2013 {
-			var refMsg referee.Referee
+			var refMsg gc.Referee
 			if err := proto.Unmarshal(msg.Message, &refMsg); err != nil {
 				log.Println("Could not parse referee message", err)
 			} else {
@@ -99,17 +99,17 @@ func (b *Broadcaster) publish(startTimestamp int64) {
 		}
 	}
 }
-func isRunningStage(stage referee.Referee_Stage) bool {
+func isRunningStage(stage gc.Referee_Stage) bool {
 	switch stage {
 	case -1:
 		return true
-	case referee.Referee_NORMAL_FIRST_HALF:
+	case gc.Referee_NORMAL_FIRST_HALF:
 		return true
-	case referee.Referee_NORMAL_SECOND_HALF:
+	case gc.Referee_NORMAL_SECOND_HALF:
 		return true
-	case referee.Referee_EXTRA_FIRST_HALF:
+	case gc.Referee_EXTRA_FIRST_HALF:
 		return true
-	case referee.Referee_EXTRA_SECOND_HALF:
+	case gc.Referee_EXTRA_SECOND_HALF:
 		return true
 	}
 	return false

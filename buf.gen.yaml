@@ -1,0 +1,13 @@
+version: v2
+inputs:
+  - directory: proto
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/RoboCup-SSL/ssl-go-tools/internal
+plugins:
+  - remote: buf.build/protocolbuffers/go:v1.36.2
+    out: internal
+    opt:
+      - paths=source_relative

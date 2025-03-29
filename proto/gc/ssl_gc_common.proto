@@ -1,7 +1,5 @@
 syntax = "proto2";
 
-option go_package = "github.com/RoboCup-SSL/ssl-go-tools/internal/sslcommon";
-
 // Team is either blue or yellow
 enum Team {
     // team not set

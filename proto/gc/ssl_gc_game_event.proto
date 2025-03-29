@@ -1,9 +1,7 @@
 syntax = "proto2";
 
-option go_package = "github.com/RoboCup-SSL/ssl-go-tools/internal/referee";
-
-import "ssl_gc_common.proto";
-import "ssl_gc_geometry.proto";
+import "gc/ssl_gc_common.proto";
+import "gc/ssl_gc_geometry.proto";
 
 // GameEvent contains exactly one game event
 // Each game event has optional and required fields. The required fields are mandatory to process the event.

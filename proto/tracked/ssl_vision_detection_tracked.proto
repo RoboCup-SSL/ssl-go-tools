@@ -1,9 +1,7 @@
 syntax = "proto2";
 
-option go_package = "github.com/RoboCup-SSL/ssl-go-tools/internal/tracked";
-
-import "ssl_gc_common.proto";
-import "ssl_gc_geometry.proto";
+import "gc/ssl_gc_common.proto";
+import "gc/ssl_gc_geometry.proto";
 
 // Default network address: 224.5.23.2:10010
 

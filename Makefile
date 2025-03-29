@@ -16,9 +16,9 @@ install:
 	go install -v ./...
 
 proto:
-	tools/generateProto.sh
+	buf generate
 
 update-go:
-	go get -u ./...
+	go get -v -u all
 
 update: update-go proto

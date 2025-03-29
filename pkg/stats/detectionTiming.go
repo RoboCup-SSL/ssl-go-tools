@@ -2,7 +2,7 @@ package stats
 
 import (
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 )
@@ -81,7 +81,8 @@ func (p *CameraTiming) Process(frame *vision.SSL_DetectionFrame) {
 	p.lastDetection = frame
 }
 
-func (p *DetectionTimingProcessor) ProcessReferee(*persistence.Message, *referee.Referee) {
+func (p *DetectionTimingProcessor) ProcessReferee(*persistence.Message, *gc.Referee) {
+	// Not used
 }
 
 func (p *DetectionTimingProcessor) String() (res string) {

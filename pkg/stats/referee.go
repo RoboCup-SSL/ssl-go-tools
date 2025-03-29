@@ -2,7 +2,7 @@ package stats
 
 import (
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -14,8 +14,8 @@ import (
 
 type RefereeProcessor struct {
 	outFile         *os.File
-	firstRefereeMsg *referee.Referee
-	lastRefereeMsg  *referee.Referee
+	firstRefereeMsg *gc.Referee
+	lastRefereeMsg  *gc.Referee
 
 	FrameProcessor
 }
@@ -53,10 +53,10 @@ func (p *RefereeProcessor) Close() error {
 }
 
 func (p *RefereeProcessor) ProcessDetection(_ *persistence.Message, _ *vision.SSL_DetectionFrame) {
-
+	// Not used
 }
 
-func (p *RefereeProcessor) ProcessReferee(_ *persistence.Message, frame *referee.Referee) {
+func (p *RefereeProcessor) ProcessReferee(_ *persistence.Message, frame *gc.Referee) {
 	if p.lastRefereeMsg == nil {
 		p.firstRefereeMsg = frame
 		if _, err := p.outFile.WriteString("First message:\n"); err != nil {

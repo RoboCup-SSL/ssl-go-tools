@@ -1,8 +1,6 @@
 syntax = "proto2";
 
-option go_package = "github.com/RoboCup-SSL/ssl-go-tools/internal/tracked";
-
-import "ssl_vision_detection_tracked.proto";
+import "tracked/ssl_vision_detection_tracked.proto";
 
 // A wrapper packet containing meta data of the source
 // Also serves for the possibility to extend the protocol later

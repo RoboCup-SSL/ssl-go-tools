@@ -2,7 +2,7 @@ package stats
 
 import (
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"log"
@@ -205,21 +205,21 @@ func toTime(t float64) time.Time {
 	return time.Unix(sentSec, sentNs)
 }
 
-func (p *DetectionQualityProcessor) ProcessReferee(_ *persistence.Message, frame *referee.Referee) {
+func (p *DetectionQualityProcessor) ProcessReferee(_ *persistence.Message, frame *gc.Referee) {
 	switch *frame.Stage {
-	case referee.Referee_NORMAL_FIRST_HALF,
-		referee.Referee_NORMAL_SECOND_HALF,
-		referee.Referee_EXTRA_FIRST_HALF,
-		referee.Referee_EXTRA_SECOND_HALF:
+	case gc.Referee_NORMAL_FIRST_HALF,
+		gc.Referee_NORMAL_SECOND_HALF,
+		gc.Referee_EXTRA_FIRST_HALF,
+		gc.Referee_EXTRA_SECOND_HALF:
 	default:
 		p.active = false
 		return
 	}
 
 	switch *frame.Command {
-	case referee.Referee_HALT,
-		referee.Referee_TIMEOUT_BLUE,
-		referee.Referee_TIMEOUT_YELLOW:
+	case gc.Referee_HALT,
+		gc.Referee_TIMEOUT_BLUE,
+		gc.Referee_TIMEOUT_YELLOW:
 		p.active = false
 	default:
 		p.active = true

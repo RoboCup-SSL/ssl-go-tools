@@ -1,8 +1,6 @@
 syntax = "proto2";
 
-option go_package = "github.com/RoboCup-SSL/ssl-go-tools/internal/referee";
-
-import "ssl_gc_game_event.proto";
+import "gc/ssl_gc_game_event.proto";
 
 // Each UDP packet contains one of these messages.
 message Referee {

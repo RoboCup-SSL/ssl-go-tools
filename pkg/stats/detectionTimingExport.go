@@ -2,7 +2,7 @@ package stats
 
 import (
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"log"
@@ -38,7 +38,8 @@ func (p *DetectionTimingExportProcessor) ProcessDetection(logMessage *persistenc
 	}
 }
 
-func (p *DetectionTimingExportProcessor) ProcessReferee(*persistence.Message, *referee.Referee) {
+func (p *DetectionTimingExportProcessor) ProcessReferee(*persistence.Message, *gc.Referee) {
+	// Not used
 }
 
 func (p *DetectionTimingExportProcessor) String() string {

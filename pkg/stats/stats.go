@@ -2,7 +2,7 @@ package stats
 
 import (
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"google.golang.org/protobuf/proto"
@@ -12,7 +12,7 @@ import (
 
 type FrameProcessor interface {
 	ProcessDetection(*persistence.Message, *vision.SSL_DetectionFrame)
-	ProcessReferee(*persistence.Message, *referee.Referee)
+	ProcessReferee(*persistence.Message, *gc.Referee)
 	Init(logFile string) error
 	io.Closer
 }
@@ -81,7 +81,7 @@ func (p Processor) ProcessFile(logFile string) {
 				}
 			}
 		} else if r.MessageType.Id == persistence.MessageSslRefbox2013 {
-			var refereeMsg referee.Referee
+			var refereeMsg gc.Referee
 			if err := proto.Unmarshal(r.Message, &refereeMsg); err != nil {
 				log.Println("Could not parse referee message: ", err)
 				continue

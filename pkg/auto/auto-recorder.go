@@ -1,7 +1,7 @@
 package auto
 
 import (
-	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/index"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"google.golang.org/protobuf/proto"
@@ -55,7 +55,7 @@ func (r *Recorder) consumeMessage(message *persistence.Message) {
 	if message.MessageType.Id != persistence.MessageSslRefbox2013 {
 		return
 	}
-	var refMsg referee.Referee
+	var refMsg gc.Referee
 
 	if err := proto.Unmarshal(message.Message, &refMsg); err != nil {
 		log.Println("Could not unmarshal referee message: ", err)
@@ -82,52 +82,52 @@ func (r *Recorder) consumeMessage(message *persistence.Message) {
 	}
 }
 
-func isGameStage(message *referee.Referee) bool {
+func isGameStage(message *gc.Referee) bool {
 	switch *message.Stage {
-	case referee.Referee_NORMAL_FIRST_HALF,
-		referee.Referee_NORMAL_SECOND_HALF,
-		referee.Referee_EXTRA_FIRST_HALF,
-		referee.Referee_EXTRA_SECOND_HALF,
-		referee.Referee_PENALTY_SHOOTOUT:
+	case gc.Referee_NORMAL_FIRST_HALF,
+		gc.Referee_NORMAL_SECOND_HALF,
+		gc.Referee_EXTRA_FIRST_HALF,
+		gc.Referee_EXTRA_SECOND_HALF,
+		gc.Referee_PENALTY_SHOOTOUT:
 		return true
 	default:
 		return false
 	}
 }
 
-func isTeamSet(message *referee.Referee) bool {
+func isTeamSet(message *gc.Referee) bool {
 	return *message.Blue.Name != "Unknown" && *message.Yellow.Name != "Unknown" &&
 		*message.Blue.Name != "" && *message.Yellow.Name != ""
 }
 
-func isBreakStage(message *referee.Referee) bool {
+func isBreakStage(message *gc.Referee) bool {
 	switch *message.Stage {
-	case referee.Referee_EXTRA_HALF_TIME,
-		referee.Referee_NORMAL_HALF_TIME,
-		referee.Referee_PENALTY_SHOOTOUT_BREAK,
-		referee.Referee_EXTRA_TIME_BREAK:
+	case gc.Referee_EXTRA_HALF_TIME,
+		gc.Referee_NORMAL_HALF_TIME,
+		gc.Referee_PENALTY_SHOOTOUT_BREAK,
+		gc.Referee_EXTRA_TIME_BREAK:
 		return true
 	default:
 		return false
 	}
 }
 
-func isPostGame(message *referee.Referee) bool {
-	return *message.Stage == referee.Referee_POST_GAME
+func isPostGame(message *gc.Referee) bool {
+	return *message.Stage == gc.Referee_POST_GAME
 }
 
-func isPreStage(message *referee.Referee) bool {
+func isPreStage(message *gc.Referee) bool {
 	switch *message.Stage {
-	case referee.Referee_NORMAL_FIRST_HALF_PRE,
-		referee.Referee_NORMAL_SECOND_HALF_PRE,
-		referee.Referee_EXTRA_FIRST_HALF_PRE,
-		referee.Referee_EXTRA_SECOND_HALF_PRE:
+	case gc.Referee_NORMAL_FIRST_HALF_PRE,
+		gc.Referee_NORMAL_SECOND_HALF_PRE,
+		gc.Referee_EXTRA_FIRST_HALF_PRE,
+		gc.Referee_EXTRA_SECOND_HALF_PRE:
 		return true
 	default:
 		return false
 	}
 }
 
-func isPreGameStage(message *referee.Referee) bool {
-	return isPreStage(message) && *message.Command != referee.Referee_HALT
+func isPreGameStage(message *gc.Referee) bool {
+	return isPreStage(message) && *message.Command != gc.Referee_HALT
 }

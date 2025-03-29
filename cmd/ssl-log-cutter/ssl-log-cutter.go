@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/RoboCup-SSL/ssl-go-tools/internal/referee"
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/auto"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/pkg/errors"
@@ -24,8 +24,8 @@ var logCutter LogCutter
 
 type LogCutter struct {
 	logWriter       *persistence.Writer
-	firstRefereeMsg *referee.Referee
-	lastRefereeMsg  *referee.Referee
+	firstRefereeMsg *gc.Referee
+	lastRefereeMsg  *gc.Referee
 }
 
 func main() {
@@ -75,7 +75,7 @@ func (l *LogCutter) Start() {
 	}
 }
 
-func (l *LogCutter) Update(refereeMsg *referee.Referee) {
+func (l *LogCutter) Update(refereeMsg *gc.Referee) {
 	if l.Stopped() {
 		return
 	}
@@ -111,7 +111,7 @@ func process(filename string) {
 
 	channel := logReader.CreateChannel()
 
-	var lastStage *referee.Referee_Stage = nil
+	var lastStage *gc.Referee_Stage = nil
 	teamNames := map[string]int{}
 	var sourceIdentifier *string
 	for logMessage := range channel {
@@ -137,24 +137,24 @@ func process(filename string) {
 			teamNames[*refereeMsg.Blue.Name]++
 
 			if lastStage == nil || *refereeMsg.Stage != *lastStage {
-				log.Printf("Found stage '%v'", referee.Referee_Stage_name[int32(*refereeMsg.Stage)])
+				log.Printf("Found stage '%v'", gc.Referee_Stage_name[int32(*refereeMsg.Stage)])
 			}
 
 			if lastStage == nil {
-				lastStage = new(referee.Referee_Stage)
+				lastStage = new(gc.Referee_Stage)
 			}
 			*lastStage = *refereeMsg.Stage
 
 			if logCutter.Stopped() &&
-				*refereeMsg.Command != referee.Referee_HALT &&
-				*refereeMsg.Stage != referee.Referee_POST_GAME {
+				*refereeMsg.Command != gc.Referee_HALT &&
+				*refereeMsg.Stage != gc.Referee_POST_GAME {
 				log.Println("Found non POST_GAME stage. Starting log file.")
 				logCutter.Start()
 			}
 
 			if logCutter.Running() &&
-				*refereeMsg.Command == referee.Referee_HALT &&
-				*refereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE {
+				*refereeMsg.Command == gc.Referee_HALT &&
+				*refereeMsg.Stage == gc.Referee_NORMAL_FIRST_HALF_PRE {
 				log.Println("Found NORMAL_FIRST_HALF_PRE stage. Stopping log file.")
 				logCutter.Stop()
 			}
@@ -172,8 +172,8 @@ func process(filename string) {
 			logCutter.Write(logMessage)
 
 			if logCutter.Running() &&
-				*refereeMsg.Command == referee.Referee_HALT &&
-				*refereeMsg.Stage == referee.Referee_POST_GAME {
+				*refereeMsg.Command == gc.Referee_HALT &&
+				*refereeMsg.Stage == gc.Referee_POST_GAME {
 				log.Println("Found POST_GAME stage. Closing log file.")
 				logCutter.Stop()
 			}
@@ -199,7 +199,7 @@ func (l *LogCutter) Stop() {
 
 	if l.lastRefereeMsg == nil || l.firstRefereeMsg == nil {
 		log.Println("No referee data found.")
-	} else if *l.lastRefereeMsg.Stage == referee.Referee_NORMAL_FIRST_HALF_PRE {
+	} else if *l.lastRefereeMsg.Stage == gc.Referee_NORMAL_FIRST_HALF_PRE {
 		log.Println("Log ends with NORMAL_FIRST_HALF_PRE stage. Skipping.")
 	} else if l.duration() < time.Minute*15 {
 		log.Println("Log duration is less than 15 minutes. Skipping.")
@@ -219,7 +219,7 @@ func (l *LogCutter) Stop() {
 	}
 }
 
-func shorten(newLogFilename string, lastRefereeMsg *referee.Referee) error {
+func shorten(newLogFilename string, lastRefereeMsg *gc.Referee) error {
 	log.Printf("Shortening %v to %v", tmpLogFilename, newLogFilename)
 	logReader, err := persistence.NewReader(tmpLogFilename)
 	if err != nil {
@@ -233,7 +233,7 @@ func shorten(newLogFilename string, lastRefereeMsg *referee.Referee) error {
 
 	channel := logReader.CreateChannel()
 
-	var lastRefereeMsgWithoutTimestamp referee.Referee
+	var lastRefereeMsgWithoutTimestamp gc.Referee
 
 	proto.Merge(&lastRefereeMsgWithoutTimestamp, lastRefereeMsg)
 	*lastRefereeMsgWithoutTimestamp.PacketTimestamp = 0
@@ -265,19 +265,19 @@ func shorten(newLogFilename string, lastRefereeMsg *referee.Referee) error {
 	return nil
 }
 
-func getRefereeMsg(logMessage *persistence.Message) (*referee.Referee, error) {
+func getRefereeMsg(logMessage *persistence.Message) (*gc.Referee, error) {
 	if logMessage.MessageType.Id != persistence.MessageSslRefbox2013 {
 		return nil, nil
 	}
 
-	refereeMsg := new(referee.Referee)
+	refereeMsg := new(gc.Referee)
 	if err := proto.Unmarshal(logMessage.Message, refereeMsg); err != nil {
 		return nil, errors.Wrap(err, "Could not parse referee message")
 	}
 	return refereeMsg, nil
 }
 
-func logFileName(firstRefereeMsg *referee.Referee) string {
+func logFileName(firstRefereeMsg *gc.Referee) string {
 	name := auto.LogFileName(firstRefereeMsg, loadLocation())
 	if *compress {
 		name = name + ".gz"
