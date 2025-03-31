@@ -9,6 +9,8 @@ import (
 )
 
 var verify = flag.Bool("verify", false, "Verify the index")
+var writeIndex = flag.Bool("index", true, "Create an index of the log file")
+var writeGcIndex = flag.Bool("gc", false, "Create a gc index based on GC messages")
 
 func main() {
 	flag.Usage = func() {
@@ -20,25 +22,41 @@ func main() {
 	args := flag.Args()
 
 	for _, logfile := range args {
+		processLogfile(logfile)
+	}
+}
+
+func processLogfile(logfile string) {
+	if *writeIndex {
 		if err := index.WriteIndex(logfile); err != nil {
 			log.Println("Could not index log file:", logfile, err)
 		}
+	}
 
-		if *verify {
-			reader, _ := persistence.NewReader(logfile)
-			offsets, err := reader.ReadIndex()
-			if err != nil {
-				panic(err)
-			}
-			log.Printf("Index size: %d", len(offsets))
+	if *verify {
+		verifyIndex(logfile)
+	}
 
-			n := 1
-			msg, err := reader.ReadMessageAt(offsets[n])
-			if err != nil {
-				log.Println(err)
-			} else {
-				log.Printf("Message %d: %v", n, *msg)
-			}
+	if *writeGcIndex {
+		if err := index.WriteGcIndex(logfile); err != nil {
+			log.Println("Could not create gc index:", logfile, err)
 		}
+	}
+}
+
+func verifyIndex(logfile string) {
+	reader, _ := persistence.NewReader(logfile)
+	offsets, err := reader.ReadIndex()
+	if err != nil {
+		panic(err)
+	}
+	log.Printf("Index size: %d", len(offsets))
+
+	n := 1
+	msg, err := reader.ReadMessageAt(offsets[n])
+	if err != nil {
+		log.Println(err)
+	} else {
+		log.Printf("Message %d: %v", n, *msg)
 	}
 }
