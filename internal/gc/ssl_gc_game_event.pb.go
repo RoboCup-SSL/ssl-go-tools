@@ -36,6 +36,7 @@ const (
 	GameEvent_BOT_PUSHED_BOT                        GameEvent_Type = 24 // triggered by human ref
 	GameEvent_BOT_HELD_BALL_DELIBERATELY            GameEvent_Type = 26 // triggered by human ref
 	GameEvent_BOT_TIPPED_OVER                       GameEvent_Type = 27 // triggered by human ref
+	GameEvent_BOT_DROPPED_PARTS                     GameEvent_Type = 47 // triggered by human ref
 	GameEvent_ATTACKER_TOUCHED_BALL_IN_DEFENSE_AREA GameEvent_Type = 15 // triggered by autoRef
 	GameEvent_BOT_KICKED_BALL_TOO_FAST              GameEvent_Type = 18 // triggered by autoRef
 	GameEvent_BOT_CRASH_UNIQUE                      GameEvent_Type = 22 // triggered by autoRef
@@ -43,6 +44,7 @@ const (
 	GameEvent_DEFENDER_TOO_CLOSE_TO_KICK_POINT      GameEvent_Type = 29 // triggered by autoRef
 	GameEvent_BOT_TOO_FAST_IN_STOP                  GameEvent_Type = 28 // triggered by autoRef
 	GameEvent_BOT_INTERFERED_PLACEMENT              GameEvent_Type = 20 // triggered by autoRef
+	GameEvent_EXCESSIVE_BOT_SUBSTITUTION            GameEvent_Type = 48 // triggered by GC
 	GameEvent_POSSIBLE_GOAL                         GameEvent_Type = 39 // triggered by autoRef
 	GameEvent_GOAL                                  GameEvent_Type = 8  // triggered by GC
 	GameEvent_INVALID_GOAL                          GameEvent_Type = 42 // triggered by GC
@@ -97,6 +99,7 @@ var (
 		24: "BOT_PUSHED_BOT",
 		26: "BOT_HELD_BALL_DELIBERATELY",
 		27: "BOT_TIPPED_OVER",
+		47: "BOT_DROPPED_PARTS",
 		15: "ATTACKER_TOUCHED_BALL_IN_DEFENSE_AREA",
 		18: "BOT_KICKED_BALL_TOO_FAST",
 		22: "BOT_CRASH_UNIQUE",
@@ -104,6 +107,7 @@ var (
 		29: "DEFENDER_TOO_CLOSE_TO_KICK_POINT",
 		28: "BOT_TOO_FAST_IN_STOP",
 		20: "BOT_INTERFERED_PLACEMENT",
+		48: "EXCESSIVE_BOT_SUBSTITUTION",
 		39: "POSSIBLE_GOAL",
 		8:  "GOAL",
 		42: "INVALID_GOAL",
@@ -145,6 +149,7 @@ var (
 		"BOT_PUSHED_BOT":                            24,
 		"BOT_HELD_BALL_DELIBERATELY":                26,
 		"BOT_TIPPED_OVER":                           27,
+		"BOT_DROPPED_PARTS":                         47,
 		"ATTACKER_TOUCHED_BALL_IN_DEFENSE_AREA":     15,
 		"BOT_KICKED_BALL_TOO_FAST":                  18,
 		"BOT_CRASH_UNIQUE":                          22,
@@ -152,6 +157,7 @@ var (
 		"DEFENDER_TOO_CLOSE_TO_KICK_POINT":          29,
 		"BOT_TOO_FAST_IN_STOP":                      28,
 		"BOT_INTERFERED_PLACEMENT":                  20,
+		"EXCESSIVE_BOT_SUBSTITUTION":                48,
 		"POSSIBLE_GOAL":                             39,
 		"GOAL":                                      8,
 		"INVALID_GOAL":                              42,
@@ -227,7 +233,10 @@ func (GameEvent_Type) EnumDescriptor() ([]byte, []int) {
 // An autoRef should ideally set all fields, except if there are good reasons to not do so.
 type GameEvent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Type  *GameEvent_Type        `protobuf:"varint,40,opt,name=type,enum=GameEvent_Type" json:"type,omitempty"`
+	// A globally unique id of the game event.
+	Id *string `protobuf:"bytes,50,opt,name=id" json:"id,omitempty"`
+	// The type of the game event.
+	Type *GameEvent_Type `protobuf:"varint,40,opt,name=type,enum=GameEvent_Type" json:"type,omitempty"`
 	// The origins of this game event.
 	// Empty, if it originates from game controller.
 	// Contains autoRef name(s), if it originates from one or more autoRefs.
@@ -250,6 +259,7 @@ type GameEvent struct {
 	//	*GameEvent_BotPushedBot_
 	//	*GameEvent_BotHeldBallDeliberately_
 	//	*GameEvent_BotTippedOver_
+	//	*GameEvent_BotDroppedParts_
 	//	*GameEvent_AttackerTouchedBallInDefenseArea_
 	//	*GameEvent_BotKickedBallTooFast_
 	//	*GameEvent_BotCrashUnique_
@@ -268,6 +278,7 @@ type GameEvent struct {
 	//	*GameEvent_MultipleCards_
 	//	*GameEvent_MultipleFouls_
 	//	*GameEvent_BotSubstitution_
+	//	*GameEvent_ExcessiveBotSubstitution_
 	//	*GameEvent_TooManyRobots_
 	//	*GameEvent_ChallengeFlag_
 	//	*GameEvent_ChallengeFlagHandled_
@@ -317,6 +328,13 @@ func (x *GameEvent) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GameEvent.ProtoReflect.Descriptor instead.
 func (*GameEvent) Descriptor() ([]byte, []int) {
 	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GameEvent) GetId() string {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return ""
 }
 
 func (x *GameEvent) GetType() GameEvent_Type {
@@ -441,6 +459,15 @@ func (x *GameEvent) GetBotTippedOver() *GameEvent_BotTippedOver {
 	if x != nil {
 		if x, ok := x.Event.(*GameEvent_BotTippedOver_); ok {
 			return x.BotTippedOver
+		}
+	}
+	return nil
+}
+
+func (x *GameEvent) GetBotDroppedParts() *GameEvent_BotDroppedParts {
+	if x != nil {
+		if x, ok := x.Event.(*GameEvent_BotDroppedParts_); ok {
+			return x.BotDroppedParts
 		}
 	}
 	return nil
@@ -603,6 +630,15 @@ func (x *GameEvent) GetBotSubstitution() *GameEvent_BotSubstitution {
 	if x != nil {
 		if x, ok := x.Event.(*GameEvent_BotSubstitution_); ok {
 			return x.BotSubstitution
+		}
+	}
+	return nil
+}
+
+func (x *GameEvent) GetExcessiveBotSubstitution() *GameEvent_ExcessiveBotSubstitution {
+	if x != nil {
+		if x, ok := x.Event.(*GameEvent_ExcessiveBotSubstitution_); ok {
+			return x.ExcessiveBotSubstitution
 		}
 	}
 	return nil
@@ -810,6 +846,10 @@ type GameEvent_BotTippedOver_ struct {
 	BotTippedOver *GameEvent_BotTippedOver `protobuf:"bytes,27,opt,name=bot_tipped_over,json=botTippedOver,oneof"`
 }
 
+type GameEvent_BotDroppedParts_ struct {
+	BotDroppedParts *GameEvent_BotDroppedParts `protobuf:"bytes,51,opt,name=bot_dropped_parts,json=botDroppedParts,oneof"`
+}
+
 type GameEvent_AttackerTouchedBallInDefenseArea_ struct {
 	AttackerTouchedBallInDefenseArea *GameEvent_AttackerTouchedBallInDefenseArea `protobuf:"bytes,15,opt,name=attacker_touched_ball_in_defense_area,json=attackerTouchedBallInDefenseArea,oneof"`
 }
@@ -880,6 +920,10 @@ type GameEvent_MultipleFouls_ struct {
 
 type GameEvent_BotSubstitution_ struct {
 	BotSubstitution *GameEvent_BotSubstitution `protobuf:"bytes,37,opt,name=bot_substitution,json=botSubstitution,oneof"`
+}
+
+type GameEvent_ExcessiveBotSubstitution_ struct {
+	ExcessiveBotSubstitution *GameEvent_ExcessiveBotSubstitution `protobuf:"bytes,52,opt,name=excessive_bot_substitution,json=excessiveBotSubstitution,oneof"`
 }
 
 type GameEvent_TooManyRobots_ struct {
@@ -998,6 +1042,8 @@ func (*GameEvent_BotHeldBallDeliberately_) isGameEvent_Event() {}
 
 func (*GameEvent_BotTippedOver_) isGameEvent_Event() {}
 
+func (*GameEvent_BotDroppedParts_) isGameEvent_Event() {}
+
 func (*GameEvent_AttackerTouchedBallInDefenseArea_) isGameEvent_Event() {}
 
 func (*GameEvent_BotKickedBallTooFast_) isGameEvent_Event() {}
@@ -1033,6 +1079,8 @@ func (*GameEvent_MultipleCards_) isGameEvent_Event() {}
 func (*GameEvent_MultipleFouls_) isGameEvent_Event() {}
 
 func (*GameEvent_BotSubstitution_) isGameEvent_Event() {}
+
+func (*GameEvent_ExcessiveBotSubstitution_) isGameEvent_Event() {}
 
 func (*GameEvent_TooManyRobots_) isGameEvent_Event() {}
 
@@ -1972,6 +2020,79 @@ func (x *GameEvent_BotTippedOver) GetBallLocation() *Vector2 {
 	return nil
 }
 
+// a bot dropped parts
+type GameEvent_BotDroppedParts struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// the team that found guilty
+	ByTeam *Team `protobuf:"varint,1,req,name=by_team,json=byTeam,enum=Team" json:"by_team,omitempty"`
+	// the bot that dropped the parts
+	ByBot *uint32 `protobuf:"varint,2,opt,name=by_bot,json=byBot" json:"by_bot,omitempty"`
+	// the location where the parts were dropped [m]
+	Location *Vector2 `protobuf:"bytes,3,opt,name=location" json:"location,omitempty"`
+	// the location of the ball at the moment when this foul occurred [m]
+	BallLocation  *Vector2 `protobuf:"bytes,4,opt,name=ball_location,json=ballLocation" json:"ball_location,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GameEvent_BotDroppedParts) Reset() {
+	*x = GameEvent_BotDroppedParts{}
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GameEvent_BotDroppedParts) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GameEvent_BotDroppedParts) ProtoMessage() {}
+
+func (x *GameEvent_BotDroppedParts) ProtoReflect() protoreflect.Message {
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GameEvent_BotDroppedParts.ProtoReflect.Descriptor instead.
+func (*GameEvent_BotDroppedParts) Descriptor() ([]byte, []int) {
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 11}
+}
+
+func (x *GameEvent_BotDroppedParts) GetByTeam() Team {
+	if x != nil && x.ByTeam != nil {
+		return *x.ByTeam
+	}
+	return Team_UNKNOWN
+}
+
+func (x *GameEvent_BotDroppedParts) GetByBot() uint32 {
+	if x != nil && x.ByBot != nil {
+		return *x.ByBot
+	}
+	return 0
+}
+
+func (x *GameEvent_BotDroppedParts) GetLocation() *Vector2 {
+	if x != nil {
+		return x.Location
+	}
+	return nil
+}
+
+func (x *GameEvent_BotDroppedParts) GetBallLocation() *Vector2 {
+	if x != nil {
+		return x.BallLocation
+	}
+	return nil
+}
+
 // a defender other than the keeper was fully located inside its own defense and touched the ball
 type GameEvent_DefenderInDefenseArea struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1989,7 +2110,7 @@ type GameEvent_DefenderInDefenseArea struct {
 
 func (x *GameEvent_DefenderInDefenseArea) Reset() {
 	*x = GameEvent_DefenderInDefenseArea{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[12]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2001,7 +2122,7 @@ func (x *GameEvent_DefenderInDefenseArea) String() string {
 func (*GameEvent_DefenderInDefenseArea) ProtoMessage() {}
 
 func (x *GameEvent_DefenderInDefenseArea) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[12]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2014,7 +2135,7 @@ func (x *GameEvent_DefenderInDefenseArea) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_DefenderInDefenseArea.ProtoReflect.Descriptor instead.
 func (*GameEvent_DefenderInDefenseArea) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 11}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 12}
 }
 
 func (x *GameEvent_DefenderInDefenseArea) GetByTeam() Team {
@@ -2064,7 +2185,7 @@ type GameEvent_DefenderInDefenseAreaPartially struct {
 
 func (x *GameEvent_DefenderInDefenseAreaPartially) Reset() {
 	*x = GameEvent_DefenderInDefenseAreaPartially{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[13]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2076,7 +2197,7 @@ func (x *GameEvent_DefenderInDefenseAreaPartially) String() string {
 func (*GameEvent_DefenderInDefenseAreaPartially) ProtoMessage() {}
 
 func (x *GameEvent_DefenderInDefenseAreaPartially) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[13]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2089,7 +2210,7 @@ func (x *GameEvent_DefenderInDefenseAreaPartially) ProtoReflect() protoreflect.M
 
 // Deprecated: Use GameEvent_DefenderInDefenseAreaPartially.ProtoReflect.Descriptor instead.
 func (*GameEvent_DefenderInDefenseAreaPartially) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 12}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 13}
 }
 
 func (x *GameEvent_DefenderInDefenseAreaPartially) GetByTeam() Team {
@@ -2144,7 +2265,7 @@ type GameEvent_AttackerTouchedBallInDefenseArea struct {
 
 func (x *GameEvent_AttackerTouchedBallInDefenseArea) Reset() {
 	*x = GameEvent_AttackerTouchedBallInDefenseArea{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[14]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2156,7 +2277,7 @@ func (x *GameEvent_AttackerTouchedBallInDefenseArea) String() string {
 func (*GameEvent_AttackerTouchedBallInDefenseArea) ProtoMessage() {}
 
 func (x *GameEvent_AttackerTouchedBallInDefenseArea) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[14]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2169,7 +2290,7 @@ func (x *GameEvent_AttackerTouchedBallInDefenseArea) ProtoReflect() protoreflect
 
 // Deprecated: Use GameEvent_AttackerTouchedBallInDefenseArea.ProtoReflect.Descriptor instead.
 func (*GameEvent_AttackerTouchedBallInDefenseArea) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 13}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 14}
 }
 
 func (x *GameEvent_AttackerTouchedBallInDefenseArea) GetByTeam() Team {
@@ -2219,7 +2340,7 @@ type GameEvent_BotKickedBallTooFast struct {
 
 func (x *GameEvent_BotKickedBallTooFast) Reset() {
 	*x = GameEvent_BotKickedBallTooFast{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[15]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2231,7 +2352,7 @@ func (x *GameEvent_BotKickedBallTooFast) String() string {
 func (*GameEvent_BotKickedBallTooFast) ProtoMessage() {}
 
 func (x *GameEvent_BotKickedBallTooFast) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[15]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2244,7 +2365,7 @@ func (x *GameEvent_BotKickedBallTooFast) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_BotKickedBallTooFast.ProtoReflect.Descriptor instead.
 func (*GameEvent_BotKickedBallTooFast) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 14}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 15}
 }
 
 func (x *GameEvent_BotKickedBallTooFast) GetByTeam() Team {
@@ -2299,7 +2420,7 @@ type GameEvent_BotDribbledBallTooFar struct {
 
 func (x *GameEvent_BotDribbledBallTooFar) Reset() {
 	*x = GameEvent_BotDribbledBallTooFar{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[16]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2311,7 +2432,7 @@ func (x *GameEvent_BotDribbledBallTooFar) String() string {
 func (*GameEvent_BotDribbledBallTooFar) ProtoMessage() {}
 
 func (x *GameEvent_BotDribbledBallTooFar) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[16]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2324,7 +2445,7 @@ func (x *GameEvent_BotDribbledBallTooFar) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_BotDribbledBallTooFar.ProtoReflect.Descriptor instead.
 func (*GameEvent_BotDribbledBallTooFar) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 15}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 16}
 }
 
 func (x *GameEvent_BotDribbledBallTooFar) GetByTeam() Team {
@@ -2372,7 +2493,7 @@ type GameEvent_AttackerTouchedOpponentInDefenseArea struct {
 
 func (x *GameEvent_AttackerTouchedOpponentInDefenseArea) Reset() {
 	*x = GameEvent_AttackerTouchedOpponentInDefenseArea{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[17]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2384,7 +2505,7 @@ func (x *GameEvent_AttackerTouchedOpponentInDefenseArea) String() string {
 func (*GameEvent_AttackerTouchedOpponentInDefenseArea) ProtoMessage() {}
 
 func (x *GameEvent_AttackerTouchedOpponentInDefenseArea) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[17]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2397,7 +2518,7 @@ func (x *GameEvent_AttackerTouchedOpponentInDefenseArea) ProtoReflect() protoref
 
 // Deprecated: Use GameEvent_AttackerTouchedOpponentInDefenseArea.ProtoReflect.Descriptor instead.
 func (*GameEvent_AttackerTouchedOpponentInDefenseArea) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 16}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 17}
 }
 
 func (x *GameEvent_AttackerTouchedOpponentInDefenseArea) GetByTeam() Team {
@@ -2443,7 +2564,7 @@ type GameEvent_AttackerDoubleTouchedBall struct {
 
 func (x *GameEvent_AttackerDoubleTouchedBall) Reset() {
 	*x = GameEvent_AttackerDoubleTouchedBall{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[18]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2455,7 +2576,7 @@ func (x *GameEvent_AttackerDoubleTouchedBall) String() string {
 func (*GameEvent_AttackerDoubleTouchedBall) ProtoMessage() {}
 
 func (x *GameEvent_AttackerDoubleTouchedBall) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[18]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2468,7 +2589,7 @@ func (x *GameEvent_AttackerDoubleTouchedBall) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GameEvent_AttackerDoubleTouchedBall.ProtoReflect.Descriptor instead.
 func (*GameEvent_AttackerDoubleTouchedBall) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 17}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 18}
 }
 
 func (x *GameEvent_AttackerDoubleTouchedBall) GetByTeam() Team {
@@ -2511,7 +2632,7 @@ type GameEvent_AttackerTooCloseToDefenseArea struct {
 
 func (x *GameEvent_AttackerTooCloseToDefenseArea) Reset() {
 	*x = GameEvent_AttackerTooCloseToDefenseArea{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[19]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2523,7 +2644,7 @@ func (x *GameEvent_AttackerTooCloseToDefenseArea) String() string {
 func (*GameEvent_AttackerTooCloseToDefenseArea) ProtoMessage() {}
 
 func (x *GameEvent_AttackerTooCloseToDefenseArea) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[19]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2536,7 +2657,7 @@ func (x *GameEvent_AttackerTooCloseToDefenseArea) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use GameEvent_AttackerTooCloseToDefenseArea.ProtoReflect.Descriptor instead.
 func (*GameEvent_AttackerTooCloseToDefenseArea) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 18}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 19}
 }
 
 func (x *GameEvent_AttackerTooCloseToDefenseArea) GetByTeam() Team {
@@ -2591,7 +2712,7 @@ type GameEvent_BotHeldBallDeliberately struct {
 
 func (x *GameEvent_BotHeldBallDeliberately) Reset() {
 	*x = GameEvent_BotHeldBallDeliberately{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[20]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2603,7 +2724,7 @@ func (x *GameEvent_BotHeldBallDeliberately) String() string {
 func (*GameEvent_BotHeldBallDeliberately) ProtoMessage() {}
 
 func (x *GameEvent_BotHeldBallDeliberately) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[20]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2616,7 +2737,7 @@ func (x *GameEvent_BotHeldBallDeliberately) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GameEvent_BotHeldBallDeliberately.ProtoReflect.Descriptor instead.
 func (*GameEvent_BotHeldBallDeliberately) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 19}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 20}
 }
 
 func (x *GameEvent_BotHeldBallDeliberately) GetByTeam() Team {
@@ -2662,7 +2783,7 @@ type GameEvent_BotInterferedPlacement struct {
 
 func (x *GameEvent_BotInterferedPlacement) Reset() {
 	*x = GameEvent_BotInterferedPlacement{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[21]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2674,7 +2795,7 @@ func (x *GameEvent_BotInterferedPlacement) String() string {
 func (*GameEvent_BotInterferedPlacement) ProtoMessage() {}
 
 func (x *GameEvent_BotInterferedPlacement) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[21]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2687,7 +2808,7 @@ func (x *GameEvent_BotInterferedPlacement) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_BotInterferedPlacement.ProtoReflect.Descriptor instead.
 func (*GameEvent_BotInterferedPlacement) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 20}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 21}
 }
 
 func (x *GameEvent_BotInterferedPlacement) GetByTeam() Team {
@@ -2711,7 +2832,7 @@ func (x *GameEvent_BotInterferedPlacement) GetLocation() *Vector2 {
 	return nil
 }
 
-// a team collected multiple cards (yellow and red), which results in a penalty kick
+// a team collected multiple yellow cards
 type GameEvent_MultipleCards struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// the team that received multiple yellow cards
@@ -2722,7 +2843,7 @@ type GameEvent_MultipleCards struct {
 
 func (x *GameEvent_MultipleCards) Reset() {
 	*x = GameEvent_MultipleCards{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[22]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2734,7 +2855,7 @@ func (x *GameEvent_MultipleCards) String() string {
 func (*GameEvent_MultipleCards) ProtoMessage() {}
 
 func (x *GameEvent_MultipleCards) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[22]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2747,7 +2868,7 @@ func (x *GameEvent_MultipleCards) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_MultipleCards.ProtoReflect.Descriptor instead.
 func (*GameEvent_MultipleCards) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 21}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 22}
 }
 
 func (x *GameEvent_MultipleCards) GetByTeam() Team {
@@ -2770,7 +2891,7 @@ type GameEvent_MultipleFouls struct {
 
 func (x *GameEvent_MultipleFouls) Reset() {
 	*x = GameEvent_MultipleFouls{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[23]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2782,7 +2903,7 @@ func (x *GameEvent_MultipleFouls) String() string {
 func (*GameEvent_MultipleFouls) ProtoMessage() {}
 
 func (x *GameEvent_MultipleFouls) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[23]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2795,7 +2916,7 @@ func (x *GameEvent_MultipleFouls) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_MultipleFouls.ProtoReflect.Descriptor instead.
 func (*GameEvent_MultipleFouls) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 22}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 23}
 }
 
 func (x *GameEvent_MultipleFouls) GetByTeam() Team {
@@ -2823,7 +2944,7 @@ type GameEvent_MultiplePlacementFailures struct {
 
 func (x *GameEvent_MultiplePlacementFailures) Reset() {
 	*x = GameEvent_MultiplePlacementFailures{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[24]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2835,7 +2956,7 @@ func (x *GameEvent_MultiplePlacementFailures) String() string {
 func (*GameEvent_MultiplePlacementFailures) ProtoMessage() {}
 
 func (x *GameEvent_MultiplePlacementFailures) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[24]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2848,7 +2969,7 @@ func (x *GameEvent_MultiplePlacementFailures) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GameEvent_MultiplePlacementFailures.ProtoReflect.Descriptor instead.
 func (*GameEvent_MultiplePlacementFailures) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 23}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 24}
 }
 
 func (x *GameEvent_MultiplePlacementFailures) GetByTeam() Team {
@@ -2873,7 +2994,7 @@ type GameEvent_KickTimeout struct {
 
 func (x *GameEvent_KickTimeout) Reset() {
 	*x = GameEvent_KickTimeout{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[25]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2885,7 +3006,7 @@ func (x *GameEvent_KickTimeout) String() string {
 func (*GameEvent_KickTimeout) ProtoMessage() {}
 
 func (x *GameEvent_KickTimeout) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[25]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2898,7 +3019,7 @@ func (x *GameEvent_KickTimeout) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_KickTimeout.ProtoReflect.Descriptor instead.
 func (*GameEvent_KickTimeout) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 24}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 25}
 }
 
 func (x *GameEvent_KickTimeout) GetByTeam() Team {
@@ -2935,7 +3056,7 @@ type GameEvent_NoProgressInGame struct {
 
 func (x *GameEvent_NoProgressInGame) Reset() {
 	*x = GameEvent_NoProgressInGame{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[26]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2947,7 +3068,7 @@ func (x *GameEvent_NoProgressInGame) String() string {
 func (*GameEvent_NoProgressInGame) ProtoMessage() {}
 
 func (x *GameEvent_NoProgressInGame) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[26]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2960,7 +3081,7 @@ func (x *GameEvent_NoProgressInGame) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_NoProgressInGame.ProtoReflect.Descriptor instead.
 func (*GameEvent_NoProgressInGame) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 25}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 26}
 }
 
 func (x *GameEvent_NoProgressInGame) GetLocation() *Vector2 {
@@ -2984,13 +3105,15 @@ type GameEvent_PlacementFailed struct {
 	ByTeam *Team `protobuf:"varint,1,req,name=by_team,json=byTeam,enum=Team" json:"by_team,omitempty"`
 	// the remaining distance [m] from ball to placement position
 	RemainingDistance *float32 `protobuf:"fixed32,2,opt,name=remaining_distance,json=remainingDistance" json:"remaining_distance,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// the distance [m] of the nearest own robot to the ball
+	NearestOwnBotDistance *float32 `protobuf:"fixed32,3,opt,name=nearest_own_bot_distance,json=nearestOwnBotDistance" json:"nearest_own_bot_distance,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *GameEvent_PlacementFailed) Reset() {
 	*x = GameEvent_PlacementFailed{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[27]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3002,7 +3125,7 @@ func (x *GameEvent_PlacementFailed) String() string {
 func (*GameEvent_PlacementFailed) ProtoMessage() {}
 
 func (x *GameEvent_PlacementFailed) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[27]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3015,7 +3138,7 @@ func (x *GameEvent_PlacementFailed) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_PlacementFailed.ProtoReflect.Descriptor instead.
 func (*GameEvent_PlacementFailed) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 26}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 27}
 }
 
 func (x *GameEvent_PlacementFailed) GetByTeam() Team {
@@ -3028,6 +3151,13 @@ func (x *GameEvent_PlacementFailed) GetByTeam() Team {
 func (x *GameEvent_PlacementFailed) GetRemainingDistance() float32 {
 	if x != nil && x.RemainingDistance != nil {
 		return *x.RemainingDistance
+	}
+	return 0
+}
+
+func (x *GameEvent_PlacementFailed) GetNearestOwnBotDistance() float32 {
+	if x != nil && x.NearestOwnBotDistance != nil {
+		return *x.NearestOwnBotDistance
 	}
 	return 0
 }
@@ -3045,7 +3175,7 @@ type GameEvent_UnsportingBehaviorMinor struct {
 
 func (x *GameEvent_UnsportingBehaviorMinor) Reset() {
 	*x = GameEvent_UnsportingBehaviorMinor{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[28]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3057,7 +3187,7 @@ func (x *GameEvent_UnsportingBehaviorMinor) String() string {
 func (*GameEvent_UnsportingBehaviorMinor) ProtoMessage() {}
 
 func (x *GameEvent_UnsportingBehaviorMinor) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[28]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3070,7 +3200,7 @@ func (x *GameEvent_UnsportingBehaviorMinor) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GameEvent_UnsportingBehaviorMinor.ProtoReflect.Descriptor instead.
 func (*GameEvent_UnsportingBehaviorMinor) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 27}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 28}
 }
 
 func (x *GameEvent_UnsportingBehaviorMinor) GetByTeam() Team {
@@ -3100,7 +3230,7 @@ type GameEvent_UnsportingBehaviorMajor struct {
 
 func (x *GameEvent_UnsportingBehaviorMajor) Reset() {
 	*x = GameEvent_UnsportingBehaviorMajor{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[29]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3112,7 +3242,7 @@ func (x *GameEvent_UnsportingBehaviorMajor) String() string {
 func (*GameEvent_UnsportingBehaviorMajor) ProtoMessage() {}
 
 func (x *GameEvent_UnsportingBehaviorMajor) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[29]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3125,7 +3255,7 @@ func (x *GameEvent_UnsportingBehaviorMajor) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GameEvent_UnsportingBehaviorMajor.ProtoReflect.Descriptor instead.
 func (*GameEvent_UnsportingBehaviorMajor) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 28}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 29}
 }
 
 func (x *GameEvent_UnsportingBehaviorMajor) GetByTeam() Team {
@@ -3157,7 +3287,7 @@ type GameEvent_KeeperHeldBall struct {
 
 func (x *GameEvent_KeeperHeldBall) Reset() {
 	*x = GameEvent_KeeperHeldBall{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[30]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3169,7 +3299,7 @@ func (x *GameEvent_KeeperHeldBall) String() string {
 func (*GameEvent_KeeperHeldBall) ProtoMessage() {}
 
 func (x *GameEvent_KeeperHeldBall) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[30]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3182,7 +3312,7 @@ func (x *GameEvent_KeeperHeldBall) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_KeeperHeldBall.ProtoReflect.Descriptor instead.
 func (*GameEvent_KeeperHeldBall) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 29}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 30}
 }
 
 func (x *GameEvent_KeeperHeldBall) GetByTeam() Team {
@@ -3223,7 +3353,7 @@ type GameEvent_PlacementSucceeded struct {
 
 func (x *GameEvent_PlacementSucceeded) Reset() {
 	*x = GameEvent_PlacementSucceeded{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[31]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3235,7 +3365,7 @@ func (x *GameEvent_PlacementSucceeded) String() string {
 func (*GameEvent_PlacementSucceeded) ProtoMessage() {}
 
 func (x *GameEvent_PlacementSucceeded) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[31]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3248,7 +3378,7 @@ func (x *GameEvent_PlacementSucceeded) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_PlacementSucceeded.ProtoReflect.Descriptor instead.
 func (*GameEvent_PlacementSucceeded) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 30}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 31}
 }
 
 func (x *GameEvent_PlacementSucceeded) GetByTeam() Team {
@@ -3290,7 +3420,7 @@ type GameEvent_Prepared struct {
 
 func (x *GameEvent_Prepared) Reset() {
 	*x = GameEvent_Prepared{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[32]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3302,7 +3432,7 @@ func (x *GameEvent_Prepared) String() string {
 func (*GameEvent_Prepared) ProtoMessage() {}
 
 func (x *GameEvent_Prepared) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[32]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3315,7 +3445,7 @@ func (x *GameEvent_Prepared) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_Prepared.ProtoReflect.Descriptor instead.
 func (*GameEvent_Prepared) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 31}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 32}
 }
 
 func (x *GameEvent_Prepared) GetTimeTaken() float32 {
@@ -3336,7 +3466,7 @@ type GameEvent_BotSubstitution struct {
 
 func (x *GameEvent_BotSubstitution) Reset() {
 	*x = GameEvent_BotSubstitution{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[33]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3348,7 +3478,7 @@ func (x *GameEvent_BotSubstitution) String() string {
 func (*GameEvent_BotSubstitution) ProtoMessage() {}
 
 func (x *GameEvent_BotSubstitution) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[33]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3361,10 +3491,56 @@ func (x *GameEvent_BotSubstitution) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_BotSubstitution.ProtoReflect.Descriptor instead.
 func (*GameEvent_BotSubstitution) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 32}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 33}
 }
 
 func (x *GameEvent_BotSubstitution) GetByTeam() Team {
+	if x != nil && x.ByTeam != nil {
+		return *x.ByTeam
+	}
+	return Team_UNKNOWN
+}
+
+// A foul for excessive bot substitutions
+type GameEvent_ExcessiveBotSubstitution struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// the team that substitutes robots
+	ByTeam        *Team `protobuf:"varint,1,req,name=by_team,json=byTeam,enum=Team" json:"by_team,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GameEvent_ExcessiveBotSubstitution) Reset() {
+	*x = GameEvent_ExcessiveBotSubstitution{}
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GameEvent_ExcessiveBotSubstitution) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GameEvent_ExcessiveBotSubstitution) ProtoMessage() {}
+
+func (x *GameEvent_ExcessiveBotSubstitution) ProtoReflect() protoreflect.Message {
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GameEvent_ExcessiveBotSubstitution.ProtoReflect.Descriptor instead.
+func (*GameEvent_ExcessiveBotSubstitution) Descriptor() ([]byte, []int) {
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 34}
+}
+
+func (x *GameEvent_ExcessiveBotSubstitution) GetByTeam() Team {
 	if x != nil && x.ByTeam != nil {
 		return *x.ByTeam
 	}
@@ -3382,7 +3558,7 @@ type GameEvent_ChallengeFlag struct {
 
 func (x *GameEvent_ChallengeFlag) Reset() {
 	*x = GameEvent_ChallengeFlag{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[34]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3394,7 +3570,7 @@ func (x *GameEvent_ChallengeFlag) String() string {
 func (*GameEvent_ChallengeFlag) ProtoMessage() {}
 
 func (x *GameEvent_ChallengeFlag) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[34]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3407,7 +3583,7 @@ func (x *GameEvent_ChallengeFlag) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_ChallengeFlag.ProtoReflect.Descriptor instead.
 func (*GameEvent_ChallengeFlag) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 33}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 35}
 }
 
 func (x *GameEvent_ChallengeFlag) GetByTeam() Team {
@@ -3430,7 +3606,7 @@ type GameEvent_ChallengeFlagHandled struct {
 
 func (x *GameEvent_ChallengeFlagHandled) Reset() {
 	*x = GameEvent_ChallengeFlagHandled{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[35]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3442,7 +3618,7 @@ func (x *GameEvent_ChallengeFlagHandled) String() string {
 func (*GameEvent_ChallengeFlagHandled) ProtoMessage() {}
 
 func (x *GameEvent_ChallengeFlagHandled) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[35]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3455,7 +3631,7 @@ func (x *GameEvent_ChallengeFlagHandled) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_ChallengeFlagHandled.ProtoReflect.Descriptor instead.
 func (*GameEvent_ChallengeFlagHandled) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 34}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 36}
 }
 
 func (x *GameEvent_ChallengeFlagHandled) GetByTeam() Team {
@@ -3483,7 +3659,7 @@ type GameEvent_EmergencyStop struct {
 
 func (x *GameEvent_EmergencyStop) Reset() {
 	*x = GameEvent_EmergencyStop{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[36]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3495,7 +3671,7 @@ func (x *GameEvent_EmergencyStop) String() string {
 func (*GameEvent_EmergencyStop) ProtoMessage() {}
 
 func (x *GameEvent_EmergencyStop) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[36]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3508,7 +3684,7 @@ func (x *GameEvent_EmergencyStop) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_EmergencyStop.ProtoReflect.Descriptor instead.
 func (*GameEvent_EmergencyStop) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 35}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 37}
 }
 
 func (x *GameEvent_EmergencyStop) GetByTeam() Team {
@@ -3535,7 +3711,7 @@ type GameEvent_TooManyRobots struct {
 
 func (x *GameEvent_TooManyRobots) Reset() {
 	*x = GameEvent_TooManyRobots{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[37]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3547,7 +3723,7 @@ func (x *GameEvent_TooManyRobots) String() string {
 func (*GameEvent_TooManyRobots) ProtoMessage() {}
 
 func (x *GameEvent_TooManyRobots) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[37]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3560,7 +3736,7 @@ func (x *GameEvent_TooManyRobots) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_TooManyRobots.ProtoReflect.Descriptor instead.
 func (*GameEvent_TooManyRobots) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 36}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 38}
 }
 
 func (x *GameEvent_TooManyRobots) GetByTeam() Team {
@@ -3604,7 +3780,7 @@ type GameEvent_BoundaryCrossing struct {
 
 func (x *GameEvent_BoundaryCrossing) Reset() {
 	*x = GameEvent_BoundaryCrossing{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[38]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3616,7 +3792,7 @@ func (x *GameEvent_BoundaryCrossing) String() string {
 func (*GameEvent_BoundaryCrossing) ProtoMessage() {}
 
 func (x *GameEvent_BoundaryCrossing) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[38]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3629,7 +3805,7 @@ func (x *GameEvent_BoundaryCrossing) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_BoundaryCrossing.ProtoReflect.Descriptor instead.
 func (*GameEvent_BoundaryCrossing) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 37}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 39}
 }
 
 func (x *GameEvent_BoundaryCrossing) GetByTeam() Team {
@@ -3661,7 +3837,7 @@ type GameEvent_PenaltyKickFailed struct {
 
 func (x *GameEvent_PenaltyKickFailed) Reset() {
 	*x = GameEvent_PenaltyKickFailed{}
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[39]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3673,7 +3849,7 @@ func (x *GameEvent_PenaltyKickFailed) String() string {
 func (*GameEvent_PenaltyKickFailed) ProtoMessage() {}
 
 func (x *GameEvent_PenaltyKickFailed) ProtoReflect() protoreflect.Message {
-	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[39]
+	mi := &file_gc_ssl_gc_game_event_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3686,7 +3862,7 @@ func (x *GameEvent_PenaltyKickFailed) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent_PenaltyKickFailed.ProtoReflect.Descriptor instead.
 func (*GameEvent_PenaltyKickFailed) Descriptor() ([]byte, []int) {
-	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 38}
+	return file_gc_ssl_gc_game_event_proto_rawDescGZIP(), []int{0, 40}
 }
 
 func (x *GameEvent_PenaltyKickFailed) GetByTeam() Team {
@@ -3714,8 +3890,9 @@ var File_gc_ssl_gc_game_event_proto protoreflect.FileDescriptor
 
 const file_gc_ssl_gc_game_event_proto_rawDesc = "" +
 	"\n" +
-	"\x1agc/ssl_gc_game_event.proto\x1a\x16gc/ssl_gc_common.proto\x1a\x18gc/ssl_gc_geometry.proto\"\xc2Q\n" +
-	"\tGameEvent\x12#\n" +
+	"\x1agc/ssl_gc_game_event.proto\x1a\x16gc/ssl_gc_common.proto\x1a\x18gc/ssl_gc_geometry.proto\"\xceU\n" +
+	"\tGameEvent\x12\x0e\n" +
+	"\x02id\x182 \x01(\tR\x02id\x12#\n" +
 	"\x04type\x18( \x01(\x0e2\x0f.GameEvent.TypeR\x04type\x12\x16\n" +
 	"\x06origin\x18) \x03(\tR\x06origin\x12+\n" +
 	"\x11created_timestamp\x181 \x01(\x04R\x10createdTimestamp\x12V\n" +
@@ -3729,7 +3906,8 @@ const file_gc_ssl_gc_game_event_proto_rawDesc = "" +
 	"\x19bot_dribbled_ball_too_far\x18\x11 \x01(\v2 .GameEvent.BotDribbledBallTooFarH\x00R\x15botDribbledBallTooFar\x12?\n" +
 	"\x0ebot_pushed_bot\x18\x18 \x01(\v2\x17.GameEvent.BotPushedBotH\x00R\fbotPushedBot\x12a\n" +
 	"\x1abot_held_ball_deliberately\x18\x1a \x01(\v2\".GameEvent.BotHeldBallDeliberatelyH\x00R\x17botHeldBallDeliberately\x12B\n" +
-	"\x0fbot_tipped_over\x18\x1b \x01(\v2\x18.GameEvent.BotTippedOverH\x00R\rbotTippedOver\x12~\n" +
+	"\x0fbot_tipped_over\x18\x1b \x01(\v2\x18.GameEvent.BotTippedOverH\x00R\rbotTippedOver\x12H\n" +
+	"\x11bot_dropped_parts\x183 \x01(\v2\x1a.GameEvent.BotDroppedPartsH\x00R\x0fbotDroppedParts\x12~\n" +
 	"%attacker_touched_ball_in_defense_area\x18\x0f \x01(\v2+.GameEvent.AttackerTouchedBallInDefenseAreaH\x00R attackerTouchedBallInDefenseArea\x12Y\n" +
 	"\x18bot_kicked_ball_too_fast\x18\x12 \x01(\v2\x1f.GameEvent.BotKickedBallTooFastH\x00R\x14botKickedBallTooFast\x12E\n" +
 	"\x10bot_crash_unique\x18\x16 \x01(\v2\x19.GameEvent.BotCrashUniqueH\x00R\x0ebotCrashUnique\x12B\n" +
@@ -3747,7 +3925,8 @@ const file_gc_ssl_gc_game_event_proto_rawDesc = "" +
 	"\x10placement_failed\x18\x03 \x01(\v2\x1a.GameEvent.PlacementFailedH\x00R\x0fplacementFailed\x12A\n" +
 	"\x0emultiple_cards\x18  \x01(\v2\x18.GameEvent.MultipleCardsH\x00R\rmultipleCards\x12A\n" +
 	"\x0emultiple_fouls\x18\" \x01(\v2\x18.GameEvent.MultipleFoulsH\x00R\rmultipleFouls\x12G\n" +
-	"\x10bot_substitution\x18% \x01(\v2\x1a.GameEvent.BotSubstitutionH\x00R\x0fbotSubstitution\x12B\n" +
+	"\x10bot_substitution\x18% \x01(\v2\x1a.GameEvent.BotSubstitutionH\x00R\x0fbotSubstitution\x12c\n" +
+	"\x1aexcessive_bot_substitution\x184 \x01(\v2#.GameEvent.ExcessiveBotSubstitutionH\x00R\x18excessiveBotSubstitution\x12B\n" +
 	"\x0ftoo_many_robots\x18& \x01(\v2\x18.GameEvent.TooManyRobotsH\x00R\rtooManyRobots\x12A\n" +
 	"\x0echallenge_flag\x18. \x01(\v2\x18.GameEvent.ChallengeFlagH\x00R\rchallengeFlag\x12W\n" +
 	"\x16challenge_flag_handled\x180 \x01(\v2\x1f.GameEvent.ChallengeFlagHandledH\x00R\x14challengeFlagHandled\x12A\n" +
@@ -3838,6 +4017,11 @@ const file_gc_ssl_gc_game_event_proto_rawDesc = "" +
 	"\aby_team\x18\x01 \x02(\x0e2\x05.TeamR\x06byTeam\x12\x15\n" +
 	"\x06by_bot\x18\x02 \x01(\rR\x05byBot\x12$\n" +
 	"\blocation\x18\x03 \x01(\v2\b.Vector2R\blocation\x12-\n" +
+	"\rball_location\x18\x04 \x01(\v2\b.Vector2R\fballLocation\x1a\x9d\x01\n" +
+	"\x0fBotDroppedParts\x12\x1e\n" +
+	"\aby_team\x18\x01 \x02(\x0e2\x05.TeamR\x06byTeam\x12\x15\n" +
+	"\x06by_bot\x18\x02 \x01(\rR\x05byBot\x12$\n" +
+	"\blocation\x18\x03 \x01(\v2\b.Vector2R\blocation\x12-\n" +
 	"\rball_location\x18\x04 \x01(\v2\b.Vector2R\fballLocation\x1a\x90\x01\n" +
 	"\x15DefenderInDefenseArea\x12\x1e\n" +
 	"\aby_team\x18\x01 \x02(\x0e2\x05.TeamR\x06byTeam\x12\x15\n" +
@@ -3904,10 +4088,11 @@ const file_gc_ssl_gc_game_event_proto_rawDesc = "" +
 	"\x04time\x18\x03 \x01(\x02R\x04time\x1aL\n" +
 	"\x10NoProgressInGame\x12$\n" +
 	"\blocation\x18\x01 \x01(\v2\b.Vector2R\blocation\x12\x12\n" +
-	"\x04time\x18\x02 \x01(\x02R\x04time\x1a`\n" +
+	"\x04time\x18\x02 \x01(\x02R\x04time\x1a\x99\x01\n" +
 	"\x0fPlacementFailed\x12\x1e\n" +
 	"\aby_team\x18\x01 \x02(\x0e2\x05.TeamR\x06byTeam\x12-\n" +
-	"\x12remaining_distance\x18\x02 \x01(\x02R\x11remainingDistance\x1aQ\n" +
+	"\x12remaining_distance\x18\x02 \x01(\x02R\x11remainingDistance\x127\n" +
+	"\x18nearest_own_bot_distance\x18\x03 \x01(\x02R\x15nearestOwnBotDistance\x1aQ\n" +
 	"\x17UnsportingBehaviorMinor\x12\x1e\n" +
 	"\aby_team\x18\x01 \x02(\x0e2\x05.TeamR\x06byTeam\x12\x16\n" +
 	"\x06reason\x18\x02 \x02(\tR\x06reason\x1aQ\n" +
@@ -3928,6 +4113,8 @@ const file_gc_ssl_gc_game_event_proto_rawDesc = "" +
 	"\n" +
 	"time_taken\x18\x01 \x01(\x02R\ttimeTaken\x1a1\n" +
 	"\x0fBotSubstitution\x12\x1e\n" +
+	"\aby_team\x18\x01 \x02(\x0e2\x05.TeamR\x06byTeam\x1a:\n" +
+	"\x18ExcessiveBotSubstitution\x12\x1e\n" +
 	"\aby_team\x18\x01 \x02(\x0e2\x05.TeamR\x06byTeam\x1a/\n" +
 	"\rChallengeFlag\x12\x1e\n" +
 	"\aby_team\x18\x01 \x02(\x0e2\x05.TeamR\x06byTeam\x1aR\n" +
@@ -3947,7 +4134,8 @@ const file_gc_ssl_gc_game_event_proto_rawDesc = "" +
 	"\x11PenaltyKickFailed\x12\x1e\n" +
 	"\aby_team\x18\x01 \x02(\x0e2\x05.TeamR\x06byTeam\x12$\n" +
 	"\blocation\x18\x02 \x01(\v2\b.Vector2R\blocation\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason\"\xfe\t\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\"\xb5\n" +
+	"\n" +
 	"\x04Type\x12\x1b\n" +
 	"\x17UNKNOWN_GAME_EVENT_TYPE\x10\x00\x12\x1e\n" +
 	"\x1aBALL_LEFT_FIELD_TOUCH_LINE\x10\x06\x12\x1d\n" +
@@ -3960,14 +4148,16 @@ const file_gc_ssl_gc_game_event_proto_rawDesc = "" +
 	"\x19BOT_DRIBBLED_BALL_TOO_FAR\x10\x11\x12\x12\n" +
 	"\x0eBOT_PUSHED_BOT\x10\x18\x12\x1e\n" +
 	"\x1aBOT_HELD_BALL_DELIBERATELY\x10\x1a\x12\x13\n" +
-	"\x0fBOT_TIPPED_OVER\x10\x1b\x12)\n" +
+	"\x0fBOT_TIPPED_OVER\x10\x1b\x12\x15\n" +
+	"\x11BOT_DROPPED_PARTS\x10/\x12)\n" +
 	"%ATTACKER_TOUCHED_BALL_IN_DEFENSE_AREA\x10\x0f\x12\x1c\n" +
 	"\x18BOT_KICKED_BALL_TOO_FAST\x10\x12\x12\x14\n" +
 	"\x10BOT_CRASH_UNIQUE\x10\x16\x12\x13\n" +
 	"\x0fBOT_CRASH_DRAWN\x10\x15\x12$\n" +
 	" DEFENDER_TOO_CLOSE_TO_KICK_POINT\x10\x1d\x12\x18\n" +
 	"\x14BOT_TOO_FAST_IN_STOP\x10\x1c\x12\x1c\n" +
-	"\x18BOT_INTERFERED_PLACEMENT\x10\x14\x12\x11\n" +
+	"\x18BOT_INTERFERED_PLACEMENT\x10\x14\x12\x1e\n" +
+	"\x1aEXCESSIVE_BOT_SUBSTITUTION\x100\x12\x11\n" +
 	"\rPOSSIBLE_GOAL\x10'\x12\b\n" +
 	"\x04GOAL\x10\b\x12\x10\n" +
 	"\fINVALID_GOAL\x10*\x12 \n" +
@@ -4011,7 +4201,7 @@ func file_gc_ssl_gc_game_event_proto_rawDescGZIP() []byte {
 }
 
 var file_gc_ssl_gc_game_event_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_gc_ssl_gc_game_event_proto_msgTypes = make([]protoimpl.MessageInfo, 40)
+var file_gc_ssl_gc_game_event_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
 var file_gc_ssl_gc_game_event_proto_goTypes = []any{
 	(GameEvent_Type)(0),                                    // 0: GameEvent.Type
 	(*GameEvent)(nil),                                      // 1: GameEvent
@@ -4026,162 +4216,170 @@ var file_gc_ssl_gc_game_event_proto_goTypes = []any{
 	(*GameEvent_BotCrashUnique)(nil),                       // 10: GameEvent.BotCrashUnique
 	(*GameEvent_BotPushedBot)(nil),                         // 11: GameEvent.BotPushedBot
 	(*GameEvent_BotTippedOver)(nil),                        // 12: GameEvent.BotTippedOver
-	(*GameEvent_DefenderInDefenseArea)(nil),                // 13: GameEvent.DefenderInDefenseArea
-	(*GameEvent_DefenderInDefenseAreaPartially)(nil),       // 14: GameEvent.DefenderInDefenseAreaPartially
-	(*GameEvent_AttackerTouchedBallInDefenseArea)(nil),     // 15: GameEvent.AttackerTouchedBallInDefenseArea
-	(*GameEvent_BotKickedBallTooFast)(nil),                 // 16: GameEvent.BotKickedBallTooFast
-	(*GameEvent_BotDribbledBallTooFar)(nil),                // 17: GameEvent.BotDribbledBallTooFar
-	(*GameEvent_AttackerTouchedOpponentInDefenseArea)(nil), // 18: GameEvent.AttackerTouchedOpponentInDefenseArea
-	(*GameEvent_AttackerDoubleTouchedBall)(nil),            // 19: GameEvent.AttackerDoubleTouchedBall
-	(*GameEvent_AttackerTooCloseToDefenseArea)(nil),        // 20: GameEvent.AttackerTooCloseToDefenseArea
-	(*GameEvent_BotHeldBallDeliberately)(nil),              // 21: GameEvent.BotHeldBallDeliberately
-	(*GameEvent_BotInterferedPlacement)(nil),               // 22: GameEvent.BotInterferedPlacement
-	(*GameEvent_MultipleCards)(nil),                        // 23: GameEvent.MultipleCards
-	(*GameEvent_MultipleFouls)(nil),                        // 24: GameEvent.MultipleFouls
-	(*GameEvent_MultiplePlacementFailures)(nil),            // 25: GameEvent.MultiplePlacementFailures
-	(*GameEvent_KickTimeout)(nil),                          // 26: GameEvent.KickTimeout
-	(*GameEvent_NoProgressInGame)(nil),                     // 27: GameEvent.NoProgressInGame
-	(*GameEvent_PlacementFailed)(nil),                      // 28: GameEvent.PlacementFailed
-	(*GameEvent_UnsportingBehaviorMinor)(nil),              // 29: GameEvent.UnsportingBehaviorMinor
-	(*GameEvent_UnsportingBehaviorMajor)(nil),              // 30: GameEvent.UnsportingBehaviorMajor
-	(*GameEvent_KeeperHeldBall)(nil),                       // 31: GameEvent.KeeperHeldBall
-	(*GameEvent_PlacementSucceeded)(nil),                   // 32: GameEvent.PlacementSucceeded
-	(*GameEvent_Prepared)(nil),                             // 33: GameEvent.Prepared
-	(*GameEvent_BotSubstitution)(nil),                      // 34: GameEvent.BotSubstitution
-	(*GameEvent_ChallengeFlag)(nil),                        // 35: GameEvent.ChallengeFlag
-	(*GameEvent_ChallengeFlagHandled)(nil),                 // 36: GameEvent.ChallengeFlagHandled
-	(*GameEvent_EmergencyStop)(nil),                        // 37: GameEvent.EmergencyStop
-	(*GameEvent_TooManyRobots)(nil),                        // 38: GameEvent.TooManyRobots
-	(*GameEvent_BoundaryCrossing)(nil),                     // 39: GameEvent.BoundaryCrossing
-	(*GameEvent_PenaltyKickFailed)(nil),                    // 40: GameEvent.PenaltyKickFailed
-	(Team)(0),                                              // 41: Team
-	(*Vector2)(nil),                                        // 42: Vector2
+	(*GameEvent_BotDroppedParts)(nil),                      // 13: GameEvent.BotDroppedParts
+	(*GameEvent_DefenderInDefenseArea)(nil),                // 14: GameEvent.DefenderInDefenseArea
+	(*GameEvent_DefenderInDefenseAreaPartially)(nil),       // 15: GameEvent.DefenderInDefenseAreaPartially
+	(*GameEvent_AttackerTouchedBallInDefenseArea)(nil),     // 16: GameEvent.AttackerTouchedBallInDefenseArea
+	(*GameEvent_BotKickedBallTooFast)(nil),                 // 17: GameEvent.BotKickedBallTooFast
+	(*GameEvent_BotDribbledBallTooFar)(nil),                // 18: GameEvent.BotDribbledBallTooFar
+	(*GameEvent_AttackerTouchedOpponentInDefenseArea)(nil), // 19: GameEvent.AttackerTouchedOpponentInDefenseArea
+	(*GameEvent_AttackerDoubleTouchedBall)(nil),            // 20: GameEvent.AttackerDoubleTouchedBall
+	(*GameEvent_AttackerTooCloseToDefenseArea)(nil),        // 21: GameEvent.AttackerTooCloseToDefenseArea
+	(*GameEvent_BotHeldBallDeliberately)(nil),              // 22: GameEvent.BotHeldBallDeliberately
+	(*GameEvent_BotInterferedPlacement)(nil),               // 23: GameEvent.BotInterferedPlacement
+	(*GameEvent_MultipleCards)(nil),                        // 24: GameEvent.MultipleCards
+	(*GameEvent_MultipleFouls)(nil),                        // 25: GameEvent.MultipleFouls
+	(*GameEvent_MultiplePlacementFailures)(nil),            // 26: GameEvent.MultiplePlacementFailures
+	(*GameEvent_KickTimeout)(nil),                          // 27: GameEvent.KickTimeout
+	(*GameEvent_NoProgressInGame)(nil),                     // 28: GameEvent.NoProgressInGame
+	(*GameEvent_PlacementFailed)(nil),                      // 29: GameEvent.PlacementFailed
+	(*GameEvent_UnsportingBehaviorMinor)(nil),              // 30: GameEvent.UnsportingBehaviorMinor
+	(*GameEvent_UnsportingBehaviorMajor)(nil),              // 31: GameEvent.UnsportingBehaviorMajor
+	(*GameEvent_KeeperHeldBall)(nil),                       // 32: GameEvent.KeeperHeldBall
+	(*GameEvent_PlacementSucceeded)(nil),                   // 33: GameEvent.PlacementSucceeded
+	(*GameEvent_Prepared)(nil),                             // 34: GameEvent.Prepared
+	(*GameEvent_BotSubstitution)(nil),                      // 35: GameEvent.BotSubstitution
+	(*GameEvent_ExcessiveBotSubstitution)(nil),             // 36: GameEvent.ExcessiveBotSubstitution
+	(*GameEvent_ChallengeFlag)(nil),                        // 37: GameEvent.ChallengeFlag
+	(*GameEvent_ChallengeFlagHandled)(nil),                 // 38: GameEvent.ChallengeFlagHandled
+	(*GameEvent_EmergencyStop)(nil),                        // 39: GameEvent.EmergencyStop
+	(*GameEvent_TooManyRobots)(nil),                        // 40: GameEvent.TooManyRobots
+	(*GameEvent_BoundaryCrossing)(nil),                     // 41: GameEvent.BoundaryCrossing
+	(*GameEvent_PenaltyKickFailed)(nil),                    // 42: GameEvent.PenaltyKickFailed
+	(Team)(0),                                              // 43: Team
+	(*Vector2)(nil),                                        // 44: Vector2
 }
 var file_gc_ssl_gc_game_event_proto_depIdxs = []int32{
 	0,   // 0: GameEvent.type:type_name -> GameEvent.Type
 	2,   // 1: GameEvent.ball_left_field_touch_line:type_name -> GameEvent.BallLeftField
 	2,   // 2: GameEvent.ball_left_field_goal_line:type_name -> GameEvent.BallLeftField
 	3,   // 3: GameEvent.aimless_kick:type_name -> GameEvent.AimlessKick
-	20,  // 4: GameEvent.attacker_too_close_to_defense_area:type_name -> GameEvent.AttackerTooCloseToDefenseArea
-	13,  // 5: GameEvent.defender_in_defense_area:type_name -> GameEvent.DefenderInDefenseArea
-	39,  // 6: GameEvent.boundary_crossing:type_name -> GameEvent.BoundaryCrossing
-	31,  // 7: GameEvent.keeper_held_ball:type_name -> GameEvent.KeeperHeldBall
-	17,  // 8: GameEvent.bot_dribbled_ball_too_far:type_name -> GameEvent.BotDribbledBallTooFar
+	21,  // 4: GameEvent.attacker_too_close_to_defense_area:type_name -> GameEvent.AttackerTooCloseToDefenseArea
+	14,  // 5: GameEvent.defender_in_defense_area:type_name -> GameEvent.DefenderInDefenseArea
+	41,  // 6: GameEvent.boundary_crossing:type_name -> GameEvent.BoundaryCrossing
+	32,  // 7: GameEvent.keeper_held_ball:type_name -> GameEvent.KeeperHeldBall
+	18,  // 8: GameEvent.bot_dribbled_ball_too_far:type_name -> GameEvent.BotDribbledBallTooFar
 	11,  // 9: GameEvent.bot_pushed_bot:type_name -> GameEvent.BotPushedBot
-	21,  // 10: GameEvent.bot_held_ball_deliberately:type_name -> GameEvent.BotHeldBallDeliberately
+	22,  // 10: GameEvent.bot_held_ball_deliberately:type_name -> GameEvent.BotHeldBallDeliberately
 	12,  // 11: GameEvent.bot_tipped_over:type_name -> GameEvent.BotTippedOver
-	15,  // 12: GameEvent.attacker_touched_ball_in_defense_area:type_name -> GameEvent.AttackerTouchedBallInDefenseArea
-	16,  // 13: GameEvent.bot_kicked_ball_too_fast:type_name -> GameEvent.BotKickedBallTooFast
-	10,  // 14: GameEvent.bot_crash_unique:type_name -> GameEvent.BotCrashUnique
-	9,   // 15: GameEvent.bot_crash_drawn:type_name -> GameEvent.BotCrashDrawn
-	8,   // 16: GameEvent.defender_too_close_to_kick_point:type_name -> GameEvent.DefenderTooCloseToKickPoint
-	7,   // 17: GameEvent.bot_too_fast_in_stop:type_name -> GameEvent.BotTooFastInStop
-	22,  // 18: GameEvent.bot_interfered_placement:type_name -> GameEvent.BotInterferedPlacement
-	4,   // 19: GameEvent.possible_goal:type_name -> GameEvent.Goal
-	4,   // 20: GameEvent.goal:type_name -> GameEvent.Goal
-	4,   // 21: GameEvent.invalid_goal:type_name -> GameEvent.Goal
-	19,  // 22: GameEvent.attacker_double_touched_ball:type_name -> GameEvent.AttackerDoubleTouchedBall
-	32,  // 23: GameEvent.placement_succeeded:type_name -> GameEvent.PlacementSucceeded
-	40,  // 24: GameEvent.penalty_kick_failed:type_name -> GameEvent.PenaltyKickFailed
-	27,  // 25: GameEvent.no_progress_in_game:type_name -> GameEvent.NoProgressInGame
-	28,  // 26: GameEvent.placement_failed:type_name -> GameEvent.PlacementFailed
-	23,  // 27: GameEvent.multiple_cards:type_name -> GameEvent.MultipleCards
-	24,  // 28: GameEvent.multiple_fouls:type_name -> GameEvent.MultipleFouls
-	34,  // 29: GameEvent.bot_substitution:type_name -> GameEvent.BotSubstitution
-	38,  // 30: GameEvent.too_many_robots:type_name -> GameEvent.TooManyRobots
-	35,  // 31: GameEvent.challenge_flag:type_name -> GameEvent.ChallengeFlag
-	36,  // 32: GameEvent.challenge_flag_handled:type_name -> GameEvent.ChallengeFlagHandled
-	37,  // 33: GameEvent.emergency_stop:type_name -> GameEvent.EmergencyStop
-	29,  // 34: GameEvent.unsporting_behavior_minor:type_name -> GameEvent.UnsportingBehaviorMinor
-	30,  // 35: GameEvent.unsporting_behavior_major:type_name -> GameEvent.UnsportingBehaviorMajor
-	33,  // 36: GameEvent.prepared:type_name -> GameEvent.Prepared
-	5,   // 37: GameEvent.indirect_goal:type_name -> GameEvent.IndirectGoal
-	6,   // 38: GameEvent.chipped_goal:type_name -> GameEvent.ChippedGoal
-	26,  // 39: GameEvent.kick_timeout:type_name -> GameEvent.KickTimeout
-	18,  // 40: GameEvent.attacker_touched_opponent_in_defense_area:type_name -> GameEvent.AttackerTouchedOpponentInDefenseArea
-	18,  // 41: GameEvent.attacker_touched_opponent_in_defense_area_skipped:type_name -> GameEvent.AttackerTouchedOpponentInDefenseArea
-	10,  // 42: GameEvent.bot_crash_unique_skipped:type_name -> GameEvent.BotCrashUnique
-	11,  // 43: GameEvent.bot_pushed_bot_skipped:type_name -> GameEvent.BotPushedBot
-	14,  // 44: GameEvent.defender_in_defense_area_partially:type_name -> GameEvent.DefenderInDefenseAreaPartially
-	25,  // 45: GameEvent.multiple_placement_failures:type_name -> GameEvent.MultiplePlacementFailures
-	41,  // 46: GameEvent.BallLeftField.by_team:type_name -> Team
-	42,  // 47: GameEvent.BallLeftField.location:type_name -> Vector2
-	41,  // 48: GameEvent.AimlessKick.by_team:type_name -> Team
-	42,  // 49: GameEvent.AimlessKick.location:type_name -> Vector2
-	42,  // 50: GameEvent.AimlessKick.kick_location:type_name -> Vector2
-	41,  // 51: GameEvent.Goal.by_team:type_name -> Team
-	41,  // 52: GameEvent.Goal.kicking_team:type_name -> Team
-	42,  // 53: GameEvent.Goal.location:type_name -> Vector2
-	42,  // 54: GameEvent.Goal.kick_location:type_name -> Vector2
-	41,  // 55: GameEvent.IndirectGoal.by_team:type_name -> Team
-	42,  // 56: GameEvent.IndirectGoal.location:type_name -> Vector2
-	42,  // 57: GameEvent.IndirectGoal.kick_location:type_name -> Vector2
-	41,  // 58: GameEvent.ChippedGoal.by_team:type_name -> Team
-	42,  // 59: GameEvent.ChippedGoal.location:type_name -> Vector2
-	42,  // 60: GameEvent.ChippedGoal.kick_location:type_name -> Vector2
-	41,  // 61: GameEvent.BotTooFastInStop.by_team:type_name -> Team
-	42,  // 62: GameEvent.BotTooFastInStop.location:type_name -> Vector2
-	41,  // 63: GameEvent.DefenderTooCloseToKickPoint.by_team:type_name -> Team
-	42,  // 64: GameEvent.DefenderTooCloseToKickPoint.location:type_name -> Vector2
-	42,  // 65: GameEvent.BotCrashDrawn.location:type_name -> Vector2
-	41,  // 66: GameEvent.BotCrashUnique.by_team:type_name -> Team
-	42,  // 67: GameEvent.BotCrashUnique.location:type_name -> Vector2
-	41,  // 68: GameEvent.BotPushedBot.by_team:type_name -> Team
-	42,  // 69: GameEvent.BotPushedBot.location:type_name -> Vector2
-	41,  // 70: GameEvent.BotTippedOver.by_team:type_name -> Team
-	42,  // 71: GameEvent.BotTippedOver.location:type_name -> Vector2
-	42,  // 72: GameEvent.BotTippedOver.ball_location:type_name -> Vector2
-	41,  // 73: GameEvent.DefenderInDefenseArea.by_team:type_name -> Team
-	42,  // 74: GameEvent.DefenderInDefenseArea.location:type_name -> Vector2
-	41,  // 75: GameEvent.DefenderInDefenseAreaPartially.by_team:type_name -> Team
-	42,  // 76: GameEvent.DefenderInDefenseAreaPartially.location:type_name -> Vector2
-	42,  // 77: GameEvent.DefenderInDefenseAreaPartially.ball_location:type_name -> Vector2
-	41,  // 78: GameEvent.AttackerTouchedBallInDefenseArea.by_team:type_name -> Team
-	42,  // 79: GameEvent.AttackerTouchedBallInDefenseArea.location:type_name -> Vector2
-	41,  // 80: GameEvent.BotKickedBallTooFast.by_team:type_name -> Team
-	42,  // 81: GameEvent.BotKickedBallTooFast.location:type_name -> Vector2
-	41,  // 82: GameEvent.BotDribbledBallTooFar.by_team:type_name -> Team
-	42,  // 83: GameEvent.BotDribbledBallTooFar.start:type_name -> Vector2
-	42,  // 84: GameEvent.BotDribbledBallTooFar.end:type_name -> Vector2
-	41,  // 85: GameEvent.AttackerTouchedOpponentInDefenseArea.by_team:type_name -> Team
-	42,  // 86: GameEvent.AttackerTouchedOpponentInDefenseArea.location:type_name -> Vector2
-	41,  // 87: GameEvent.AttackerDoubleTouchedBall.by_team:type_name -> Team
-	42,  // 88: GameEvent.AttackerDoubleTouchedBall.location:type_name -> Vector2
-	41,  // 89: GameEvent.AttackerTooCloseToDefenseArea.by_team:type_name -> Team
-	42,  // 90: GameEvent.AttackerTooCloseToDefenseArea.location:type_name -> Vector2
-	42,  // 91: GameEvent.AttackerTooCloseToDefenseArea.ball_location:type_name -> Vector2
-	41,  // 92: GameEvent.BotHeldBallDeliberately.by_team:type_name -> Team
-	42,  // 93: GameEvent.BotHeldBallDeliberately.location:type_name -> Vector2
-	41,  // 94: GameEvent.BotInterferedPlacement.by_team:type_name -> Team
-	42,  // 95: GameEvent.BotInterferedPlacement.location:type_name -> Vector2
-	41,  // 96: GameEvent.MultipleCards.by_team:type_name -> Team
-	41,  // 97: GameEvent.MultipleFouls.by_team:type_name -> Team
-	1,   // 98: GameEvent.MultipleFouls.caused_game_events:type_name -> GameEvent
-	41,  // 99: GameEvent.MultiplePlacementFailures.by_team:type_name -> Team
-	41,  // 100: GameEvent.KickTimeout.by_team:type_name -> Team
-	42,  // 101: GameEvent.KickTimeout.location:type_name -> Vector2
-	42,  // 102: GameEvent.NoProgressInGame.location:type_name -> Vector2
-	41,  // 103: GameEvent.PlacementFailed.by_team:type_name -> Team
-	41,  // 104: GameEvent.UnsportingBehaviorMinor.by_team:type_name -> Team
-	41,  // 105: GameEvent.UnsportingBehaviorMajor.by_team:type_name -> Team
-	41,  // 106: GameEvent.KeeperHeldBall.by_team:type_name -> Team
-	42,  // 107: GameEvent.KeeperHeldBall.location:type_name -> Vector2
-	41,  // 108: GameEvent.PlacementSucceeded.by_team:type_name -> Team
-	41,  // 109: GameEvent.BotSubstitution.by_team:type_name -> Team
-	41,  // 110: GameEvent.ChallengeFlag.by_team:type_name -> Team
-	41,  // 111: GameEvent.ChallengeFlagHandled.by_team:type_name -> Team
-	41,  // 112: GameEvent.EmergencyStop.by_team:type_name -> Team
-	41,  // 113: GameEvent.TooManyRobots.by_team:type_name -> Team
-	42,  // 114: GameEvent.TooManyRobots.ball_location:type_name -> Vector2
-	41,  // 115: GameEvent.BoundaryCrossing.by_team:type_name -> Team
-	42,  // 116: GameEvent.BoundaryCrossing.location:type_name -> Vector2
-	41,  // 117: GameEvent.PenaltyKickFailed.by_team:type_name -> Team
-	42,  // 118: GameEvent.PenaltyKickFailed.location:type_name -> Vector2
-	119, // [119:119] is the sub-list for method output_type
-	119, // [119:119] is the sub-list for method input_type
-	119, // [119:119] is the sub-list for extension type_name
-	119, // [119:119] is the sub-list for extension extendee
-	0,   // [0:119] is the sub-list for field type_name
+	13,  // 12: GameEvent.bot_dropped_parts:type_name -> GameEvent.BotDroppedParts
+	16,  // 13: GameEvent.attacker_touched_ball_in_defense_area:type_name -> GameEvent.AttackerTouchedBallInDefenseArea
+	17,  // 14: GameEvent.bot_kicked_ball_too_fast:type_name -> GameEvent.BotKickedBallTooFast
+	10,  // 15: GameEvent.bot_crash_unique:type_name -> GameEvent.BotCrashUnique
+	9,   // 16: GameEvent.bot_crash_drawn:type_name -> GameEvent.BotCrashDrawn
+	8,   // 17: GameEvent.defender_too_close_to_kick_point:type_name -> GameEvent.DefenderTooCloseToKickPoint
+	7,   // 18: GameEvent.bot_too_fast_in_stop:type_name -> GameEvent.BotTooFastInStop
+	23,  // 19: GameEvent.bot_interfered_placement:type_name -> GameEvent.BotInterferedPlacement
+	4,   // 20: GameEvent.possible_goal:type_name -> GameEvent.Goal
+	4,   // 21: GameEvent.goal:type_name -> GameEvent.Goal
+	4,   // 22: GameEvent.invalid_goal:type_name -> GameEvent.Goal
+	20,  // 23: GameEvent.attacker_double_touched_ball:type_name -> GameEvent.AttackerDoubleTouchedBall
+	33,  // 24: GameEvent.placement_succeeded:type_name -> GameEvent.PlacementSucceeded
+	42,  // 25: GameEvent.penalty_kick_failed:type_name -> GameEvent.PenaltyKickFailed
+	28,  // 26: GameEvent.no_progress_in_game:type_name -> GameEvent.NoProgressInGame
+	29,  // 27: GameEvent.placement_failed:type_name -> GameEvent.PlacementFailed
+	24,  // 28: GameEvent.multiple_cards:type_name -> GameEvent.MultipleCards
+	25,  // 29: GameEvent.multiple_fouls:type_name -> GameEvent.MultipleFouls
+	35,  // 30: GameEvent.bot_substitution:type_name -> GameEvent.BotSubstitution
+	36,  // 31: GameEvent.excessive_bot_substitution:type_name -> GameEvent.ExcessiveBotSubstitution
+	40,  // 32: GameEvent.too_many_robots:type_name -> GameEvent.TooManyRobots
+	37,  // 33: GameEvent.challenge_flag:type_name -> GameEvent.ChallengeFlag
+	38,  // 34: GameEvent.challenge_flag_handled:type_name -> GameEvent.ChallengeFlagHandled
+	39,  // 35: GameEvent.emergency_stop:type_name -> GameEvent.EmergencyStop
+	30,  // 36: GameEvent.unsporting_behavior_minor:type_name -> GameEvent.UnsportingBehaviorMinor
+	31,  // 37: GameEvent.unsporting_behavior_major:type_name -> GameEvent.UnsportingBehaviorMajor
+	34,  // 38: GameEvent.prepared:type_name -> GameEvent.Prepared
+	5,   // 39: GameEvent.indirect_goal:type_name -> GameEvent.IndirectGoal
+	6,   // 40: GameEvent.chipped_goal:type_name -> GameEvent.ChippedGoal
+	27,  // 41: GameEvent.kick_timeout:type_name -> GameEvent.KickTimeout
+	19,  // 42: GameEvent.attacker_touched_opponent_in_defense_area:type_name -> GameEvent.AttackerTouchedOpponentInDefenseArea
+	19,  // 43: GameEvent.attacker_touched_opponent_in_defense_area_skipped:type_name -> GameEvent.AttackerTouchedOpponentInDefenseArea
+	10,  // 44: GameEvent.bot_crash_unique_skipped:type_name -> GameEvent.BotCrashUnique
+	11,  // 45: GameEvent.bot_pushed_bot_skipped:type_name -> GameEvent.BotPushedBot
+	15,  // 46: GameEvent.defender_in_defense_area_partially:type_name -> GameEvent.DefenderInDefenseAreaPartially
+	26,  // 47: GameEvent.multiple_placement_failures:type_name -> GameEvent.MultiplePlacementFailures
+	43,  // 48: GameEvent.BallLeftField.by_team:type_name -> Team
+	44,  // 49: GameEvent.BallLeftField.location:type_name -> Vector2
+	43,  // 50: GameEvent.AimlessKick.by_team:type_name -> Team
+	44,  // 51: GameEvent.AimlessKick.location:type_name -> Vector2
+	44,  // 52: GameEvent.AimlessKick.kick_location:type_name -> Vector2
+	43,  // 53: GameEvent.Goal.by_team:type_name -> Team
+	43,  // 54: GameEvent.Goal.kicking_team:type_name -> Team
+	44,  // 55: GameEvent.Goal.location:type_name -> Vector2
+	44,  // 56: GameEvent.Goal.kick_location:type_name -> Vector2
+	43,  // 57: GameEvent.IndirectGoal.by_team:type_name -> Team
+	44,  // 58: GameEvent.IndirectGoal.location:type_name -> Vector2
+	44,  // 59: GameEvent.IndirectGoal.kick_location:type_name -> Vector2
+	43,  // 60: GameEvent.ChippedGoal.by_team:type_name -> Team
+	44,  // 61: GameEvent.ChippedGoal.location:type_name -> Vector2
+	44,  // 62: GameEvent.ChippedGoal.kick_location:type_name -> Vector2
+	43,  // 63: GameEvent.BotTooFastInStop.by_team:type_name -> Team
+	44,  // 64: GameEvent.BotTooFastInStop.location:type_name -> Vector2
+	43,  // 65: GameEvent.DefenderTooCloseToKickPoint.by_team:type_name -> Team
+	44,  // 66: GameEvent.DefenderTooCloseToKickPoint.location:type_name -> Vector2
+	44,  // 67: GameEvent.BotCrashDrawn.location:type_name -> Vector2
+	43,  // 68: GameEvent.BotCrashUnique.by_team:type_name -> Team
+	44,  // 69: GameEvent.BotCrashUnique.location:type_name -> Vector2
+	43,  // 70: GameEvent.BotPushedBot.by_team:type_name -> Team
+	44,  // 71: GameEvent.BotPushedBot.location:type_name -> Vector2
+	43,  // 72: GameEvent.BotTippedOver.by_team:type_name -> Team
+	44,  // 73: GameEvent.BotTippedOver.location:type_name -> Vector2
+	44,  // 74: GameEvent.BotTippedOver.ball_location:type_name -> Vector2
+	43,  // 75: GameEvent.BotDroppedParts.by_team:type_name -> Team
+	44,  // 76: GameEvent.BotDroppedParts.location:type_name -> Vector2
+	44,  // 77: GameEvent.BotDroppedParts.ball_location:type_name -> Vector2
+	43,  // 78: GameEvent.DefenderInDefenseArea.by_team:type_name -> Team
+	44,  // 79: GameEvent.DefenderInDefenseArea.location:type_name -> Vector2
+	43,  // 80: GameEvent.DefenderInDefenseAreaPartially.by_team:type_name -> Team
+	44,  // 81: GameEvent.DefenderInDefenseAreaPartially.location:type_name -> Vector2
+	44,  // 82: GameEvent.DefenderInDefenseAreaPartially.ball_location:type_name -> Vector2
+	43,  // 83: GameEvent.AttackerTouchedBallInDefenseArea.by_team:type_name -> Team
+	44,  // 84: GameEvent.AttackerTouchedBallInDefenseArea.location:type_name -> Vector2
+	43,  // 85: GameEvent.BotKickedBallTooFast.by_team:type_name -> Team
+	44,  // 86: GameEvent.BotKickedBallTooFast.location:type_name -> Vector2
+	43,  // 87: GameEvent.BotDribbledBallTooFar.by_team:type_name -> Team
+	44,  // 88: GameEvent.BotDribbledBallTooFar.start:type_name -> Vector2
+	44,  // 89: GameEvent.BotDribbledBallTooFar.end:type_name -> Vector2
+	43,  // 90: GameEvent.AttackerTouchedOpponentInDefenseArea.by_team:type_name -> Team
+	44,  // 91: GameEvent.AttackerTouchedOpponentInDefenseArea.location:type_name -> Vector2
+	43,  // 92: GameEvent.AttackerDoubleTouchedBall.by_team:type_name -> Team
+	44,  // 93: GameEvent.AttackerDoubleTouchedBall.location:type_name -> Vector2
+	43,  // 94: GameEvent.AttackerTooCloseToDefenseArea.by_team:type_name -> Team
+	44,  // 95: GameEvent.AttackerTooCloseToDefenseArea.location:type_name -> Vector2
+	44,  // 96: GameEvent.AttackerTooCloseToDefenseArea.ball_location:type_name -> Vector2
+	43,  // 97: GameEvent.BotHeldBallDeliberately.by_team:type_name -> Team
+	44,  // 98: GameEvent.BotHeldBallDeliberately.location:type_name -> Vector2
+	43,  // 99: GameEvent.BotInterferedPlacement.by_team:type_name -> Team
+	44,  // 100: GameEvent.BotInterferedPlacement.location:type_name -> Vector2
+	43,  // 101: GameEvent.MultipleCards.by_team:type_name -> Team
+	43,  // 102: GameEvent.MultipleFouls.by_team:type_name -> Team
+	1,   // 103: GameEvent.MultipleFouls.caused_game_events:type_name -> GameEvent
+	43,  // 104: GameEvent.MultiplePlacementFailures.by_team:type_name -> Team
+	43,  // 105: GameEvent.KickTimeout.by_team:type_name -> Team
+	44,  // 106: GameEvent.KickTimeout.location:type_name -> Vector2
+	44,  // 107: GameEvent.NoProgressInGame.location:type_name -> Vector2
+	43,  // 108: GameEvent.PlacementFailed.by_team:type_name -> Team
+	43,  // 109: GameEvent.UnsportingBehaviorMinor.by_team:type_name -> Team
+	43,  // 110: GameEvent.UnsportingBehaviorMajor.by_team:type_name -> Team
+	43,  // 111: GameEvent.KeeperHeldBall.by_team:type_name -> Team
+	44,  // 112: GameEvent.KeeperHeldBall.location:type_name -> Vector2
+	43,  // 113: GameEvent.PlacementSucceeded.by_team:type_name -> Team
+	43,  // 114: GameEvent.BotSubstitution.by_team:type_name -> Team
+	43,  // 115: GameEvent.ExcessiveBotSubstitution.by_team:type_name -> Team
+	43,  // 116: GameEvent.ChallengeFlag.by_team:type_name -> Team
+	43,  // 117: GameEvent.ChallengeFlagHandled.by_team:type_name -> Team
+	43,  // 118: GameEvent.EmergencyStop.by_team:type_name -> Team
+	43,  // 119: GameEvent.TooManyRobots.by_team:type_name -> Team
+	44,  // 120: GameEvent.TooManyRobots.ball_location:type_name -> Vector2
+	43,  // 121: GameEvent.BoundaryCrossing.by_team:type_name -> Team
+	44,  // 122: GameEvent.BoundaryCrossing.location:type_name -> Vector2
+	43,  // 123: GameEvent.PenaltyKickFailed.by_team:type_name -> Team
+	44,  // 124: GameEvent.PenaltyKickFailed.location:type_name -> Vector2
+	125, // [125:125] is the sub-list for method output_type
+	125, // [125:125] is the sub-list for method input_type
+	125, // [125:125] is the sub-list for extension type_name
+	125, // [125:125] is the sub-list for extension extendee
+	0,   // [0:125] is the sub-list for field type_name
 }
 
 func init() { file_gc_ssl_gc_game_event_proto_init() }
@@ -4203,6 +4401,7 @@ func file_gc_ssl_gc_game_event_proto_init() {
 		(*GameEvent_BotPushedBot_)(nil),
 		(*GameEvent_BotHeldBallDeliberately_)(nil),
 		(*GameEvent_BotTippedOver_)(nil),
+		(*GameEvent_BotDroppedParts_)(nil),
 		(*GameEvent_AttackerTouchedBallInDefenseArea_)(nil),
 		(*GameEvent_BotKickedBallTooFast_)(nil),
 		(*GameEvent_BotCrashUnique_)(nil),
@@ -4221,6 +4420,7 @@ func file_gc_ssl_gc_game_event_proto_init() {
 		(*GameEvent_MultipleCards_)(nil),
 		(*GameEvent_MultipleFouls_)(nil),
 		(*GameEvent_BotSubstitution_)(nil),
+		(*GameEvent_ExcessiveBotSubstitution_)(nil),
 		(*GameEvent_TooManyRobots_)(nil),
 		(*GameEvent_ChallengeFlag_)(nil),
 		(*GameEvent_ChallengeFlagHandled_)(nil),
@@ -4244,7 +4444,7 @@ func file_gc_ssl_gc_game_event_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_gc_ssl_gc_game_event_proto_rawDesc), len(file_gc_ssl_gc_game_event_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   40,
+			NumMessages:   42,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
