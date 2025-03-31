@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+import "gc/ssl_gc_game_event.proto";
+
+
+message SslLogIndex {
+  repeated GameEventIndex game_events = 1;
+}
+
+message GameEventIndex {
+    optional uint64 timestamp = 1;
+    optional GameEvent.Type game_event = 2;
+}
