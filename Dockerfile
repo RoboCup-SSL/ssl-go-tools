@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine@sha256:e438c135c348bd7677fde18d1576c2f57f265d5dfa1a6b26fca975d4aa40b3bb AS build_go
+FROM golang:1.24-alpine@sha256:7772cb5322baa875edd74705556d08f0eeca7b9c4b5367754ce3f2f00041ccee AS build_go
 ARG cmd
 WORKDIR /work
 COPY . .
