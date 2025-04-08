@@ -65,9 +65,11 @@ func (c *UdpClient) Stop() {
 func (c *UdpClient) Send(data []byte) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	for _, conn := range c.conns {
+	for i, conn := range c.conns {
 		if _, err := conn.Write(data); err != nil {
 			log.Printf("%v - Could not write to %s at %s: %s", c.Name, conn.RemoteAddr(), conn.LocalAddr(), err)
+			// Remove this connection
+			c.conns = append(c.conns[:i], c.conns[i+1:]...)
 		}
 	}
 }
