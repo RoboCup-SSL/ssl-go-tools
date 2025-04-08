@@ -84,6 +84,9 @@ func (c *UdpClient) interfaceAddresses() (addrs []*net.UDPAddr) {
 
 		for _, iaddr := range iaddrs {
 			ip := iaddr.(*net.IPNet).IP
+			if ip.To4() == nil {
+				continue
+			}
 			if c.nif != "" && ip.String() != c.nif {
 				continue
 			}
