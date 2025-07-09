@@ -22,14 +22,21 @@ const (
 )
 
 type SSL_DetectionBall struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Confidence    *float32               `protobuf:"fixed32,1,req,name=confidence" json:"confidence,omitempty"`
-	Area          *uint32                `protobuf:"varint,2,opt,name=area" json:"area,omitempty"`
-	X             *float32               `protobuf:"fixed32,3,req,name=x" json:"x,omitempty"`
-	Y             *float32               `protobuf:"fixed32,4,req,name=y" json:"y,omitempty"`
-	Z             *float32               `protobuf:"fixed32,5,opt,name=z" json:"z,omitempty"`
-	PixelX        *float32               `protobuf:"fixed32,6,req,name=pixel_x,json=pixelX" json:"pixel_x,omitempty"`
-	PixelY        *float32               `protobuf:"fixed32,7,req,name=pixel_y,json=pixelY" json:"pixel_y,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Confidence in [0-1] of the detection
+	Confidence *float32 `protobuf:"fixed32,1,req,name=confidence" json:"confidence,omitempty"`
+	Area       *uint32  `protobuf:"varint,2,opt,name=area" json:"area,omitempty"`
+	// X-coordinate in [mm] in global ssl-vision coordinate system
+	X *float32 `protobuf:"fixed32,3,req,name=x" json:"x,omitempty"`
+	// Y-coordinate in [mm] in global ssl-vision coordinate system
+	Y *float32 `protobuf:"fixed32,4,req,name=y" json:"y,omitempty"`
+	// Z-coordinate in [mm] in global ssl-vision coordinate system
+	// Not supported by ssl-vision, but might be set by simulators
+	Z *float32 `protobuf:"fixed32,5,opt,name=z" json:"z,omitempty"`
+	// X-coordinate in [pixel] in the image
+	PixelX *float32 `protobuf:"fixed32,6,req,name=pixel_x,json=pixelX" json:"pixel_x,omitempty"`
+	// Y-coordinate in [pixel] in the image
+	PixelY        *float32 `protobuf:"fixed32,7,req,name=pixel_y,json=pixelY" json:"pixel_y,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -114,15 +121,23 @@ func (x *SSL_DetectionBall) GetPixelY() float32 {
 }
 
 type SSL_DetectionRobot struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Confidence    *float32               `protobuf:"fixed32,1,req,name=confidence" json:"confidence,omitempty"`
-	RobotId       *uint32                `protobuf:"varint,2,opt,name=robot_id,json=robotId" json:"robot_id,omitempty"`
-	X             *float32               `protobuf:"fixed32,3,req,name=x" json:"x,omitempty"`
-	Y             *float32               `protobuf:"fixed32,4,req,name=y" json:"y,omitempty"`
-	Orientation   *float32               `protobuf:"fixed32,5,opt,name=orientation" json:"orientation,omitempty"`
-	PixelX        *float32               `protobuf:"fixed32,6,req,name=pixel_x,json=pixelX" json:"pixel_x,omitempty"`
-	PixelY        *float32               `protobuf:"fixed32,7,req,name=pixel_y,json=pixelY" json:"pixel_y,omitempty"`
-	Height        *float32               `protobuf:"fixed32,8,opt,name=height" json:"height,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Confidence in [0-1] of the detection
+	Confidence *float32 `protobuf:"fixed32,1,req,name=confidence" json:"confidence,omitempty"`
+	// Id of the robot
+	RobotId *uint32 `protobuf:"varint,2,opt,name=robot_id,json=robotId" json:"robot_id,omitempty"`
+	// X-coordinate in [mm] in global ssl-vision coordinate system
+	X *float32 `protobuf:"fixed32,3,req,name=x" json:"x,omitempty"`
+	// Y-coordinate in [mm] in global ssl-vision coordinate system
+	Y *float32 `protobuf:"fixed32,4,req,name=y" json:"y,omitempty"`
+	// Orientation in [rad]
+	Orientation *float32 `protobuf:"fixed32,5,opt,name=orientation" json:"orientation,omitempty"`
+	// X-coordinate in [pixel] in the image
+	PixelX *float32 `protobuf:"fixed32,6,req,name=pixel_x,json=pixelX" json:"pixel_x,omitempty"`
+	// Y-coordinate in [pixel] in the image
+	PixelY *float32 `protobuf:"fixed32,7,req,name=pixel_y,json=pixelY" json:"pixel_y,omitempty"`
+	// Height, as configured in ssl-vision for the respective team
+	Height        *float32 `protobuf:"fixed32,8,opt,name=height" json:"height,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -214,14 +229,24 @@ func (x *SSL_DetectionRobot) GetHeight() float32 {
 }
 
 type SSL_DetectionFrame struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FrameNumber   *uint32                `protobuf:"varint,1,req,name=frame_number,json=frameNumber" json:"frame_number,omitempty"`
-	TCapture      *float64               `protobuf:"fixed64,2,req,name=t_capture,json=tCapture" json:"t_capture,omitempty"`
-	TSent         *float64               `protobuf:"fixed64,3,req,name=t_sent,json=tSent" json:"t_sent,omitempty"`
-	CameraId      *uint32                `protobuf:"varint,4,req,name=camera_id,json=cameraId" json:"camera_id,omitempty"`
-	Balls         []*SSL_DetectionBall   `protobuf:"bytes,5,rep,name=balls" json:"balls,omitempty"`
-	RobotsYellow  []*SSL_DetectionRobot  `protobuf:"bytes,6,rep,name=robots_yellow,json=robotsYellow" json:"robots_yellow,omitempty"`
-	RobotsBlue    []*SSL_DetectionRobot  `protobuf:"bytes,7,rep,name=robots_blue,json=robotsBlue" json:"robots_blue,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// monotonously increasing frame number
+	FrameNumber *uint32 `protobuf:"varint,1,req,name=frame_number,json=frameNumber" json:"frame_number,omitempty"`
+	// Unix timestamp in [seconds] at which the image has been received by ssl-vision
+	TCapture *float64 `protobuf:"fixed64,2,req,name=t_capture,json=tCapture" json:"t_capture,omitempty"`
+	// Unix timestamp in [seconds] at which this message has been sent to the network
+	TSent *float64 `protobuf:"fixed64,3,req,name=t_sent,json=tSent" json:"t_sent,omitempty"`
+	// Camera timestamp in [seconds] as reported by the camera, if supported
+	// This is not necessarily a unix timestamp
+	TCaptureCamera *float64 `protobuf:"fixed64,8,opt,name=t_capture_camera,json=tCaptureCamera" json:"t_capture_camera,omitempty"`
+	// Identifier of the camera
+	CameraId *uint32 `protobuf:"varint,4,req,name=camera_id,json=cameraId" json:"camera_id,omitempty"`
+	// Detected balls
+	Balls []*SSL_DetectionBall `protobuf:"bytes,5,rep,name=balls" json:"balls,omitempty"`
+	// Detected yellow robots
+	RobotsYellow []*SSL_DetectionRobot `protobuf:"bytes,6,rep,name=robots_yellow,json=robotsYellow" json:"robots_yellow,omitempty"`
+	// Detected blue robots
+	RobotsBlue    []*SSL_DetectionRobot `protobuf:"bytes,7,rep,name=robots_blue,json=robotsBlue" json:"robots_blue,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -273,6 +298,13 @@ func (x *SSL_DetectionFrame) GetTCapture() float64 {
 func (x *SSL_DetectionFrame) GetTSent() float64 {
 	if x != nil && x.TSent != nil {
 		return *x.TSent
+	}
+	return 0
+}
+
+func (x *SSL_DetectionFrame) GetTCaptureCamera() float64 {
+	if x != nil && x.TCaptureCamera != nil {
+		return *x.TCaptureCamera
 	}
 	return 0
 }
@@ -330,11 +362,12 @@ const file_vision_ssl_vision_detection_proto_rawDesc = "" +
 	"\vorientation\x18\x05 \x01(\x02R\vorientation\x12\x17\n" +
 	"\apixel_x\x18\x06 \x02(\x02R\x06pixelX\x12\x17\n" +
 	"\apixel_y\x18\a \x02(\x02R\x06pixelY\x12\x16\n" +
-	"\x06height\x18\b \x01(\x02R\x06height\"\xa2\x02\n" +
+	"\x06height\x18\b \x01(\x02R\x06height\"\xcc\x02\n" +
 	"\x12SSL_DetectionFrame\x12!\n" +
 	"\fframe_number\x18\x01 \x02(\rR\vframeNumber\x12\x1b\n" +
 	"\tt_capture\x18\x02 \x02(\x01R\btCapture\x12\x15\n" +
-	"\x06t_sent\x18\x03 \x02(\x01R\x05tSent\x12\x1b\n" +
+	"\x06t_sent\x18\x03 \x02(\x01R\x05tSent\x12(\n" +
+	"\x10t_capture_camera\x18\b \x01(\x01R\x0etCaptureCamera\x12\x1b\n" +
 	"\tcamera_id\x18\x04 \x02(\rR\bcameraId\x12(\n" +
 	"\x05balls\x18\x05 \x03(\v2\x12.SSL_DetectionBallR\x05balls\x128\n" +
 	"\rrobots_yellow\x18\x06 \x03(\v2\x13.SSL_DetectionRobotR\frobotsYellow\x124\n" +
