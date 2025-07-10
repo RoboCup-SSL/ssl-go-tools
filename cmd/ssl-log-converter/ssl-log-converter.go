@@ -7,8 +7,10 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 	"log"
+	"math"
 	"os"
 )
 
@@ -55,6 +57,8 @@ func main() {
 					check(writeMessage(f, r.Timestamp, visionMsg.Geometry))
 				}
 				if *extractDetection && visionMsg.Detection != nil {
+					removeInfinite(visionMsg.Detection.RobotsYellow)
+					removeInfinite(visionMsg.Detection.RobotsBlue)
 					check(writeMessage(f, r.Timestamp, visionMsg.Detection))
 				}
 			} else if r.MessageType.Id == persistence.MessageSslRefbox2013 {
@@ -79,7 +83,7 @@ func writeMessage(f *os.File, timestamp int64, v interface{}) error {
 	var result map[string]interface{}
 
 	if b, err := json.Marshal(v); err != nil {
-		return err
+		return errors.Wrap(err, "Could not marshal message")
 	} else {
 		if err := json.Unmarshal(b, &result); err != nil {
 			return err
@@ -116,5 +120,13 @@ func writeMessage(f *os.File, timestamp int64, v interface{}) error {
 func check(err error) {
 	if err != nil {
 		log.Println("Unexpected error:", err)
+	}
+}
+
+func removeInfinite(robots []*vision.SSL_DetectionRobot) {
+	for _, r := range robots {
+		if r.Confidence != nil && (math.IsNaN(float64(*r.Confidence)) || math.IsInf(float64(*r.Confidence), 0)) {
+			*r.Confidence = 0
+		}
 	}
 }
