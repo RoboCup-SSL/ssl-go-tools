@@ -5,6 +5,8 @@ import (
 	"net"
 	"sync"
 	"time"
+
+	"golang.org/x/net/ipv4"
 )
 
 const maxDatagramSize = 8192
@@ -82,7 +84,7 @@ func (r *MulticastServer) connectToInterface(ifi net.Interface) bool {
 		return false
 	}
 
-	r.connection, err = net.ListenMulticastUDP("udp", &ifi, addr)
+	r.connection, err = net.ListenUDP("udp4", &net.UDPAddr{IP: net.IPv4zero, Port: addr.Port})
 	if err != nil {
 		log.Printf("Could not listen at %v on %v: %v", r.multicastAddress, ifi.Name, err)
 		return false
@@ -90,6 +92,16 @@ func (r *MulticastServer) connectToInterface(ifi net.Interface) bool {
 
 	if err := r.connection.SetReadBuffer(maxDatagramSize); err != nil {
 		log.Println("Could not set read buffer: ", err)
+	}
+
+	packetConn := ipv4.NewPacketConn(r.connection)
+	if err := packetConn.JoinGroup(&ifi, addr); err != nil {
+		log.Printf("Could not join group %v: %v", ifi.Name, err)
+		return false
+	}
+	if err := packetConn.SetMulticastLoopback(true); err != nil {
+		log.Printf("Could not set multicast loopback %v: %v", ifi.Name, err)
+		return false
 	}
 
 	if r.Verbose {
