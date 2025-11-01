@@ -2,7 +2,7 @@ module github.com/RoboCup-SSL/ssl-go-tools
 
 go 1.24.0
 
-toolchain go1.25.1
+toolchain go1.25.3
 
 require (
 	github.com/pkg/errors v0.9.1
