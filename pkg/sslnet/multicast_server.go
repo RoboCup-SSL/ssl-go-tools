@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/libp2p/go-reuseport"
 	"golang.org/x/net/ipv4"
 )
 
@@ -84,9 +85,18 @@ func (r *MulticastServer) connectToInterface(ifi net.Interface) bool {
 		return false
 	}
 
-	r.connection, err = net.ListenUDP("udp4", &net.UDPAddr{IP: net.IPv4zero, Port: addr.Port})
+	// Listen using go-reuseport which sets SO_REUSEADDR and SO_REUSEPORT
+	listenAddr := &net.UDPAddr{IP: net.IPv4zero, Port: addr.Port}
+	packetConn, err := reuseport.ListenPacket("udp4", listenAddr.String())
 	if err != nil {
 		log.Printf("Could not listen at %v on %v: %v", r.multicastAddress, ifi.Name, err)
+		return false
+	}
+
+	var ok bool
+	r.connection, ok = packetConn.(*net.UDPConn)
+	if !ok {
+		log.Printf("Could not cast to UDPConn")
 		return false
 	}
 
@@ -94,12 +104,12 @@ func (r *MulticastServer) connectToInterface(ifi net.Interface) bool {
 		log.Println("Could not set read buffer: ", err)
 	}
 
-	packetConn := ipv4.NewPacketConn(r.connection)
-	if err := packetConn.JoinGroup(&ifi, addr); err != nil {
+	ipv4PacketConn := ipv4.NewPacketConn(r.connection)
+	if err := ipv4PacketConn.JoinGroup(&ifi, addr); err != nil {
 		log.Printf("Could not join group %v: %v", ifi.Name, err)
 		return false
 	}
-	if err := packetConn.SetMulticastLoopback(true); err != nil {
+	if err := ipv4PacketConn.SetMulticastLoopback(true); err != nil {
 		log.Printf("Could not set multicast loopback %v: %v", ifi.Name, err)
 		return false
 	}
