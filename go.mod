@@ -10,4 +10,7 @@ require (
 	google.golang.org/protobuf v1.36.10
 )
 
-require golang.org/x/sys v0.37.0 // indirect
+require (
+	github.com/libp2p/go-reuseport v0.4.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+)
