@@ -7,7 +7,7 @@ all: install docker
 docker: $(DOCKER_TARGETS)
 
 $(DOCKER_TARGETS): docker-%:
-	docker build --build-arg cmd=$* -t $*:latest .
+	docker build --build-arg BINARY_NAME=$* -t $*:latest .
 
 test:
 	go test ./...
