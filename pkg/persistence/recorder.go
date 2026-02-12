@@ -1,12 +1,13 @@
 package persistence
 
 import (
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
-	"github.com/pkg/errors"
 	"log"
 	"net"
 	"sync"
 	"time"
+
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sslnet"
+	"github.com/pkg/errors"
 )
 
 type Recorder struct {
@@ -16,7 +17,7 @@ type Recorder struct {
 	paused           bool
 	receiving        bool
 	mutex            sync.Mutex
-	messageConsumers []func(*Message)
+	messageConsumers []func(*Message, *net.UDPAddr)
 }
 
 type RecorderSlot struct {
@@ -48,7 +49,7 @@ func (r *Recorder) AddSlot(messageType MessageType, address string) {
 	})
 }
 
-func (r *Recorder) AddMessageConsumer(consumer func(*Message)) {
+func (r *Recorder) AddMessageConsumer(consumer func(*Message, *net.UDPAddr)) {
 	r.messageConsumers = append(r.messageConsumers, consumer)
 }
 
@@ -95,7 +96,7 @@ func (r *Recorder) StopRecording() error {
 
 func (r *Recorder) slotConsumer(slot *RecorderSlot) func(bytes []byte, addr *net.UDPAddr) {
 	return func(bytes []byte, addr *net.UDPAddr) {
-		r.processSlotMessage(slot, bytes)
+		r.processSlotMessage(slot, bytes, addr)
 	}
 }
 
@@ -108,7 +109,7 @@ func (r *Recorder) openLogWriter(logFileName string) error {
 	return nil
 }
 
-func (r *Recorder) processSlotMessage(slot *RecorderSlot, data []byte) {
+func (r *Recorder) processSlotMessage(slot *RecorderSlot, data []byte, addr *net.UDPAddr) {
 	timestamp := time.Now().UnixNano()
 	logMessage := Message{Timestamp: timestamp, MessageType: slot.MessageType, Message: data}
 	r.mutex.Lock()
@@ -121,7 +122,7 @@ func (r *Recorder) processSlotMessage(slot *RecorderSlot, data []byte) {
 	}
 
 	for _, consumer := range r.messageConsumers {
-		consumer(&logMessage)
+		consumer(&logMessage, addr)
 	}
 	r.mutex.Unlock()
 }

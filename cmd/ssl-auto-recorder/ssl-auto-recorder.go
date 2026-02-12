@@ -2,12 +2,15 @@ package main
 
 import (
 	"flag"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/auto"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
+
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/auto"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sourcefilter"
 )
 
 var addressVisionLegacy = flag.String("vision-legacy-address", "224.5.23.2:10005", "Multicast address for vision 2010 (legacy)")
@@ -25,6 +28,9 @@ var httpPort = flag.String("http-port", "8084", "HTTP port for serving log files
 
 var outputFolder = flag.String("output-folder", "logs", "Output folder where completed logs are copied to")
 
+var sourceFilterEnabled = flag.Bool("source-filter", true, "Enable source IP filtering to prevent duplicate game-controller instances")
+var sourceFilterTimeout = flag.Duration("source-filter-timeout", 500*time.Millisecond, "Timeout for source IP filter failover")
+
 var VisionLegacyType = persistence.MessageType{Id: persistence.MessageSslVision2010, Name: "vision-legacy"}
 var VisionType = persistence.MessageType{Id: persistence.MessageSslVision2014, Name: "vision"}
 var VisionTrackerType = persistence.MessageType{Id: persistence.MessageSslVisionTracker2020, Name: "vision-tracker"}
@@ -38,6 +44,12 @@ func main() {
 	}
 
 	autoRecorder := auto.NewRecorder(*outputFolder)
+
+	if *sourceFilterEnabled {
+		filter := sourcefilter.New(*sourceFilterTimeout, sourcefilter.RealClock{})
+		autoRecorder.SetSourceFilter(filter)
+		log.Printf("Source filter enabled with timeout: %v\n", *sourceFilterTimeout)
+	}
 
 	addSlots(autoRecorder.Recorder)
 	autoRecorder.Start()

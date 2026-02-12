@@ -4,17 +4,20 @@ import (
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/index"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sourcefilter"
 	"google.golang.org/protobuf/proto"
 	"log"
+	"net"
 	"os"
 	"path/filepath"
 	"time"
 )
 
 type Recorder struct {
-	Recorder    *persistence.Recorder
-	logFilePath string
-	logFileDir  string
+	Recorder     *persistence.Recorder
+	logFilePath  string
+	logFileDir   string
+	sourceFilter *sourcefilter.SourceFilter
 }
 
 func NewRecorder(logFileDir string) (r *Recorder) {
@@ -27,6 +30,10 @@ func NewRecorder(logFileDir string) (r *Recorder) {
 		log.Println("Could not create log file dir", err)
 	}
 	return
+}
+
+func (r *Recorder) SetSourceFilter(filter *sourcefilter.SourceFilter) {
+	r.sourceFilter = filter
 }
 
 func (r *Recorder) Start() {
@@ -51,10 +58,18 @@ func (r *Recorder) StopRecording() {
 	}
 }
 
-func (r *Recorder) consumeMessage(message *persistence.Message) {
+func (r *Recorder) consumeMessage(message *persistence.Message, addr *net.UDPAddr) {
 	if message.MessageType.Id != persistence.MessageSslRefbox2013 {
 		return
 	}
+
+	// Apply source filter for referee messages
+	if r.sourceFilter != nil && addr != nil {
+		if !r.sourceFilter.Accept(addr.IP) {
+			return // Reject message from non-active source
+		}
+	}
+
 	var refMsg gc.Referee
 
 	if err := proto.Unmarshal(message.Message, &refMsg); err != nil {
