@@ -11,6 +11,7 @@ import (
 var verify = flag.Bool("verify", false, "Verify the index")
 var writeIndex = flag.Bool("index", true, "Create an index of the log file")
 var writeGcIndex = flag.Bool("gc", false, "Create a gc index based on GC messages")
+var writeMessageTypes = flag.Bool("messageTypes", false, "Create per-message-type indices")
 
 func main() {
 	flag.Usage = func() {
@@ -40,6 +41,12 @@ func processLogfile(logfile string) {
 	if *writeGcIndex {
 		if err := index.WriteGcIndex(logfile); err != nil {
 			log.Println("Could not create gc index:", logfile, err)
+		}
+	}
+
+	if *writeMessageTypes {
+		if err := index.WriteMessageTypeIndices(logfile); err != nil {
+			log.Println("Could not create message type indices:", logfile, err)
 		}
 	}
 }
