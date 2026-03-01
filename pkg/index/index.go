@@ -26,7 +26,7 @@ func WriteIndex(filename string) error {
 			return nil
 		}
 		offsets = append(offsets, currentOffset)
-		currentOffset += 16 + int64(len(c.Message))
+		currentOffset += recordHeaderSize + int64(len(c.Message))
 	}
 
 	if err := logReader.Close(); err != nil {
