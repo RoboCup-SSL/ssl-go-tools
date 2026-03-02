@@ -1,14 +1,14 @@
 module github.com/RoboCup-SSL/ssl-go-tools
 
-go 1.24.0
+go 1.25.0
 
 toolchain go1.26.0
 
 require (
 	github.com/libp2p/go-reuseport v0.4.0
 	github.com/pkg/errors v0.9.1
-	golang.org/x/net v0.49.0
+	golang.org/x/net v0.51.0
 	google.golang.org/protobuf v1.36.11
 )
 
-require golang.org/x/sys v0.40.0 // indirect
+require golang.org/x/sys v0.41.0 // indirect
