@@ -115,9 +115,11 @@ func (SSL_FieldShapeType) EnumDescriptor() ([]byte, []int) {
 
 // A 2D float vector.
 type Vector2F struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	X             *float32               `protobuf:"fixed32,1,req,name=x" json:"x,omitempty"`
-	Y             *float32               `protobuf:"fixed32,2,req,name=y" json:"y,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// X-coordinate in mm
+	X *float32 `protobuf:"fixed32,1,req,name=x" json:"x,omitempty"`
+	// Y-coordinate in mm
+	Y             *float32 `protobuf:"fixed32,2,req,name=y" json:"y,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -353,24 +355,43 @@ func (x *SSL_FieldCircularArc) GetType() SSL_FieldShapeType {
 }
 
 type SSL_GeometryFieldSize struct {
-	state                   protoimpl.MessageState  `protogen:"open.v1"`
-	FieldLength             *int32                  `protobuf:"varint,1,req,name=field_length,json=fieldLength" json:"field_length,omitempty"`
-	FieldWidth              *int32                  `protobuf:"varint,2,req,name=field_width,json=fieldWidth" json:"field_width,omitempty"`
-	GoalWidth               *int32                  `protobuf:"varint,3,req,name=goal_width,json=goalWidth" json:"goal_width,omitempty"`
-	GoalDepth               *int32                  `protobuf:"varint,4,req,name=goal_depth,json=goalDepth" json:"goal_depth,omitempty"`
-	BoundaryWidth           *int32                  `protobuf:"varint,5,req,name=boundary_width,json=boundaryWidth" json:"boundary_width,omitempty"`
-	FieldLines              []*SSL_FieldLineSegment `protobuf:"bytes,6,rep,name=field_lines,json=fieldLines" json:"field_lines,omitempty"`
-	FieldArcs               []*SSL_FieldCircularArc `protobuf:"bytes,7,rep,name=field_arcs,json=fieldArcs" json:"field_arcs,omitempty"`
-	PenaltyAreaDepth        *int32                  `protobuf:"varint,8,opt,name=penalty_area_depth,json=penaltyAreaDepth" json:"penalty_area_depth,omitempty"`
-	PenaltyAreaWidth        *int32                  `protobuf:"varint,9,opt,name=penalty_area_width,json=penaltyAreaWidth" json:"penalty_area_width,omitempty"`
-	CenterCircleRadius      *int32                  `protobuf:"varint,10,opt,name=center_circle_radius,json=centerCircleRadius" json:"center_circle_radius,omitempty"`
-	LineThickness           *int32                  `protobuf:"varint,11,opt,name=line_thickness,json=lineThickness" json:"line_thickness,omitempty"`
-	GoalCenterToPenaltyMark *int32                  `protobuf:"varint,12,opt,name=goal_center_to_penalty_mark,json=goalCenterToPenaltyMark" json:"goal_center_to_penalty_mark,omitempty"`
-	GoalHeight              *int32                  `protobuf:"varint,13,opt,name=goal_height,json=goalHeight" json:"goal_height,omitempty"`
-	BallRadius              *float32                `protobuf:"fixed32,14,opt,name=ball_radius,json=ballRadius" json:"ball_radius,omitempty"`
-	MaxRobotRadius          *float32                `protobuf:"fixed32,15,opt,name=max_robot_radius,json=maxRobotRadius" json:"max_robot_radius,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Field length (distance between goal lines) in mm
+	FieldLength *int32 `protobuf:"varint,1,req,name=field_length,json=fieldLength" json:"field_length,omitempty"`
+	// Field width (distance between touch lines) in mm
+	FieldWidth *int32 `protobuf:"varint,2,req,name=field_width,json=fieldWidth" json:"field_width,omitempty"`
+	// Goal width (distance between inner edges of goal posts) in mm
+	GoalWidth *int32 `protobuf:"varint,3,req,name=goal_width,json=goalWidth" json:"goal_width,omitempty"`
+	// Goal depth (distance from outer goal line edge to inner goal back) in mm
+	GoalDepth *int32 `protobuf:"varint,4,req,name=goal_depth,json=goalDepth" json:"goal_depth,omitempty"`
+	// Boundary width (distance from touch line centers to boundary walls) in mm
+	BoundaryWidth *int32 `protobuf:"varint,5,req,name=boundary_width,json=boundaryWidth" json:"boundary_width,omitempty"`
+	// Boundary width at the goal lines (distance from goal line centers to boundary walls) in mm
+	BoundaryWidthGoalLine *int32 `protobuf:"varint,16,opt,name=boundary_width_goal_line,json=boundaryWidthGoalLine" json:"boundary_width_goal_line,omitempty"`
+	// Generated line segments based on the other parameters
+	FieldLines []*SSL_FieldLineSegment `protobuf:"bytes,6,rep,name=field_lines,json=fieldLines" json:"field_lines,omitempty"`
+	// Generated circular arcs based on the other parameters
+	FieldArcs []*SSL_FieldCircularArc `protobuf:"bytes,7,rep,name=field_arcs,json=fieldArcs" json:"field_arcs,omitempty"`
+	// Depth of the penalty/defense area (measured between line centers) in mm
+	PenaltyAreaDepth *int32 `protobuf:"varint,8,opt,name=penalty_area_depth,json=penaltyAreaDepth" json:"penalty_area_depth,omitempty"`
+	// Width of the penalty/defense area (measured between line centers) in mm
+	PenaltyAreaWidth *int32 `protobuf:"varint,9,opt,name=penalty_area_width,json=penaltyAreaWidth" json:"penalty_area_width,omitempty"`
+	// Radius of the center circle (measured between line centers) in mm
+	CenterCircleRadius *int32 `protobuf:"varint,10,opt,name=center_circle_radius,json=centerCircleRadius" json:"center_circle_radius,omitempty"`
+	// Thickness/width of the lines on the field in mm
+	LineThickness *int32 `protobuf:"varint,11,opt,name=line_thickness,json=lineThickness" json:"line_thickness,omitempty"`
+	// Distance between the goal center and the center of the penalty mark in mm
+	GoalCenterToPenaltyMark *int32 `protobuf:"varint,12,opt,name=goal_center_to_penalty_mark,json=goalCenterToPenaltyMark" json:"goal_center_to_penalty_mark,omitempty"`
+	// Goal height in mm
+	GoalHeight *int32 `protobuf:"varint,13,opt,name=goal_height,json=goalHeight" json:"goal_height,omitempty"`
+	// Ball radius in mm (note that this is a float type to represent sub-mm precision)
+	BallRadius *float32 `protobuf:"fixed32,14,opt,name=ball_radius,json=ballRadius" json:"ball_radius,omitempty"`
+	// Max allowed robot radius in mm (note that this is a float type to represent sub-mm precision)
+	MaxRobotRadius *float32 `protobuf:"fixed32,15,opt,name=max_robot_radius,json=maxRobotRadius" json:"max_robot_radius,omitempty"`
+	// Width of the goal substitution area (distance from goal line center plus boundary width to boundary walls) in mm
+	GoalSubstitutionAreaWidth *int32 `protobuf:"varint,17,opt,name=goal_substitution_area_width,json=goalSubstitutionAreaWidth" json:"goal_substitution_area_width,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *SSL_GeometryFieldSize) Reset() {
@@ -434,6 +455,13 @@ func (x *SSL_GeometryFieldSize) GetGoalDepth() int32 {
 func (x *SSL_GeometryFieldSize) GetBoundaryWidth() int32 {
 	if x != nil && x.BoundaryWidth != nil {
 		return *x.BoundaryWidth
+	}
+	return 0
+}
+
+func (x *SSL_GeometryFieldSize) GetBoundaryWidthGoalLine() int32 {
+	if x != nil && x.BoundaryWidthGoalLine != nil {
+		return *x.BoundaryWidthGoalLine
 	}
 	return 0
 }
@@ -504,6 +532,13 @@ func (x *SSL_GeometryFieldSize) GetBallRadius() float32 {
 func (x *SSL_GeometryFieldSize) GetMaxRobotRadius() float32 {
 	if x != nil && x.MaxRobotRadius != nil {
 		return *x.MaxRobotRadius
+	}
+	return 0
+}
+
+func (x *SSL_GeometryFieldSize) GetGoalSubstitutionAreaWidth() int32 {
+	if x != nil && x.GoalSubstitutionAreaWidth != nil {
+		return *x.GoalSubstitutionAreaWidth
 	}
 	return 0
 }
@@ -947,7 +982,7 @@ const file_vision_ssl_vision_geometry_proto_rawDesc = "" +
 	"\x02a1\x18\x04 \x02(\x02R\x02a1\x12\x0e\n" +
 	"\x02a2\x18\x05 \x02(\x02R\x02a2\x12\x1c\n" +
 	"\tthickness\x18\x06 \x02(\x02R\tthickness\x12'\n" +
-	"\x04type\x18\a \x01(\x0e2\x13.SSL_FieldShapeTypeR\x04type\"\x8d\x05\n" +
+	"\x04type\x18\a \x01(\x0e2\x13.SSL_FieldShapeTypeR\x04type\"\x87\x06\n" +
 	"\x15SSL_GeometryFieldSize\x12!\n" +
 	"\ffield_length\x18\x01 \x02(\x05R\vfieldLength\x12\x1f\n" +
 	"\vfield_width\x18\x02 \x02(\x05R\n" +
@@ -956,7 +991,8 @@ const file_vision_ssl_vision_geometry_proto_rawDesc = "" +
 	"goal_width\x18\x03 \x02(\x05R\tgoalWidth\x12\x1d\n" +
 	"\n" +
 	"goal_depth\x18\x04 \x02(\x05R\tgoalDepth\x12%\n" +
-	"\x0eboundary_width\x18\x05 \x02(\x05R\rboundaryWidth\x126\n" +
+	"\x0eboundary_width\x18\x05 \x02(\x05R\rboundaryWidth\x127\n" +
+	"\x18boundary_width_goal_line\x18\x10 \x01(\x05R\x15boundaryWidthGoalLine\x126\n" +
 	"\vfield_lines\x18\x06 \x03(\v2\x15.SSL_FieldLineSegmentR\n" +
 	"fieldLines\x124\n" +
 	"\n" +
@@ -971,7 +1007,8 @@ const file_vision_ssl_vision_geometry_proto_rawDesc = "" +
 	"goalHeight\x12\x1f\n" +
 	"\vball_radius\x18\x0e \x01(\x02R\n" +
 	"ballRadius\x12(\n" +
-	"\x10max_robot_radius\x18\x0f \x01(\x02R\x0emaxRobotRadius\"\xc6\x04\n" +
+	"\x10max_robot_radius\x18\x0f \x01(\x02R\x0emaxRobotRadius\x12?\n" +
+	"\x1cgoal_substitution_area_width\x18\x11 \x01(\x05R\x19goalSubstitutionAreaWidth\"\xc6\x04\n" +
 	"\x1dSSL_GeometryCameraCalibration\x12\x1b\n" +
 	"\tcamera_id\x18\x01 \x02(\rR\bcameraId\x12!\n" +
 	"\ffocal_length\x18\x02 \x02(\x02R\vfocalLength\x12*\n" +

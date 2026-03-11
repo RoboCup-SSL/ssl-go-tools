@@ -21,10 +21,79 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type SSL_Source int32
+
+const (
+	SSL_Source_SSL_SOURCE_UNKNOWN          SSL_Source = 0
+	SSL_Source_SSL_SOURCE_OTHER            SSL_Source = 1
+	SSL_Source_SSL_SOURCE_SSL_VISION       SSL_Source = 2
+	SSL_Source_SSL_SOURCE_VISION_PROCESSOR SSL_Source = 3
+	SSL_Source_SSL_SOURCE_GRSIM            SSL_Source = 4
+	SSL_Source_SSL_SOURCE_ERFORCE_SIM      SSL_Source = 5
+)
+
+// Enum value maps for SSL_Source.
+var (
+	SSL_Source_name = map[int32]string{
+		0: "SSL_SOURCE_UNKNOWN",
+		1: "SSL_SOURCE_OTHER",
+		2: "SSL_SOURCE_SSL_VISION",
+		3: "SSL_SOURCE_VISION_PROCESSOR",
+		4: "SSL_SOURCE_GRSIM",
+		5: "SSL_SOURCE_ERFORCE_SIM",
+	}
+	SSL_Source_value = map[string]int32{
+		"SSL_SOURCE_UNKNOWN":          0,
+		"SSL_SOURCE_OTHER":            1,
+		"SSL_SOURCE_SSL_VISION":       2,
+		"SSL_SOURCE_VISION_PROCESSOR": 3,
+		"SSL_SOURCE_GRSIM":            4,
+		"SSL_SOURCE_ERFORCE_SIM":      5,
+	}
+)
+
+func (x SSL_Source) Enum() *SSL_Source {
+	p := new(SSL_Source)
+	*p = x
+	return p
+}
+
+func (x SSL_Source) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SSL_Source) Descriptor() protoreflect.EnumDescriptor {
+	return file_vision_ssl_vision_wrapper_proto_enumTypes[0].Descriptor()
+}
+
+func (SSL_Source) Type() protoreflect.EnumType {
+	return &file_vision_ssl_vision_wrapper_proto_enumTypes[0]
+}
+
+func (x SSL_Source) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Do not use.
+func (x *SSL_Source) UnmarshalJSON(b []byte) error {
+	num, err := protoimpl.X.UnmarshalJSONEnum(x.Descriptor(), b)
+	if err != nil {
+		return err
+	}
+	*x = SSL_Source(num)
+	return nil
+}
+
+// Deprecated: Use SSL_Source.Descriptor instead.
+func (SSL_Source) EnumDescriptor() ([]byte, []int) {
+	return file_vision_ssl_vision_wrapper_proto_rawDescGZIP(), []int{0}
+}
+
 type SSL_WrapperPacket struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Detection     *SSL_DetectionFrame    `protobuf:"bytes,1,opt,name=detection" json:"detection,omitempty"`
 	Geometry      *SSL_GeometryData      `protobuf:"bytes,2,opt,name=geometry" json:"geometry,omitempty"`
+	Source        *SSL_Source            `protobuf:"varint,3,opt,name=source,enum=SSL_Source" json:"source,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -73,14 +142,30 @@ func (x *SSL_WrapperPacket) GetGeometry() *SSL_GeometryData {
 	return nil
 }
 
+func (x *SSL_WrapperPacket) GetSource() SSL_Source {
+	if x != nil && x.Source != nil {
+		return *x.Source
+	}
+	return SSL_Source_SSL_SOURCE_UNKNOWN
+}
+
 var File_vision_ssl_vision_wrapper_proto protoreflect.FileDescriptor
 
 const file_vision_ssl_vision_wrapper_proto_rawDesc = "" +
 	"\n" +
-	"\x1fvision/ssl_vision_wrapper.proto\x1a!vision/ssl_vision_detection.proto\x1a vision/ssl_vision_geometry.proto\"u\n" +
+	"\x1fvision/ssl_vision_wrapper.proto\x1a!vision/ssl_vision_detection.proto\x1a vision/ssl_vision_geometry.proto\"\x9a\x01\n" +
 	"\x11SSL_WrapperPacket\x121\n" +
 	"\tdetection\x18\x01 \x01(\v2\x13.SSL_DetectionFrameR\tdetection\x12-\n" +
-	"\bgeometry\x18\x02 \x01(\v2\x11.SSL_GeometryDataR\bgeometryBNB\x15SslVisionWrapperProtoP\x01Z3github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
+	"\bgeometry\x18\x02 \x01(\v2\x11.SSL_GeometryDataR\bgeometry\x12#\n" +
+	"\x06source\x18\x03 \x01(\x0e2\v.SSL_SourceR\x06source*\xa8\x01\n" +
+	"\n" +
+	"SSL_Source\x12\x16\n" +
+	"\x12SSL_SOURCE_UNKNOWN\x10\x00\x12\x14\n" +
+	"\x10SSL_SOURCE_OTHER\x10\x01\x12\x19\n" +
+	"\x15SSL_SOURCE_SSL_VISION\x10\x02\x12\x1f\n" +
+	"\x1bSSL_SOURCE_VISION_PROCESSOR\x10\x03\x12\x14\n" +
+	"\x10SSL_SOURCE_GRSIM\x10\x04\x12\x1a\n" +
+	"\x16SSL_SOURCE_ERFORCE_SIM\x10\x05BNB\x15SslVisionWrapperProtoP\x01Z3github.com/RoboCup-SSL/ssl-go-tools/internal/vision"
 
 var (
 	file_vision_ssl_vision_wrapper_proto_rawDescOnce sync.Once
@@ -94,20 +179,23 @@ func file_vision_ssl_vision_wrapper_proto_rawDescGZIP() []byte {
 	return file_vision_ssl_vision_wrapper_proto_rawDescData
 }
 
+var file_vision_ssl_vision_wrapper_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_vision_ssl_vision_wrapper_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_vision_ssl_vision_wrapper_proto_goTypes = []any{
-	(*SSL_WrapperPacket)(nil),  // 0: SSL_WrapperPacket
-	(*SSL_DetectionFrame)(nil), // 1: SSL_DetectionFrame
-	(*SSL_GeometryData)(nil),   // 2: SSL_GeometryData
+	(SSL_Source)(0),            // 0: SSL_Source
+	(*SSL_WrapperPacket)(nil),  // 1: SSL_WrapperPacket
+	(*SSL_DetectionFrame)(nil), // 2: SSL_DetectionFrame
+	(*SSL_GeometryData)(nil),   // 3: SSL_GeometryData
 }
 var file_vision_ssl_vision_wrapper_proto_depIdxs = []int32{
-	1, // 0: SSL_WrapperPacket.detection:type_name -> SSL_DetectionFrame
-	2, // 1: SSL_WrapperPacket.geometry:type_name -> SSL_GeometryData
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 0: SSL_WrapperPacket.detection:type_name -> SSL_DetectionFrame
+	3, // 1: SSL_WrapperPacket.geometry:type_name -> SSL_GeometryData
+	0, // 2: SSL_WrapperPacket.source:type_name -> SSL_Source
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_vision_ssl_vision_wrapper_proto_init() }
@@ -122,13 +210,14 @@ func file_vision_ssl_vision_wrapper_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_vision_ssl_vision_wrapper_proto_rawDesc), len(file_vision_ssl_vision_wrapper_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_vision_ssl_vision_wrapper_proto_goTypes,
 		DependencyIndexes: file_vision_ssl_vision_wrapper_proto_depIdxs,
+		EnumInfos:         file_vision_ssl_vision_wrapper_proto_enumTypes,
 		MessageInfos:      file_vision_ssl_vision_wrapper_proto_msgTypes,
 	}.Build()
 	File_vision_ssl_vision_wrapper_proto = out.File
