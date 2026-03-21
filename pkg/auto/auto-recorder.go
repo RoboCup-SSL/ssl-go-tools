@@ -1,16 +1,17 @@
 package auto
 
 import (
-	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/index"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
-	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sourcefilter"
-	"google.golang.org/protobuf/proto"
 	"log"
 	"net"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/index"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
+	"github.com/RoboCup-SSL/ssl-go-tools/pkg/sourcefilter"
+	"google.golang.org/protobuf/proto"
 )
 
 type Recorder struct {
@@ -45,6 +46,16 @@ func (r *Recorder) Stop() {
 	r.StopRecording()
 }
 
+func (r *Recorder) DiscardRecording() {
+	log.Println("Discard recording")
+	if err := r.Recorder.StopRecording(); err != nil {
+		log.Println("Failed to stop recorder: ", err)
+	}
+	if err := os.Remove(r.logFilePath); err != nil {
+		log.Println("Could not remove log file:", r.logFilePath, err)
+	}
+}
+
 func (r *Recorder) StopRecording() {
 	log.Println("Stop recording")
 	if err := r.Recorder.StopRecording(); err != nil {
@@ -77,7 +88,9 @@ func (r *Recorder) consumeMessage(message *persistence.Message, addr *net.UDPAdd
 		return
 	}
 
-	if !r.Recorder.IsRecording() && isTeamSet(&refMsg) && (isGameStage(&refMsg) || isPreGameStage(&refMsg)) {
+	if !r.Recorder.IsRecording() && isTeamSet(&refMsg) &&
+		*refMsg.Command != gc.Referee_HALT &&
+		!isPostGame(&refMsg) {
 		logFileName := LogFileName(&refMsg, time.UTC)
 		r.logFilePath = filepath.Join(r.logFileDir, logFileName)
 		log.Println("Start recording ", r.logFilePath)
@@ -87,6 +100,8 @@ func (r *Recorder) consumeMessage(message *persistence.Message, addr *net.UDPAdd
 	} else if r.Recorder.IsRecording() {
 		if isPostGame(&refMsg) || !isTeamSet(&refMsg) {
 			r.StopRecording()
+		} else if *refMsg.Command == gc.Referee_HALT && *refMsg.Stage == gc.Referee_NORMAL_FIRST_HALF_PRE {
+			r.DiscardRecording()
 		} else if !r.Recorder.IsPaused() && isBreakStage(&refMsg) {
 			log.Println("Pause recording")
 			r.Recorder.SetPaused(true)
@@ -94,19 +109,6 @@ func (r *Recorder) consumeMessage(message *persistence.Message, addr *net.UDPAdd
 			log.Println("Resume recording")
 			r.Recorder.SetPaused(false)
 		}
-	}
-}
-
-func isGameStage(message *gc.Referee) bool {
-	switch *message.Stage {
-	case gc.Referee_NORMAL_FIRST_HALF,
-		gc.Referee_NORMAL_SECOND_HALF,
-		gc.Referee_EXTRA_FIRST_HALF,
-		gc.Referee_EXTRA_SECOND_HALF,
-		gc.Referee_PENALTY_SHOOTOUT:
-		return true
-	default:
-		return false
 	}
 }
 
@@ -129,20 +131,4 @@ func isBreakStage(message *gc.Referee) bool {
 
 func isPostGame(message *gc.Referee) bool {
 	return *message.Stage == gc.Referee_POST_GAME
-}
-
-func isPreStage(message *gc.Referee) bool {
-	switch *message.Stage {
-	case gc.Referee_NORMAL_FIRST_HALF_PRE,
-		gc.Referee_NORMAL_SECOND_HALF_PRE,
-		gc.Referee_EXTRA_FIRST_HALF_PRE,
-		gc.Referee_EXTRA_SECOND_HALF_PRE:
-		return true
-	default:
-		return false
-	}
-}
-
-func isPreGameStage(message *gc.Referee) bool {
-	return isPreStage(message) && *message.Command != gc.Referee_HALT
 }
