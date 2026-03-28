@@ -121,7 +121,9 @@ func TestWriteMessageTypeIndices(t *testing.T) {
 	messages := []*persistence.Message{
 		{Timestamp: 1000, MessageType: refboxType, Message: newRefboxPayload(t)},
 		{Timestamp: 2000, MessageType: visionType, Message: newDetectionPayload(t, 0)},
+		{Timestamp: 2500, MessageType: visionType, Message: newDetectionPayload(t, 1)},
 		{Timestamp: 3000, MessageType: visionType, Message: newGeometryPayload(t)},
+		{Timestamp: 3500, MessageType: visionType, Message: newDetectionPayload(t, 0)},
 		{Timestamp: 4000, MessageType: trackerType, Message: newTrackerPayload(t, "TIGERs")},
 		{Timestamp: 5000, MessageType: trackerType, Message: newTrackerPayload(t, "ER-FORCE")},
 		{Timestamp: 6000, MessageType: refboxType, Message: newRefboxPayload(t)},
@@ -145,9 +147,9 @@ func TestWriteMessageTypeIndices(t *testing.T) {
 		t.Fatalf("unmarshal manifest: %v", err)
 	}
 
-	// Expect: refbox, vision_detection, vision_geometry, tracker(ER-FORCE), tracker(TIGERs)
-	if len(manifest.Indices) != 5 {
-		t.Fatalf("manifest has %d entries, want 5", len(manifest.Indices))
+	// Expect: refbox, vision_detection(cam0), vision_detection(cam1), vision_geometry, tracker(ER-FORCE), tracker(TIGERs)
+	if len(manifest.Indices) != 6 {
+		t.Fatalf("manifest has %d entries, want 6", len(manifest.Indices))
 	}
 
 	typeCount := map[string]int{}
@@ -157,8 +159,8 @@ func TestWriteMessageTypeIndices(t *testing.T) {
 	if typeCount[ManifestTypeRefbox] != 1 {
 		t.Errorf("expected 1 refbox entry, got %d", typeCount[ManifestTypeRefbox])
 	}
-	if typeCount[ManifestTypeVisionDetection] != 1 {
-		t.Errorf("expected 1 vision_detection entry, got %d", typeCount[ManifestTypeVisionDetection])
+	if typeCount[ManifestTypeVisionDetection] != 2 {
+		t.Errorf("expected 2 vision_detection entries, got %d", typeCount[ManifestTypeVisionDetection])
 	}
 	if typeCount[ManifestTypeVisionGeometry] != 1 {
 		t.Errorf("expected 1 vision_geometry entry, got %d", typeCount[ManifestTypeVisionGeometry])
@@ -178,7 +180,9 @@ func TestWriteMessageTypeIndices(t *testing.T) {
 		switch {
 		case e.Type == ManifestTypeRefbox:
 			wantCount = 2
-		case e.Type == ManifestTypeVisionDetection:
+		case e.Type == ManifestTypeVisionDetection && e.Source == "cam0":
+			wantCount = 2
+		case e.Type == ManifestTypeVisionDetection && e.Source == "cam1":
 			wantCount = 1
 		case e.Type == ManifestTypeVisionGeometry:
 			wantCount = 1

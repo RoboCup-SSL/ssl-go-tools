@@ -3,6 +3,7 @@ package index
 import (
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -60,8 +61,8 @@ func WriteMessageTypeIndices(logFilePath string) error {
 	currentOffset := int64(persistence.HeaderSize)
 
 	var refboxEntries [][2]int64
-	var visionDetectionEntries [][2]int64
 	var visionGeometryEntries [][2]int64
+	visionDetectionCameraEntries := make(map[uint32][][2]int64)
 	trackerSourceEntries := make(map[string][][2]int64)
 
 	for c := range channel {
@@ -70,9 +71,9 @@ func WriteMessageTypeIndices(logFilePath string) error {
 		case persistence.MessageSslRefbox2013:
 			refboxEntries = append(refboxEntries, [2]int64{ts, currentOffset})
 		case persistence.MessageSslVision2014:
-			isDetection, isGeometry := classifyVisionMessage(c.Message)
+			isDetection, isGeometry, cameraId := classifyVisionMessage(c.Message)
 			if isDetection {
-				visionDetectionEntries = append(visionDetectionEntries, [2]int64{ts, currentOffset})
+				visionDetectionCameraEntries[cameraId] = append(visionDetectionCameraEntries[cameraId], [2]int64{ts, currentOffset})
 			}
 			if isGeometry {
 				visionGeometryEntries = append(visionGeometryEntries, [2]int64{ts, currentOffset})
@@ -99,15 +100,22 @@ func WriteMessageTypeIndices(logFilePath string) error {
 		log.Printf("Found %d refbox messages in %v", len(refboxEntries), logFilePath)
 	}
 
-	// Vision detection index
-	visionDetectionPath := getVisionIndexPath(logFilePath, "detection")
-	if len(visionDetectionEntries) > 0 {
-		if err := writeIndexFile(visionDetectionPath, visionDetectionEntries); err != nil {
-			return errors.Wrap(err, "failed to create vision detection index")
+	// Vision detection indices (one per camera)
+	cameraIds := make([]uint32, 0, len(visionDetectionCameraEntries))
+	for cameraId := range visionDetectionCameraEntries {
+		cameraIds = append(cameraIds, cameraId)
+	}
+	sort.Slice(cameraIds, func(i, j int) bool { return cameraIds[i] < cameraIds[j] })
+	for _, cameraId := range cameraIds {
+		entries := visionDetectionCameraEntries[cameraId]
+		path := getVisionDetectionCameraIndexPath(logFilePath, cameraId)
+		if err := writeIndexFile(path, entries); err != nil {
+			return errors.Wrap(err, "failed to create vision detection index for camera")
 		}
 		manifest = append(manifest, ManifestEntry{
-			Type: ManifestTypeVisionDetection,
-			Path: filepath.Base(visionDetectionPath),
+			Type:   ManifestTypeVisionDetection,
+			Source: fmt.Sprintf("cam%d", cameraId),
+			Path:   filepath.Base(path),
 		})
 	}
 
@@ -273,13 +281,23 @@ func extractTrackerSource(msg []byte) string {
 	return "unknown"
 }
 
-// Helper: classify vision message as detection and/or geometry
-func classifyVisionMessage(msg []byte) (bool, bool) {
+// Helper: classify vision message as detection and/or geometry, returning the camera ID for detections
+func classifyVisionMessage(msg []byte) (bool, bool, uint32) {
 	packet := &vision.SSL_WrapperPacket{}
 	if err := proto.Unmarshal(msg, packet); err != nil {
-		return false, false
+		return false, false, 0
 	}
-	return packet.GetDetection() != nil, packet.GetGeometry() != nil
+	var cameraId uint32
+	if packet.GetDetection() != nil {
+		cameraId = packet.GetDetection().GetCameraId()
+	}
+	return packet.GetDetection() != nil, packet.GetGeometry() != nil, cameraId
+}
+
+// Helper: get vision detection camera index path
+func getVisionDetectionCameraIndexPath(logFilePath string, cameraId uint32) string {
+	dir, base := logBasePath(logFilePath)
+	return filepath.Join(dir, fmt.Sprintf("%s.vision.detection.cam%d.idx", base, cameraId))
 }
 
 // Helper: sanitize a string for use in file paths
