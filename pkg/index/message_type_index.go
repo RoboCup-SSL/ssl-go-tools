@@ -26,6 +26,11 @@ const (
 	ManifestTypeTracker         = "tracker"
 )
 
+// Manifest is the top-level structure of the manifest JSON file.
+type Manifest struct {
+	Indices []ManifestEntry `json:"indices"`
+}
+
 // ManifestEntry describes a single index file in the manifest.
 type ManifestEntry struct {
 	Type   string `json:"type"`
@@ -89,7 +94,7 @@ func WriteMessageTypeIndices(logFilePath string) error {
 		}
 		manifest = append(manifest, ManifestEntry{
 			Type: ManifestTypeRefbox,
-			Path: refboxPath,
+			Path: filepath.Base(refboxPath),
 		})
 		log.Printf("Found %d refbox messages in %v", len(refboxEntries), logFilePath)
 	}
@@ -102,7 +107,7 @@ func WriteMessageTypeIndices(logFilePath string) error {
 		}
 		manifest = append(manifest, ManifestEntry{
 			Type: ManifestTypeVisionDetection,
-			Path: visionDetectionPath,
+			Path: filepath.Base(visionDetectionPath),
 		})
 	}
 
@@ -114,7 +119,7 @@ func WriteMessageTypeIndices(logFilePath string) error {
 		}
 		manifest = append(manifest, ManifestEntry{
 			Type: ManifestTypeVisionGeometry,
-			Path: visionGeometryPath,
+			Path: filepath.Base(visionGeometryPath),
 		})
 	}
 
@@ -133,12 +138,12 @@ func WriteMessageTypeIndices(logFilePath string) error {
 		manifest = append(manifest, ManifestEntry{
 			Type:   ManifestTypeTracker,
 			Source: source,
-			Path:   path,
+			Path:   filepath.Base(path),
 		})
 	}
 
 	// Write manifest JSON
-	manifestPath := strings.TrimSuffix(logFilePath, ".gz") + ".indices.json"
+	manifestPath := strings.TrimSuffix(logFilePath, ".gz") + ".manifest.json"
 	if err := writeManifest(manifestPath, manifest); err != nil {
 		return errors.Wrap(err, "failed to write manifest file")
 	}
@@ -238,7 +243,7 @@ func writeManifest(path string, manifest []ManifestEntry) error {
 	}()
 	encoder := json.NewEncoder(f)
 	encoder.SetIndent("", "  ")
-	return encoder.Encode(manifest)
+	return encoder.Encode(Manifest{Indices: manifest})
 }
 
 // Helper: get vision index path

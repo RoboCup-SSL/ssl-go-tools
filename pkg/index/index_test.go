@@ -3,6 +3,7 @@ package index
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
@@ -134,23 +135,23 @@ func TestWriteMessageTypeIndices(t *testing.T) {
 	}
 
 	// Read and verify manifest
-	manifestPath := path + ".indices.json"
+	manifestPath := path + ".manifest.json"
 	manifestData, err := os.ReadFile(manifestPath)
 	if err != nil {
 		t.Fatalf("read manifest: %v", err)
 	}
-	var manifest []ManifestEntry
+	var manifest Manifest
 	if err := json.Unmarshal(manifestData, &manifest); err != nil {
 		t.Fatalf("unmarshal manifest: %v", err)
 	}
 
 	// Expect: refbox, vision_detection, vision_geometry, tracker(ER-FORCE), tracker(TIGERs)
-	if len(manifest) != 5 {
-		t.Fatalf("manifest has %d entries, want 5", len(manifest))
+	if len(manifest.Indices) != 5 {
+		t.Fatalf("manifest has %d entries, want 5", len(manifest.Indices))
 	}
 
 	typeCount := map[string]int{}
-	for _, e := range manifest {
+	for _, e := range manifest.Indices {
 		typeCount[e.Type]++
 	}
 	if typeCount[ManifestTypeRefbox] != 1 {
@@ -167,8 +168,9 @@ func TestWriteMessageTypeIndices(t *testing.T) {
 	}
 
 	// Verify index entry counts by reading each index file
-	for _, e := range manifest {
-		entries, err := ReadMessageTypeIndex(e.Path)
+	logDir := filepath.Dir(path)
+	for _, e := range manifest.Indices {
+		entries, err := ReadMessageTypeIndex(filepath.Join(logDir, e.Path))
 		if err != nil {
 			t.Fatalf("ReadMessageTypeIndex(%s): %v", e.Path, err)
 		}
