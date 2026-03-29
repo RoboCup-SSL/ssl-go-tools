@@ -55,7 +55,8 @@ func main() {
 	autoRecorder.Start()
 
 	if *httpServe {
-		http.Handle("/", http.FileServer(http.Dir(*outputFolder)))
+		fileServer := http.FileServer(http.Dir(*outputFolder))
+		http.Handle("/", corsHandler(fileServer))
 		log.Printf("Serving log files on HTTP port: %s\n", *httpPort)
 		go log.Fatal(http.ListenAndServe(":"+*httpPort, nil))
 	}
@@ -66,6 +67,19 @@ func main() {
 		autoRecorder.Stop()
 		os.Exit(0)
 	}
+}
+
+func corsHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func addSlots(logger *persistence.Recorder) {
