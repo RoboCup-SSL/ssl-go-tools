@@ -2,7 +2,7 @@ module github.com/RoboCup-SSL/ssl-go-tools
 
 go 1.25.0
 
-toolchain go1.26.0
+toolchain go1.26.1
 
 require (
 	github.com/libp2p/go-reuseport v0.4.0
