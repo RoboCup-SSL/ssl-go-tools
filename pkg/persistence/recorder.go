@@ -3,6 +3,7 @@ package persistence
 import (
 	"log"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 
@@ -24,6 +25,7 @@ type RecorderSlot struct {
 	ReceivedMessages int
 	MessageType      MessageType
 	server           *sslnet.MulticastServer
+	bcServer         *sslnet.BroadcastServer
 }
 
 func NewRecorder() Recorder {
@@ -43,9 +45,14 @@ func (r *Recorder) SetPaused(paused bool) {
 }
 
 func (r *Recorder) AddSlot(messageType MessageType, address string) {
+	port, err := sslnet.PortFromAddress(address)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r.Slots = append(r.Slots, &RecorderSlot{
 		MessageType: messageType,
 		server:      sslnet.NewMulticastServer(address),
+		bcServer:    sslnet.NewBroadcastServer(":" + strconv.Itoa(port)),
 	})
 }
 

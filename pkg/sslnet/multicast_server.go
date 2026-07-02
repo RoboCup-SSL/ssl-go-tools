@@ -12,6 +12,11 @@ import (
 
 const maxDatagramSize = 8192
 
+type NetworkServer interface {
+	Start() error
+	Stop() error
+}
+
 type MulticastServer struct {
 	multicastAddress string
 	connection       *net.UDPConn
@@ -20,6 +25,7 @@ type MulticastServer struct {
 	mutex            sync.Mutex
 	SkipInterfaces   []string
 	Verbose          bool
+	NetworkServer
 }
 
 func NewMulticastServer(multicastAddress string) (r *MulticastServer) {
