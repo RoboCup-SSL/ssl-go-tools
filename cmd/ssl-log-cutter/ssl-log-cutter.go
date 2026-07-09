@@ -3,20 +3,21 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"time"
+
 	"github.com/RoboCup-SSL/ssl-go-tools/internal/gc"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/auto"
 	"github.com/RoboCup-SSL/ssl-go-tools/pkg/persistence"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
-	"log"
-	"os"
-	"path/filepath"
-	"time"
 )
 
 var compress = flag.Bool("compress", true, "Compress log files")
 var outputFolder = flag.String("out", "", "Output folder")
-var timezone = flag.String("timezone", "UTC", "Timezone for log file names")
+var timezone = flag.String("timezone", "UTC", "Timezone (IANA format) for log file names")
 
 const tmpLogFilename = "tmp.log"
 
@@ -114,10 +115,12 @@ func process(filename string) {
 	var lastStage *gc.Referee_Stage = nil
 	teamNames := map[string]int{}
 	var sourceIdentifier *string
+	otherSourceIdentifiers := make(map[string]bool)
 	for logMessage := range channel {
 		refereeMsg, err := getRefereeMsg(logMessage)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
 
 		if refereeMsg != nil {
@@ -125,11 +128,18 @@ func process(filename string) {
 				log.Println("Referee message does not contain source identifier. Skipping.")
 				continue
 			}
+			if *refereeMsg.Yellow.Name == "Unknown" || *refereeMsg.Blue.Name == "Unknown" {
+				continue
+			}
 			if sourceIdentifier == nil {
+				log.Printf("Found source identifier: %v", *refereeMsg.SourceIdentifier)
 				sourceIdentifier = refereeMsg.SourceIdentifier
 			}
 			if *sourceIdentifier != *refereeMsg.SourceIdentifier {
-				log.Println("Found different source identifier. Skipping referee message.")
+				if !otherSourceIdentifiers[*refereeMsg.SourceIdentifier] {
+					otherSourceIdentifiers[*refereeMsg.SourceIdentifier] = true
+					log.Printf("Found different source identifier: %v. Skipping referee message.", *refereeMsg.SourceIdentifier)
+				}
 				continue
 			}
 
@@ -161,7 +171,7 @@ func process(filename string) {
 
 			if logCutter.Running() &&
 				logCutter.lastRefereeMsg != nil &&
-				*logCutter.lastRefereeMsg.Stage-*refereeMsg.Stage > 1 {
+				*logCutter.lastRefereeMsg.Stage-*refereeMsg.Stage > 2 {
 				previousStage := logCutter.lastRefereeMsg.Stage.String()
 				nextStage := refereeMsg.Stage.String()
 				log.Printf("Found jump in game stage from %v to %v. Stopping log file.", previousStage, nextStage)
@@ -172,7 +182,6 @@ func process(filename string) {
 			logCutter.Write(logMessage)
 
 			if logCutter.Running() &&
-				*refereeMsg.Command == gc.Referee_HALT &&
 				*refereeMsg.Stage == gc.Referee_POST_GAME {
 				log.Println("Found POST_GAME stage. Closing log file.")
 				logCutter.Stop()
@@ -201,8 +210,6 @@ func (l *LogCutter) Stop() {
 		log.Println("No referee data found.")
 	} else if *l.lastRefereeMsg.Stage == gc.Referee_NORMAL_FIRST_HALF_PRE {
 		log.Println("Log ends with NORMAL_FIRST_HALF_PRE stage. Skipping.")
-	} else if l.duration() < time.Minute*15 {
-		log.Println("Log duration is less than 15 minutes. Skipping.")
 	} else {
 		newLogFilename := logFileName(l.firstRefereeMsg)
 		if err := shorten(newLogFilename, l.lastRefereeMsg); err != nil {
@@ -241,7 +248,8 @@ func shorten(newLogFilename string, lastRefereeMsg *gc.Referee) error {
 	for logMessage := range channel {
 		refereeMsg, err := getRefereeMsg(logMessage)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
 
 		if err := logWriter.Write(logMessage); err != nil {
