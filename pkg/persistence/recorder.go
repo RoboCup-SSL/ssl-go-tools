@@ -3,7 +3,6 @@ package persistence
 import (
 	"log"
 	"net"
-	"strconv"
 	"sync"
 	"time"
 
@@ -24,8 +23,7 @@ type Recorder struct {
 type RecorderSlot struct {
 	ReceivedMessages int
 	MessageType      MessageType
-	server           *sslnet.MulticastServer
-	bcServer         *sslnet.BroadcastServer
+	server           *sslnet.UdpServer
 }
 
 func NewRecorder() Recorder {
@@ -45,14 +43,13 @@ func (r *Recorder) SetPaused(paused bool) {
 }
 
 func (r *Recorder) AddSlot(messageType MessageType, address string) {
-	port, err := sslnet.PortFromAddress(address)
+	server, err := sslnet.NewUdpServer(address)
 	if err != nil {
 		log.Fatal(err)
 	}
 	r.Slots = append(r.Slots, &RecorderSlot{
 		MessageType: messageType,
-		server:      sslnet.NewMulticastServer(address),
-		bcServer:    sslnet.NewBroadcastServer(":" + strconv.Itoa(port)),
+		server:      server,
 	})
 }
 
@@ -66,7 +63,9 @@ func (r *Recorder) StartReceiving() {
 	}
 	for _, slot := range r.Slots {
 		slot.server.Consumer = r.slotConsumer(slot)
-		slot.server.Start()
+		if err := slot.server.Start(); err != nil {
+			log.Println("Could not start receiving: ", err)
+		}
 	}
 	r.receiving = true
 }
@@ -76,7 +75,9 @@ func (r *Recorder) StopReceiving() {
 		return
 	}
 	for _, slot := range r.Slots {
-		slot.server.Stop()
+		if err := slot.server.Stop(); err != nil {
+			log.Println("Could not stop receiving: ", err)
+		}
 	}
 	r.receiving = false
 }

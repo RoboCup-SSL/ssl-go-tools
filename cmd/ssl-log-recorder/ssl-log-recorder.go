@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-var addressVisionLegacy = flag.String("vision-legacy-address", "224.5.23.2:10005", "Multicast address for vision 2010 (legacy)")
-var addressVision = flag.String("vision-address", "224.5.23.2:10006", "Multicast address for vision 2014")
-var addressVisionTracker = flag.String("vision-tracker-address", "224.5.23.2:10010", "Multicast address for vision tracker 2020")
-var addressReferee = flag.String("referee-address", "224.5.23.1:10003", "Multicast address for referee 2013")
+var addressVisionLegacy = flag.String("vision-legacy-address", "224.5.23.2:10005", "Multicast or broadcast address for vision 2010 (legacy)")
+var addressVision = flag.String("vision-address", "224.5.23.2:10006", "Multicast or broadcast address for vision 2014")
+var addressVisionTracker = flag.String("vision-tracker-address", "224.5.23.2:10010", "Multicast or broadcast address for vision tracker 2020")
+var addressReferee = flag.String("referee-address", "224.5.23.1:10003", "Multicast or broadcast address for referee 2013")
 
 var visionLegacyEnabled = flag.Bool("vision-legacy-enabled", true, "Record legacy vision packages")
 var visionEnabled = flag.Bool("vision-enabled", true, "Record vision packages")
